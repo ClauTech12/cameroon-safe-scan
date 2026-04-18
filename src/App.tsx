@@ -10,19 +10,25 @@ import ReportsPage from "./pages/ReportsPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
 
 const App = () => {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => {
-    document.documentElement.classList.add("dark");
+    let saved: string | null = null;
+    try { saved = localStorage.getItem("theme"); } catch {}
+    const prefers = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+    const initial = (saved as "light" | "dark" | null) || (prefers ? "dark" : "light");
+    setTheme(initial);
+    document.documentElement.classList.toggle("dark", initial === "dark");
   }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Sonner theme="dark" />
+        <Sonner theme={theme} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
