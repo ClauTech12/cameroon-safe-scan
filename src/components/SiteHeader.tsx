@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { BrandMark } from "./BrandMark";
 import { LanguageToggle } from "./LanguageToggle";
+import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { FileWarning, LayoutDashboard, Smartphone, Home } from "lucide-react";
+import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight } from "lucide-react";
 
 export function SiteHeader() {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
   const links = [
     { to: "/", label: t("nav.home"), icon: Home },
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
@@ -15,9 +18,11 @@ export function SiteHeader() {
     { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone },
   ];
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border/50">
+    <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border/60">
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="shrink-0"><BrandMark /></Link>
+        <Link to="/" className="shrink-0" onClick={() => setOpen(false)}>
+          <BrandMark size="sm" />
+        </Link>
         <nav className="hidden md:flex items-center gap-1">
           {links.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -26,10 +31,10 @@ export function SiteHeader() {
               end={to === "/"}
               className={({ isActive }) =>
                 cn(
-                  "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-smooth",
+                  "flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-smooth",
                   isActive
-                    ? "bg-primary/15 text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60",
+                    ? "bg-secondary text-foreground"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/70",
                 )
               }
             >
@@ -38,13 +43,49 @@ export function SiteHeader() {
             </NavLink>
           ))}
         </nav>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <LanguageToggle />
-          <Button asChild size="sm" className="bg-gradient-primary hover:opacity-90 shadow-glow font-semibold">
-            <Link to="/report">{t("nav.report")}</Link>
+          <ThemeToggle />
+          <Button asChild size="sm" className="hidden sm:inline-flex bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full pl-4 pr-3 h-9">
+            <Link to="/report">{t("nav.report")} <ArrowRight className="h-3.5 w-3.5" /></Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden h-9 w-9"
+            onClick={() => setOpen((o) => !o)}
+            aria-label="Menu"
+          >
+            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
+      {open && (
+        <div className="md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl animate-fade-in">
+          <nav className="container py-3 flex flex-col gap-1">
+            {links.map(({ to, label, icon: Icon }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === "/"}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-smooth",
+                    isActive ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary/70",
+                  )
+                }
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </NavLink>
+            ))}
+            <Button asChild size="sm" className="mt-2 bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full">
+              <Link to="/report" onClick={() => setOpen(false)}>{t("nav.report")} <ArrowRight className="h-3.5 w-3.5" /></Link>
+            </Button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

@@ -1,20 +1,22 @@
 import logo from "@/assets/clautech-logo.png";
-import { Shield } from "lucide-react";
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
-  const dim = size === "sm" ? "h-8" : size === "lg" ? "h-14" : "h-10";
+  const dim = size === "sm" ? "h-8 w-8" : size === "lg" ? "h-12 w-12" : "h-10 w-10";
+  const text = size === "sm" ? "text-base" : size === "lg" ? "text-2xl" : "text-lg";
   return (
-    <div className="flex items-center gap-3">
-      <div className="relative">
-        <div className={`${dim} aspect-square rounded-xl bg-gradient-primary grid place-items-center shadow-glow`}>
-          <Shield className="h-1/2 w-1/2 text-primary-foreground" strokeWidth={2.5} />
-        </div>
+    <div className="flex items-center gap-2.5">
+      <div className={`${dim} rounded-xl bg-gradient-primary grid place-items-center shadow-sm overflow-hidden`}>
+        <img src={logo} alt="" className="h-full w-full object-contain p-1" />
       </div>
-      <div className="flex flex-col leading-tight">
-        <span className="font-display font-bold text-lg tracking-tight">
+      <div className="flex flex-col leading-none">
+        <span className={`font-display font-bold tracking-tight ${text} text-foreground`}>
           Cam<span className="text-accent">Alert</span>
         </span>
-        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">AI Scam Defense</span>
+        {size !== "sm" && (
+          <span className="text-[10px] text-muted-foreground font-medium tracking-wide mt-0.5">
+            AI-Powered Scam Defense
+          </span>
+        )}
       </div>
     </div>
   );
