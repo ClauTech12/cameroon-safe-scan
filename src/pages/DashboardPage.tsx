@@ -80,7 +80,7 @@ export default function DashboardPage() {
                     <Pie data={chartData} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={3}>
                       {chartData.map((d) => <Cell key={d.key} fill={d.fill} />)}
                     </Pie>
-                    <Tooltip contentStyle={{ background: "hsl(222 47% 9%)", border: "1px solid hsl(222 30% 18%)", borderRadius: 12 }} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, color: "hsl(var(--foreground))" }} />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -104,10 +104,10 @@ export default function DashboardPage() {
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(222 30% 18%)" />
-                    <XAxis dataKey="name" tick={{ fill: "hsl(215 20% 65%)", fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
-                    <YAxis tick={{ fill: "hsl(215 20% 65%)", fontSize: 11 }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ background: "hsl(222 47% 9%)", border: "1px solid hsl(222 30% 18%)", borderRadius: 12 }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} interval={0} angle={-15} textAnchor="end" height={60} />
+                    <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 12, color: "hsl(var(--foreground))" }} />
                     <Bar dataKey="value" radius={[8, 8, 0, 0]}>
                       {chartData.map((d) => <Cell key={d.key} fill={d.fill} />)}
                     </Bar>
