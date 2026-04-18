@@ -104,6 +104,8 @@ const ChartTooltipContent = React.forwardRef<
     {
       active,
       payload,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }: any,
       className,
       indicator = "dot",
       hideLabel = false,
