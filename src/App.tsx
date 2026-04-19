@@ -9,7 +9,14 @@ import ReportPage from "./pages/ReportPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
+import AuthPage from "./pages/AuthPage.tsx";
+import { AdminLayout } from "./pages/admin/AdminLayout.tsx";
+import FraudDashboardPage from "./pages/admin/FraudDashboardPage.tsx";
+import NumberIntelPage from "./pages/admin/NumberIntelPage.tsx";
+import FlaggedListPage from "./pages/admin/FlaggedListPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { RequireAdmin } from "./components/RequireAdmin.tsx";
+import { AuthProvider } from "./hooks/useAuth.tsx";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
@@ -30,14 +37,22 @@ const App = () => {
         <Toaster />
         <Sonner theme={theme} />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/report" element={<ReportPage />} />
-            <Route path="/reports" element={<ReportsPage />} />
-            <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/momo-guard" element={<MoMoGuardPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/report" element={<ReportPage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/momo-guard" element={<MoMoGuardPage />} />
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+                <Route index element={<FraudDashboardPage />} />
+                <Route path="numbers" element={<NumberIntelPage />} />
+                <Route path="flagged" element={<FlaggedListPage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
