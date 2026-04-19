@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,6 +44,16 @@ export default function NumberIntelPage() {
   const [flagStatus, setFlagStatus] = useState<string>("under_investigation");
   const [flagNotes, setFlagNotes] = useState("");
   const [savingFlag, setSavingFlag] = useState(false);
+
+  useEffect(() => {
+    const pre = sessionStorage.getItem("intel-prefill");
+    if (pre) {
+      sessionStorage.removeItem("intel-prefill");
+      setPhone(pre);
+      setTimeout(() => search(), 50);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function search() {
     if (!phone.trim()) return;
