@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      flagged_numbers: {
+        Row: {
+          created_at: string
+          flagged_by: string | null
+          id: string
+          notes: string | null
+          phone_number: string
+          status: Database["public"]["Enums"]["flag_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          flagged_by?: string | null
+          id?: string
+          notes?: string | null
+          phone_number: string
+          status?: Database["public"]["Enums"]["flag_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          flagged_by?: string | null
+          id?: string
+          notes?: string | null
+          phone_number?: string
+          status?: Database["public"]["Enums"]["flag_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       scam_reports: {
         Row: {
           ai_advice: string[] | null
@@ -24,6 +54,7 @@ export type Database = {
           id: string
           language: string
           location: string
+          phone_number: string | null
           reporter_name: string | null
           risk_level: Database["public"]["Enums"]["risk_level"]
           scam_type: Database["public"]["Enums"]["scam_type"]
@@ -41,6 +72,7 @@ export type Database = {
           id?: string
           language?: string
           location: string
+          phone_number?: string | null
           reporter_name?: string | null
           risk_level?: Database["public"]["Enums"]["risk_level"]
           scam_type?: Database["public"]["Enums"]["scam_type"]
@@ -58,6 +90,7 @@ export type Database = {
           id?: string
           language?: string
           location?: string
+          phone_number?: string | null
           reporter_name?: string | null
           risk_level?: Database["public"]["Enums"]["risk_level"]
           scam_type?: Database["public"]["Enums"]["scam_type"]
@@ -101,9 +134,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      jsonb_object_keys_count: { Args: { j: Json }; Returns: number }
+      number_intel_summary: { Args: { _phone: string }; Returns: Json }
+      top_reported_numbers: {
+        Args: { _limit?: number }
+        Returns: {
+          dominant_type: Database["public"]["Enums"]["scam_type"]
+          last_seen: string
+          phone_number: string
+          report_count: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      flag_status: "confirmed_scam" | "under_investigation" | "cleared"
       report_status: "pending" | "approved" | "rejected"
       risk_level: "low" | "medium" | "high"
       scam_type:
@@ -241,6 +286,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      flag_status: ["confirmed_scam", "under_investigation", "cleared"],
       report_status: ["pending", "approved", "rejected"],
       risk_level: ["low", "medium", "high"],
       scam_type: [
