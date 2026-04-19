@@ -6,16 +6,19 @@ import { LanguageToggle } from "./LanguageToggle";
 import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
 
 export function SiteHeader() {
   const { t } = useTranslation();
+  const { isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
   const links = [
     { to: "/", label: t("nav.home"), icon: Home },
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
     { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone },
+    ...(isAdmin ? [{ to: "/admin", label: t("nav.admin"), icon: ShieldCheck }] : []),
   ];
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/80 border-b border-border/60">
