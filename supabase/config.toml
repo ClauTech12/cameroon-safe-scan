@@ -2,3 +2,6 @@ project_id = "tdolkwvvzqtquwcuchyq"
 
 [functions.classify-scam]
 verify_jwt = false
+
+[functions.detect-pattern]
+verify_jwt = false
