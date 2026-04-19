@@ -118,6 +118,18 @@ export default function AuthPage() {
               <GoogleIcon /> {t("auth.continueGoogle")}
             </Button>
 
+            {session && !isAdmin && (
+              <Button variant="ghost" size="sm" className="w-full mt-3 text-xs"
+                onClick={async () => {
+                  const { data } = await supabase.rpc("claim_first_admin");
+                  const r = data as any;
+                  if (r?.ok) { toast.success("You are now admin. Reloading…"); setTimeout(() => location.reload(), 800); }
+                  else toast.error(r?.error === "admin_exists" ? "An admin already exists." : "Could not claim admin.");
+                }}>
+                Claim first admin (one-time)
+              </Button>
+            )}
+
             <p className="text-xs text-muted-foreground text-center mt-6">
               {t("auth.adminNote")} <Link to="/" className="underline">{t("nav.home")}</Link>
             </p>
