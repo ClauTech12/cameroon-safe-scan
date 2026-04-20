@@ -71,6 +71,14 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        <Card className="glass-card p-6">
+          <h3 className="font-display font-bold text-lg mb-1 flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" /> Cameroon scam heatmap
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">Reports by region — hover for details</p>
+          <CameroonHeatmap reports={locations} />
+        </Card>
+
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="glass-card p-6">
             <h3 className="font-display font-bold text-lg mb-4">Scam categories</h3>
