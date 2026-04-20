@@ -6,7 +6,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/card";
 import { SCAM_TYPES, SCAM_META, ScamType } from "@/lib/scam-types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
-import { FileWarning, ShieldAlert, TrendingUp } from "lucide-react";
+import { FileWarning, ShieldAlert, TrendingUp, MapPin } from "lucide-react";
+import { CameroonHeatmap } from "@/components/CameroonHeatmap";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -15,12 +16,13 @@ export default function DashboardPage() {
   });
   const [total, setTotal] = useState(0);
   const [highRisk, setHighRisk] = useState(0);
+  const [locations, setLocations] = useState<{ location: string }[]>([]);
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("scam_reports")
-        .select("scam_type, risk_level")
+        .select("scam_type, risk_level, location")
         .eq("status", "approved");
       if (!data) return;
       const c: Record<ScamType, number> = { mobile_money: 0, job: 0, phishing: 0, investment: 0, bank: 0, other: 0 };
@@ -29,6 +31,7 @@ export default function DashboardPage() {
       setCounts(c);
       setTotal(data.length);
       setHighRisk(high);
+      setLocations(data.map((r: any) => ({ location: r.location })));
     })();
   }, []);
 
@@ -67,6 +70,14 @@ export default function DashboardPage() {
             </Card>
           ))}
         </div>
+
+        <Card className="glass-card p-6">
+          <h3 className="font-display font-bold text-lg mb-1 flex items-center gap-2">
+            <MapPin className="h-5 w-5 text-primary" /> Cameroon scam heatmap
+          </h3>
+          <p className="text-sm text-muted-foreground mb-4">Reports by region — hover for details</p>
+          <CameroonHeatmap reports={locations} />
+        </Card>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="glass-card p-6">
