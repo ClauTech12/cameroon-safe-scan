@@ -14,12 +14,15 @@ import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { Sparkles, Upload, Loader2, Lightbulb, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
 
 const schema = z.object({
   reporter_name: z.string().trim().max(80).optional(),
   location: z.string().trim().min(1).max(80),
   description: z.string().trim().min(10, "Min 10 characters").max(5000),
   contact_info: z.string().trim().max(120).optional(),
+  truthful: z.literal(true, { message: "You must confirm the report is truthful" }),
 });
 
 interface AIResult {
@@ -36,6 +39,7 @@ export function ReportForm() {
   const [description, setDescription] = useState("");
   const [contact, setContact] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [truthful, setTruthful] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<AIResult | null>(null);
 
@@ -61,6 +65,7 @@ export function ReportForm() {
       location,
       description,
       contact_info: contact || undefined,
+      truthful: truthful as true,
     });
     if (!parsed.success) {
       toast.error(parsed.error.issues[0]?.message || "Invalid input");
@@ -106,8 +111,8 @@ export function ReportForm() {
       if (insErr) throw insErr;
 
       setResult(ai);
-      toast.success(t("form.success"));
-      setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null);
+      toast.success("Report submitted for moderation. It will appear publicly once approved.");
+      setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
     } catch (err: any) {
       console.error(err);
       const msg = err?.context?.body ? JSON.parse(err.context.body)?.error : err?.message;
@@ -158,7 +163,23 @@ export function ReportForm() {
                 onChange={(e) => handleFile(e.target.files?.[0] || null)} />
             </label>
           </div>
-          <Button type="submit" disabled={submitting} size="lg"
+          <div className="flex items-start gap-3 rounded-xl border border-border/70 bg-secondary/40 p-3">
+            <Checkbox id="truthful" checked={truthful}
+              onCheckedChange={(v) => setTruthful(v === true)} className="mt-0.5" />
+            <div className="space-y-1">
+              <Label htmlFor="truthful" className="text-sm font-medium leading-snug cursor-pointer">
+                I confirm this report is truthful and not defamatory.
+              </Label>
+              <p className="text-xs text-muted-foreground leading-snug">
+                By submitting you agree to our{" "}
+                <Link to="/terms" className="underline hover:text-foreground">Terms</Link>,{" "}
+                <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link> and{" "}
+                <Link to="/disclaimer" className="underline hover:text-foreground">Disclaimer</Link>.
+                Reports are reviewed by moderators before becoming public.
+              </p>
+            </div>
+          </div>
+          <Button type="submit" disabled={submitting || !truthful} size="lg"
             className="w-full bg-gradient-primary hover:opacity-90 shadow-glow font-semibold text-base">
             {submitting ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> {t("form.submitting")}</>

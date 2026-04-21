@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      abuse_reports: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          report_id: string
+          reporter_contact: string | null
+          resolved: boolean
+          submitter_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          report_id: string
+          reporter_contact?: string | null
+          resolved?: boolean
+          submitter_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          report_id?: string
+          reporter_contact?: string | null
+          resolved?: boolean
+          submitter_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abuse_reports_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "scam_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       flagged_numbers: {
         Row: {
           created_at: string

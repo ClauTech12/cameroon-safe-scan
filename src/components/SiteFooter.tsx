@@ -29,9 +29,16 @@ export function SiteFooter() {
           </ul>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">By</div>
-          <ClauTechLogo className="h-9 mb-2" />
-          <p className="text-xs text-muted-foreground">{t("brand.poweredBy")}</p>
+          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">Legal</div>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li><Link to="/privacy" className="hover:text-foreground transition-smooth">Privacy Policy</Link></li>
+            <li><Link to="/terms" className="hover:text-foreground transition-smooth">Terms of Use</Link></li>
+            <li><Link to="/disclaimer" className="hover:text-foreground transition-smooth">Disclaimer</Link></li>
+          </ul>
+          <div className="mt-5">
+            <ClauTechLogo className="h-7 mb-1" />
+            <p className="text-[11px] text-muted-foreground">{t("brand.poweredBy")}</p>
+          </div>
         </div>
       </div>
       <div className="border-t border-border/60">
