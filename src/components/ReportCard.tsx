@@ -1,9 +1,9 @@
 import { ScamType, SCAM_META, RiskLevel, maskContact } from "@/lib/scam-types";
 import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
-import { cn } from "@/lib/utils";
+import { ReportAbuseDialog } from "./ReportAbuseDialog";
 import { useTranslation } from "react-i18next";
-import { MapPin, Calendar, User, Lightbulb } from "lucide-react";
+import { MapPin, Calendar, User, Lightbulb, ShieldAlert } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 
@@ -63,6 +63,10 @@ export function ReportCard({ report }: { report: Report }) {
           </div>
         )}
 
+        <div className="flex items-center gap-1.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-1 text-[11px] font-medium w-fit">
+          <ShieldAlert className="h-3 w-3" /> Unverified user-submitted report
+        </div>
+
         <div className="flex items-center gap-3 text-xs text-muted-foreground pt-3 border-t border-border/60">
           <span className="flex items-center gap-1"><User className="h-3 w-3" />{report.reporter_name || t("reports.anon")}</span>
           <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{report.location}</span>
@@ -70,6 +74,10 @@ export function ReportCard({ report }: { report: Report }) {
             <Calendar className="h-3 w-3" />
             {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale })}
           </span>
+        </div>
+
+        <div className="-mt-1 -mb-1 flex justify-end">
+          <ReportAbuseDialog reportId={report.id} />
         </div>
       </div>
     </article>
