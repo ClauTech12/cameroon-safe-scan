@@ -19,6 +19,10 @@ import { PlaceholderPage } from "./pages/admin/PlaceholderPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
+import ReportsModerationPage from "./pages/admin/ReportsModerationPage.tsx";
+import PrivacyPage from "./pages/legal/PrivacyPage.tsx";
+import TermsPage from "./pages/legal/TermsPage.tsx";
+import DisclaimerPage from "./pages/legal/DisclaimerPage.tsx";
 import { useEffect, useState } from "react";
 
 const queryClient = new QueryClient();
@@ -44,12 +48,15 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/report" element={<ReportPage />} />
               <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<RequireAdmin><DashboardPage /></RequireAdmin>} />
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/disclaimer" element={<DisclaimerPage />} />
               <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
                 <Route index element={<AdminDashboardPage />} />
-                <Route path="reports" element={<PlaceholderPage title="Reports" subtitle="Manage all reports — view, verify, delete." />} />
+                <Route path="reports" element={<ReportsModerationPage />} />
                 <Route path="numbers" element={<NumberIntelPage />} />
                 <Route path="patterns" element={<FraudDashboardPage />} />
                 <Route path="heatmap" element={<PlaceholderPage title="Heatmap" subtitle="Full-screen Cameroon scam heatmap with filters." />} />

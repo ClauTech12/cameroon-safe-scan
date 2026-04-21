@@ -22,7 +22,7 @@ const schema = z.object({
   location: z.string().trim().min(1).max(80),
   description: z.string().trim().min(10, "Min 10 characters").max(5000),
   contact_info: z.string().trim().max(120).optional(),
-  truthful: z.literal(true, { errorMap: () => ({ message: "You must confirm the report is truthful" }) }),
+  truthful: z.literal(true, { message: "You must confirm the report is truthful" }),
 });
 
 interface AIResult {
