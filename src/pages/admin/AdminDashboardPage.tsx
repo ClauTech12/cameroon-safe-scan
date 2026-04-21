@@ -103,13 +103,13 @@ export default function AdminDashboardPage() {
 
   const recent = reports.slice(0, 6);
 
-  const cards = [
+  const cards: { label: string; value: string | number; icon: typeof FileWarning; tint: string; small?: boolean }[] = [
     { label: "Total Reports", value: stats.total, icon: FileWarning, tint: "primary" },
     { label: "High Risk", value: stats.high, icon: ShieldAlert, tint: "danger" },
     { label: "Active Alerts", value: stats.activeAlerts, icon: Bell, tint: "warning" },
     { label: "Top Scam", value: stats.dominant.replace("_", " "), icon: Flame, tint: "accent", small: true },
     { label: "Reports Today", value: stats.reportsToday, icon: CalendarClock, tint: "success" },
-  ] as const;
+  ];
 
   return (
     <div className="space-y-6">
