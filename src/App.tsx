@@ -11,9 +11,11 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import { AdminLayout } from "./pages/admin/AdminLayout.tsx";
+import AdminDashboardPage from "./pages/admin/AdminDashboardPage.tsx";
 import FraudDashboardPage from "./pages/admin/FraudDashboardPage.tsx";
 import NumberIntelPage from "./pages/admin/NumberIntelPage.tsx";
 import FlaggedListPage from "./pages/admin/FlaggedListPage.tsx";
+import { PlaceholderPage } from "./pages/admin/PlaceholderPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
@@ -46,9 +48,13 @@ const App = () => {
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
-                <Route index element={<FraudDashboardPage />} />
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="reports" element={<PlaceholderPage title="Reports" subtitle="Manage all reports — view, verify, delete." />} />
                 <Route path="numbers" element={<NumberIntelPage />} />
-                <Route path="flagged" element={<FlaggedListPage />} />
+                <Route path="patterns" element={<FraudDashboardPage />} />
+                <Route path="heatmap" element={<PlaceholderPage title="Heatmap" subtitle="Full-screen Cameroon scam heatmap with filters." />} />
+                <Route path="alerts" element={<FlaggedListPage />} />
+                <Route path="settings" element={<PlaceholderPage title="Settings" subtitle="Profile, notifications, language and branding." />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
