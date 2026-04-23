@@ -257,6 +257,10 @@ export function ReportForm() {
             </div>
           )}
         </Card>
+
+        {result && insertedId && (
+          <WhyThisResult reportId={insertedId} description={submittedDescription} />
+        )}
       </div>
     </div>
   );
