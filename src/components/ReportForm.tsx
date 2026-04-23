@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { CAMEROON_REGIONS, ScamType, RiskLevel } from "@/lib/scam-types";
 import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
+import { WhyThisResult } from "./WhyThisResult";
 import { Sparkles, Upload, Loader2, Lightbulb, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -42,6 +43,8 @@ export function ReportForm() {
   const [truthful, setTruthful] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<AIResult | null>(null);
+  const [insertedId, setInsertedId] = useState<string | null>(null);
+  const [submittedDescription, setSubmittedDescription] = useState<string>("");
 
   const handleFile = (f: File | null) => {
     if (!f) return setFile(null);
@@ -59,6 +62,7 @@ export function ReportForm() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setResult(null);
+    setInsertedId(null);
 
     const parsed = schema.safeParse({
       reporter_name: name || undefined,
@@ -74,6 +78,24 @@ export function ReportForm() {
 
     setSubmitting(true);
     try {
+      // 0) anti-abuse rate limit
+      const { data: rl, error: rlErr } = await supabase.functions.invoke<{ allowed: boolean; message?: string }>(
+        "check-rate-limit",
+        { body: { contact_info: parsed.data.contact_info } },
+      );
+      if (rlErr) {
+        // edge function 4xx: parse the body for our message
+        const ctxBody = (rlErr as any)?.context?.body;
+        if (ctxBody) {
+          try {
+            const parsedBody = JSON.parse(ctxBody);
+            throw new Error(parsedBody?.message || "Rate limit reached");
+          } catch { /* fall through */ }
+        }
+        throw rlErr;
+      }
+      if (rl && rl.allowed === false) throw new Error(rl.message || "Rate limit reached");
+
       // 1) AI classification
       const { data: ai, error: aiErr } = await supabase.functions.invoke<AIResult>("classify-scam", {
         body: { description: parsed.data.description, language: i18n.language?.startsWith("fr") ? "fr" : "en" },
@@ -96,26 +118,32 @@ export function ReportForm() {
       }
 
       // 3) insert report
-      const { error: insErr } = await supabase.from("scam_reports").insert({
-        reporter_name: parsed.data.reporter_name || null,
-        location: parsed.data.location,
-        description: parsed.data.description,
-        contact_info: parsed.data.contact_info || null,
-        screenshot_url,
-        scam_type: ai.scam_type,
-        ai_confidence: ai.confidence,
-        ai_advice: ai.advice,
-        risk_level: ai.risk_level,
-        language: i18n.language?.startsWith("fr") ? "fr" : "en",
-      });
+      const { data: inserted, error: insErr } = await supabase
+        .from("scam_reports")
+        .insert({
+          reporter_name: parsed.data.reporter_name || null,
+          location: parsed.data.location,
+          description: parsed.data.description,
+          contact_info: parsed.data.contact_info || null,
+          screenshot_url,
+          scam_type: ai.scam_type,
+          ai_confidence: ai.confidence,
+          ai_advice: ai.advice,
+          risk_level: ai.risk_level,
+          language: i18n.language?.startsWith("fr") ? "fr" : "en",
+        })
+        .select("id")
+        .single();
       if (insErr) throw insErr;
 
       setResult(ai);
+      setInsertedId(inserted?.id ?? null);
+      setSubmittedDescription(parsed.data.description);
       toast.success("Report submitted for moderation. It will appear publicly once approved.");
       setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
     } catch (err: any) {
       console.error(err);
-      const msg = err?.context?.body ? JSON.parse(err.context.body)?.error : err?.message;
+      const msg = err?.context?.body ? JSON.parse(err.context.body)?.error || JSON.parse(err.context.body)?.message : err?.message;
       toast.error(msg || t("form.error"));
     } finally {
       setSubmitting(false);
