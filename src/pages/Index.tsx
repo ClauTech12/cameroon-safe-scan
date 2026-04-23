@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { ReportList } from "@/components/ReportList";
-import { Sparkles, Languages, Smartphone, Lock, ArrowRight, ShieldCheck, CheckCircle2, Search, Users, Brain, Radio } from "lucide-react";
+import { Sparkles, Languages, Smartphone, Lock, ArrowRight, Search, Users, Brain, Radio } from "lucide-react";
 import { SCAM_TYPES, SCAM_META } from "@/lib/scam-types";
 
 const Index = () => {
