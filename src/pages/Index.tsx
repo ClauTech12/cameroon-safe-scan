@@ -30,11 +30,6 @@ const Index = () => {
     { icon: Lock, title: t("features.secureTitle"), desc: t("features.secureDesc") },
   ];
 
-  const trust = [
-    { icon: ShieldCheck, label: "Secure Platform" },
-    { icon: Sparkles, label: "AI Protected" },
-    { icon: CheckCircle2, label: "Verified Reports" },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
