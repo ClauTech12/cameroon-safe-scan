@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { ReportList } from "@/components/ReportList";
-import { Sparkles, Languages, Smartphone, Lock, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Sparkles, Languages, Smartphone, Lock, ArrowRight, ShieldCheck, CheckCircle2, Search, Users, Brain, Radio } from "lucide-react";
 import { SCAM_TYPES, SCAM_META } from "@/lib/scam-types";
 
 const Index = () => {
@@ -43,39 +43,49 @@ const Index = () => {
         {/* HERO */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-mesh pointer-events-none" />
-          <div className="container relative pt-16 md:pt-24 pb-20 md:pb-28">
-            <div className="max-w-3xl mx-auto text-center space-y-7 animate-fade-up">
+          <div className="container relative pt-16 md:pt-24 pb-16 md:pb-20 px-5 md:px-8">
+            <div className="max-w-3xl mx-auto text-center space-y-8 animate-fade-up">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border shadow-xs text-xs font-medium text-foreground/80">
                 <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                 {t("hero.badge")}
               </div>
-              <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.02] tracking-tight text-foreground">
+              <h1 className="font-display text-[2.5rem] sm:text-5xl md:text-6xl font-bold leading-[1.08] tracking-tight text-foreground">
                 {t("hero.title")}{" "}
                 <span className="text-gradient-primary">{t("hero.titleAccent")}</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-foreground/75 max-w-2xl mx-auto leading-[1.65]">
                 {t("hero.subtitle")}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                <Button asChild size="lg" className="bg-foreground text-background hover:bg-foreground/90 font-semibold text-base h-12 px-7 rounded-full shadow-md">
-                  <Link to="/report">{t("hero.ctaReport")} <ArrowRight className="h-4 w-4" /></Link>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-3">
+                <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base h-13 px-8 rounded-full shadow-glow hover:shadow-lg transition-smooth hover:-translate-y-0.5">
+                  <Link to="/check">
+                    <Search className="h-4 w-4" /> Check a Number <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold text-base h-12 px-7 rounded-full border-border bg-card hover:bg-secondary">
+                  <Link to="/report">{t("hero.ctaReport")}</Link>
+                </Button>
+                <Button asChild size="lg" variant="ghost" className="font-semibold text-base h-12 px-6 rounded-full text-muted-foreground hover:text-foreground">
                   <Link to="/reports">{t("hero.ctaBrowse")}</Link>
                 </Button>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 text-xs text-muted-foreground">
-                {trust.map(({ icon: Icon, label }) => (
-                  <span key={label} className="inline-flex items-center gap-1.5">
-                    <Icon className="h-3.5 w-3.5 text-accent" /> {label}
+              {/* Trust micro-strip */}
+              <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pt-5">
+                {[
+                  { icon: Radio, label: "Real-time scam detection" },
+                  { icon: Users, label: "Community-powered reports" },
+                  { icon: Brain, label: "AI risk analysis" },
+                ].map(({ icon: Icon, label }) => (
+                  <span key={label} className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                    <Icon className="h-4 w-4 text-accent" /> {label}
                   </span>
                 ))}
               </div>
             </div>
 
             {/* Stats card */}
-            <div className="mt-16 max-w-4xl mx-auto">
+            <div className="mt-16 md:mt-20 max-w-4xl mx-auto">
               <div className="surface-elevated grid grid-cols-3 divide-x divide-border/60 overflow-hidden">
                 {[
                   { v: stats.reports, k: "reports" },
