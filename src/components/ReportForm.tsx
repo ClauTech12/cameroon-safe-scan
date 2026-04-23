@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,12 @@ export function ReportForm() {
   const [result, setResult] = useState<AIResult | null>(null);
   const [insertedId, setInsertedId] = useState<string | null>(null);
   const [submittedDescription, setSubmittedDescription] = useState<string>("");
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const phone = searchParams.get("phone");
+    if (phone) setContact(`+237 ${phone}`);
+  }, [searchParams]);
 
   const handleFile = (f: File | null) => {
     if (!f) return setFile(null);
