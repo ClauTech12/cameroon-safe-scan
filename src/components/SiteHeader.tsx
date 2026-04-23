@@ -7,7 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight, ShieldCheck } from "lucide-react";
+import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight, ShieldCheck, Search } from "lucide-react";
 
 export function SiteHeader() {
   const { t } = useTranslation();
@@ -15,6 +15,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const links = [
     { to: "/", label: t("nav.home"), icon: Home },
+    { to: "/check", label: "Check Number", icon: Search },
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
     { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone },

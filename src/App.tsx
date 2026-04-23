@@ -9,6 +9,7 @@ import ReportPage from "./pages/ReportPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
+import CheckNumberPage from "./pages/CheckNumberPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import { AdminLayout } from "./pages/admin/AdminLayout.tsx";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage.tsx";
@@ -50,6 +51,7 @@ const App = () => {
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/dashboard" element={<RequireAdmin><DashboardPage /></RequireAdmin>} />
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
+              <Route path="/check" element={<CheckNumberPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
