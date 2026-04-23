@@ -85,6 +85,27 @@ export type Database = {
         }
         Relationships: []
       }
+      report_rate_limits: {
+        Row: {
+          created_at: string
+          id: string
+          ip_hash: string
+          phone_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_hash: string
+          phone_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_hash?: string
+          phone_number?: string | null
+        }
+        Relationships: []
+      }
       scam_reports: {
         Row: {
           ai_advice: string[] | null
@@ -178,6 +199,8 @@ export type Database = {
       }
       jsonb_object_keys_count: { Args: { j: Json }; Returns: number }
       number_intel_summary: { Args: { _phone: string }; Returns: Json }
+      phone_status: { Args: { _phone: string }; Returns: Json }
+      report_explainability: { Args: { _report_id: string }; Returns: Json }
       top_reported_numbers: {
         Args: { _limit?: number }
         Returns: {

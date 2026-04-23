@@ -1,9 +1,13 @@
+import { useState } from "react";
 import { ScamType, SCAM_META, RiskLevel, maskContact } from "@/lib/scam-types";
 import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { ReportAbuseDialog } from "./ReportAbuseDialog";
+import { WhyThisResult } from "./WhyThisResult";
+import { HighlightedText } from "./HighlightedText";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { MapPin, Calendar, User, Lightbulb, ShieldAlert } from "lucide-react";
+import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 
@@ -22,6 +26,7 @@ export interface Report {
 
 export function ReportCard({ report }: { report: Report }) {
   const { t, i18n } = useTranslation();
+  const [showWhy, setShowWhy] = useState(false);
   const meta = SCAM_META[report.scam_type];
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
 
@@ -34,9 +39,10 @@ export function ReportCard({ report }: { report: Report }) {
           <RiskIndicator level={report.risk_level} />
         </div>
 
-        <p className="text-sm leading-relaxed text-foreground/85 line-clamp-4 flex-1">
-          {report.description}
-        </p>
+        <HighlightedText
+          text={report.description}
+          className="text-sm leading-relaxed text-foreground/85 line-clamp-4 flex-1"
+        />
 
         {report.ai_advice && report.ai_advice.length > 0 && (
           <div className="rounded-xl bg-secondary/60 border border-border/60 p-3 space-y-2">
@@ -76,9 +82,23 @@ export function ReportCard({ report }: { report: Report }) {
           </span>
         </div>
 
-        <div className="-mt-1 -mb-1 flex justify-end">
+        <div className="-mt-1 -mb-1 flex justify-between items-center gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+            onClick={() => setShowWhy((v) => !v)}
+          >
+            {showWhy ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            Why this result
+          </Button>
           <ReportAbuseDialog reportId={report.id} />
         </div>
+
+        {showWhy && (
+          <WhyThisResult reportId={report.id} description={report.description} compact />
+        )}
       </div>
     </article>
   );
