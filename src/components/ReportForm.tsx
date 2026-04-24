@@ -19,13 +19,15 @@ import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
 
-const schema = z.object({
-  reporter_name: z.string().trim().max(80).optional(),
-  location: z.string().trim().min(1).max(80),
-  description: z.string().trim().min(10, "Min 10 characters").max(5000),
-  contact_info: z.string().trim().max(120).optional(),
-  truthful: z.literal(true, { message: "You must confirm the report is truthful" }),
-});
+function makeSchema(t: (k: string) => string) {
+  return z.object({
+    reporter_name: z.string().trim().max(80).optional(),
+    location: z.string().trim().min(1).max(80),
+    description: z.string().trim().min(10, t("form.minChars")).max(5000),
+    contact_info: z.string().trim().max(120).optional(),
+    truthful: z.literal(true, { message: t("form.confirmTruthful") }),
+  });
+}
 
 interface AIResult {
   scam_type: ScamType;
@@ -56,11 +58,11 @@ export function ReportForm() {
   const handleFile = (f: File | null) => {
     if (!f) return setFile(null);
     if (!f.type.startsWith("image/")) {
-      toast.error("Only image files allowed");
+      toast.error(t("form.onlyImages"));
       return;
     }
     if (f.size > 5 * 1024 * 1024) {
-      toast.error("Max 5MB");
+      toast.error(t("form.maxSize"));
       return;
     }
     setFile(f);
@@ -71,7 +73,7 @@ export function ReportForm() {
     setResult(null);
     setInsertedId(null);
 
-    const parsed = schema.safeParse({
+    const parsed = makeSchema(t).safeParse({
       reporter_name: name || undefined,
       location,
       description,
@@ -79,7 +81,7 @@ export function ReportForm() {
       truthful: truthful as true,
     });
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message || "Invalid input");
+      toast.error(parsed.error.issues[0]?.message || t("form.invalidInput"));
       return;
     }
 
@@ -96,12 +98,12 @@ export function ReportForm() {
         if (ctxBody) {
           try {
             const parsedBody = JSON.parse(ctxBody);
-            throw new Error(parsedBody?.message || "Rate limit reached");
+            throw new Error(parsedBody?.message || t("form.rateLimit"));
           } catch { /* fall through */ }
         }
         throw rlErr;
       }
-      if (rl && rl.allowed === false) throw new Error(rl.message || "Rate limit reached");
+      if (rl && rl.allowed === false) throw new Error(rl.message || t("form.rateLimit"));
 
       // 1) AI classification
       const { data: ai, error: aiErr } = await supabase.functions.invoke<AIResult>("classify-scam", {
@@ -146,7 +148,7 @@ export function ReportForm() {
       setResult(ai);
       setInsertedId(inserted?.id ?? null);
       setSubmittedDescription(parsed.data.description);
-      toast.success("Report submitted for moderation. It will appear publicly once approved.");
+      toast.success(t("form.success"));
       setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
     } catch (err: any) {
       console.error(err);
@@ -192,7 +194,7 @@ export function ReportForm() {
             )}>
               <Upload className="h-5 w-5 text-muted-foreground" />
               <span className="text-sm text-muted-foreground truncate">
-                {file ? file.name : "PNG, JPG, WEBP — max 5MB"}
+                {file ? file.name : t("form.screenshotPlaceholder")}
               </span>
               <input id="file" type="file" accept="image/*" className="hidden"
                 onChange={(e) => handleFile(e.target.files?.[0] || null)} />
@@ -203,14 +205,25 @@ export function ReportForm() {
               onCheckedChange={(v) => setTruthful(v === true)} className="mt-0.5" />
             <div className="space-y-1">
               <Label htmlFor="truthful" className="text-sm font-medium leading-snug cursor-pointer">
-                I confirm this report is truthful and not defamatory.
+                {t("form.truthful")}
               </Label>
               <p className="text-xs text-muted-foreground leading-snug">
-                By submitting you agree to our{" "}
-                <Link to="/terms" className="underline hover:text-foreground">Terms</Link>,{" "}
-                <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link> and{" "}
-                <Link to="/disclaimer" className="underline hover:text-foreground">Disclaimer</Link>.
-                Reports are reviewed by moderators before becoming public.
+                {t("form.truthfulHelp", {
+                  terms: "",
+                  privacy: "",
+                  disclaimer: "",
+                }).split(/\{\{terms\}\}|\{\{privacy\}\}|\{\{disclaimer\}\}/).reduce<React.ReactNode[]>((acc, part, i, arr) => {
+                  acc.push(<span key={`p-${i}`}>{part}</span>);
+                  if (i < arr.length - 1) {
+                    const links = [
+                      <Link key="t" to="/terms" className="underline hover:text-foreground">{t("footer.terms")}</Link>,
+                      <Link key="p" to="/privacy" className="underline hover:text-foreground">{t("footer.privacy")}</Link>,
+                      <Link key="d" to="/disclaimer" className="underline hover:text-foreground">{t("footer.disclaimer")}</Link>,
+                    ];
+                    acc.push(links[i]);
+                  }
+                  return acc;
+                }, [])}
               </p>
             </div>
           </div>
@@ -233,7 +246,7 @@ export function ReportForm() {
           </div>
           {!result && !submitting && (
             <p className="text-sm text-muted-foreground">
-              Submit a report to see instant AI analysis here.
+              {t("form.aiPlaceholder")}
             </p>
           )}
           {submitting && (
