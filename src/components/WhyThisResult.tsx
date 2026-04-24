@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -23,11 +24,8 @@ export interface ExplainData {
 }
 
 interface Props {
-  /** Pass when explaining a stored report (will fetch via RPC). */
   reportId?: string;
-  /** Pass when explaining a freshly submitted, not-yet-stored result. */
   data?: ExplainData;
-  /** Description text — used for suspicious-phrase extraction. */
   description?: string;
   className?: string;
   compact?: boolean;
@@ -37,6 +35,7 @@ const RISK_COLOR = (score: number) =>
   score >= 70 ? "bg-destructive" : score >= 35 ? "bg-amber-500" : "bg-emerald-500";
 
 export function WhyThisResult({ reportId, data, description, className, compact }: Props) {
+  const { t } = useTranslation();
   const [loaded, setLoaded] = useState<ExplainData | null>(data ?? null);
   const [loading, setLoading] = useState(!!reportId && !data);
 
@@ -58,7 +57,7 @@ export function WhyThisResult({ reportId, data, description, className, compact 
   if (loading) {
     return (
       <Card className={cn("p-4 flex items-center gap-2 text-sm text-muted-foreground", className)}>
-        <Loader2 className="h-4 w-4 animate-spin" /> Building explanation…
+        <Loader2 className="h-4 w-4 animate-spin" /> {t("why.building")}
       </Card>
     );
   }
@@ -82,36 +81,35 @@ export function WhyThisResult({ reportId, data, description, className, compact 
       <header className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-accent" />
-          <h3 className="font-semibold text-sm">Why this result</h3>
+          <h3 className="font-semibold text-sm">{t("why.title")}</h3>
         </div>
         <ThresholdBadge status={loaded.status} count={loaded.total_reports} />
       </header>
 
-      {/* Risk score with breakdown */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Combined risk score</span>
+          <span className="text-muted-foreground">{t("why.combined")}</span>
           <span className="font-bold tabular-nums">{risk}/100</span>
         </div>
         <Progress value={risk} className={cn("h-2 [&>div]:transition-all", `[&>div]:${RISK_COLOR(risk)}`)} />
         <div className="grid grid-cols-3 gap-2 text-[11px] pt-1">
-          <ScoreChip label="Reports" value={loaded.risk?.reports ?? 0} max={40} tone="blue" />
-          <ScoreChip label="Patterns" value={loaded.risk?.pattern ?? 0} max={40} tone="purple" />
-          <ScoreChip label="AI" value={loaded.risk?.ai ?? 0} max={35} tone="emerald" />
+          <ScoreChip label={t("why.reports")} value={loaded.risk?.reports ?? 0} max={40} tone="blue" />
+          <ScoreChip label={t("why.patterns")} value={loaded.risk?.pattern ?? 0} max={40} tone="purple" />
+          <ScoreChip label={t("why.ai")} value={loaded.risk?.ai ?? 0} max={35} tone="emerald" />
         </div>
       </div>
 
       <Separator />
 
       <ul className="space-y-2">
-        <Row icon={FileBarChart} label="Total reports on this number" value={loaded.total_reports} />
-        <Row icon={Activity}     label="In the last 24 hours" value={
+        <Row icon={FileBarChart} label={t("why.totalReports")} value={loaded.total_reports} />
+        <Row icon={Activity}     label={t("why.last24h")} value={
           <span className={loaded.spike ? "text-destructive" : ""}>
-            {loaded.recent_24h}{loaded.spike ? " · spike" : ""}
+            {loaded.recent_24h}{loaded.spike ? ` · ${t("why.spike")}` : ""}
           </span>
         } />
-        <Row icon={Network}      label="Pattern match detected" value={loaded.pattern_match ? "Yes" : "No"} />
-        <Row icon={Brain}        label="AI confidence" value={`${loaded.ai_confidence}%`} />
+        <Row icon={Network}      label={t("why.patternMatch")} value={loaded.pattern_match ? t("why.yes") : t("why.no")} />
+        <Row icon={Brain}        label={t("why.aiConfidence")} value={`${loaded.ai_confidence}%`} />
       </ul>
 
       {!compact && phrases.length > 0 && (
@@ -119,7 +117,7 @@ export function WhyThisResult({ reportId, data, description, className, compact 
           <Separator />
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-semibold">
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> Suspicious phrases detected
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> {t("why.suspiciousPhrases")}
             </div>
             <div className="flex flex-wrap gap-1.5">
               {phrases.map((p) => (
@@ -136,7 +134,8 @@ export function WhyThisResult({ reportId, data, description, className, compact 
         <>
           <Separator />
           <div className="text-xs text-muted-foreground">
-            Linked to <span className="font-semibold text-foreground">{loaded.related_report_ids.length}</span> related report{loaded.related_report_ids.length === 1 ? "" : "s"} on the same number.
+            {t("why.relatedPrefix")} <span className="font-semibold text-foreground">{loaded.related_report_ids.length}</span>{" "}
+            {t("why.relatedSuffix", { count: loaded.related_report_ids.length })}
           </div>
         </>
       )}
