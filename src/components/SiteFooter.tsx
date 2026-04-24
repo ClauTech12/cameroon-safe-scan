@@ -14,26 +14,26 @@ export function SiteFooter() {
             {t("brand.tagline")}
           </p>
           <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-accent" /> Secure</span>
-            <span className="inline-flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-accent" /> AI Protected</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-accent" /> Verified</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-3.5 w-3.5 text-accent" /> {t("brand.secure")}</span>
+            <span className="inline-flex items-center gap-1.5"><Sparkles className="h-3.5 w-3.5 text-accent" /> {t("brand.aiProtected")}</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 text-accent" /> {t("brand.verified")}</span>
           </div>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">Product</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">{t("footer.product")}</div>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/report" className="hover:text-foreground transition-smooth">Report a scam</Link></li>
-            <li><Link to="/reports" className="hover:text-foreground transition-smooth">Browse reports</Link></li>
-            <li><Link to="/dashboard" className="hover:text-foreground transition-smooth">Analytics</Link></li>
-            <li><Link to="/momo-guard" className="hover:text-foreground transition-smooth">MoMo Guard</Link></li>
+            <li><Link to="/report" className="hover:text-foreground transition-smooth">{t("footer.reportLink")}</Link></li>
+            <li><Link to="/reports" className="hover:text-foreground transition-smooth">{t("footer.browseLink")}</Link></li>
+            <li><Link to="/dashboard" className="hover:text-foreground transition-smooth">{t("footer.analyticsLink")}</Link></li>
+            <li><Link to="/momo-guard" className="hover:text-foreground transition-smooth">{t("footer.momoLink")}</Link></li>
           </ul>
         </div>
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">Legal</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-foreground mb-3">{t("footer.legal")}</div>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/privacy" className="hover:text-foreground transition-smooth">Privacy Policy</Link></li>
-            <li><Link to="/terms" className="hover:text-foreground transition-smooth">Terms of Use</Link></li>
-            <li><Link to="/disclaimer" className="hover:text-foreground transition-smooth">Disclaimer</Link></li>
+            <li><Link to="/privacy" className="hover:text-foreground transition-smooth">{t("footer.privacy")}</Link></li>
+            <li><Link to="/terms" className="hover:text-foreground transition-smooth">{t("footer.terms")}</Link></li>
+            <li><Link to="/disclaimer" className="hover:text-foreground transition-smooth">{t("footer.disclaimer")}</Link></li>
           </ul>
           <div className="mt-5">
             <ClauTechLogo className="h-7 mb-1" />
@@ -43,7 +43,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border/60">
         <div className="container py-5 text-xs text-muted-foreground text-center">
-          © {new Date().getFullYear()} CamAlert. All rights reserved.
+          © {new Date().getFullYear()} CamAlert. {t("footer.rights")}
         </div>
       </div>
     </footer>
