@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -34,7 +35,6 @@ interface RelatedReport {
 }
 
 function formatPhone(canonical: string) {
-  // Cameroon 9-digit format: 6XX XXX XXX
   if (canonical.length === 9) {
     return `+237 ${canonical.slice(0, 3)} ${canonical.slice(3, 6)} ${canonical.slice(6)}`;
   }
@@ -55,16 +55,8 @@ const STATUS_TONE: Record<Status, { ring: string; text: string; Icon: typeof Shi
   cleared:        { ring: "ring-emerald-500/30",         text: "text-emerald-700 dark:text-emerald-300", Icon: ShieldCheck, gradient: "from-emerald-500/10 to-transparent" },
 };
 
-const SCAM_REASON_LABELS: Record<string, string> = {
-  mobile_money: "Mobile Money fraud",
-  job: "Fake job offer",
-  phishing: "Phishing / link bait",
-  investment: "Investment scam",
-  bank: "Bank impersonation",
-  other: "Other scam pattern",
-};
-
 export default function CheckNumberPage() {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -78,7 +70,7 @@ export default function CheckNumberPage() {
       const text = await navigator.clipboard.readText();
       setQuery(text.trim());
     } catch {
-      toast({ title: "Clipboard unavailable", description: "Paste manually instead.", variant: "destructive" });
+      toast({ title: t("check.clipboardError"), description: t("check.clipboardErrorDesc"), variant: "destructive" });
     }
   };
 
@@ -86,7 +78,7 @@ export default function CheckNumberPage() {
     e?.preventDefault();
     const canonical = canonicalize(query);
     if (canonical.length < 8) {
-      toast({ title: "Invalid number", description: "Enter at least 8 digits.", variant: "destructive" });
+      toast({ title: t("check.invalidNumber"), description: t("check.invalidNumberDesc"), variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -107,7 +99,7 @@ export default function CheckNumberPage() {
       setReports((reportData as RelatedReport[]) || []);
     } catch (err) {
       console.error(err);
-      toast({ title: "Search failed", description: "Try again in a moment.", variant: "destructive" });
+      toast({ title: t("check.searchFailed"), description: t("check.searchFailedDesc"), variant: "destructive" });
       setResult(null);
       setReports([]);
     } finally {
@@ -117,12 +109,12 @@ export default function CheckNumberPage() {
 
   const handleShare = async () => {
     if (!result) return;
-    const text = `⚠️ ${result.label} — ${formatPhone(result.phone)} has ${result.total} scam report${result.total === 1 ? "" : "s"} on CamAlert. Stay safe.`;
+    const text = t("check.shareText", { label: result.label, phone: formatPhone(result.phone), n: result.total });
     try {
-      if (navigator.share) await navigator.share({ title: "CamAlert warning", text });
+      if (navigator.share) await navigator.share({ title: t("check.shareTitle"), text });
       else {
         await navigator.clipboard.writeText(text);
-        toast({ title: "Copied warning", description: "Share it with friends." });
+        toast({ title: t("check.copiedTitle"), description: t("check.copiedDesc") });
       }
     } catch {/* user cancelled */}
   };
@@ -141,24 +133,22 @@ export default function CheckNumberPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
-        {/* HERO */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-mesh pointer-events-none" />
           <div className="container relative pt-14 md:pt-20 pb-8">
             <div className="max-w-2xl mx-auto text-center space-y-4 animate-fade-up">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border shadow-xs text-xs font-medium text-foreground/80">
                 <Sparkles className="h-3.5 w-3.5 text-accent" />
-                Instant Scam Check
+                {t("check.badge")}
               </div>
               <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight leading-[1.1]">
-                Check a Number <span className="text-gradient-primary">Instantly</span>
+                {t("check.title")} <span className="text-gradient-primary">{t("check.titleAccent")}</span>
               </h1>
               <p className="text-base md:text-lg text-muted-foreground leading-relaxed">
-                Find out if a phone number has been reported as scam, suspicious, or safe.
+                {t("check.subtitle")}
               </p>
             </div>
 
-            {/* SEARCH BAR */}
             <form onSubmit={handleSearch} className="mt-8 max-w-2xl mx-auto animate-fade-up">
               <div className="surface-elevated p-2 flex items-center gap-2">
                 <div className="flex items-center gap-2 pl-3 text-muted-foreground">
@@ -171,7 +161,7 @@ export default function CheckNumberPage() {
                   autoComplete="tel"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="6 XX XXX XXX"
+                  placeholder={t("check.placeholder")}
                   className="border-0 bg-transparent shadow-none focus-visible:ring-0 focus-visible:border-0 h-11 text-base flex-1"
                 />
                 <Button
@@ -179,7 +169,7 @@ export default function CheckNumberPage() {
                   variant="ghost"
                   size="icon"
                   onClick={handlePaste}
-                  aria-label="Paste from clipboard"
+                  aria-label={t("check.paste")}
                   className="h-10 w-10 shrink-0"
                 >
                   <Clipboard className="h-4 w-4" />
@@ -190,17 +180,16 @@ export default function CheckNumberPage() {
                   className="h-11 rounded-xl bg-foreground text-background hover:bg-foreground/90 font-semibold px-5 shrink-0"
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                  <span className="hidden sm:inline">{loading ? "Checking…" : "Check Now"}</span>
+                  <span className="hidden sm:inline">{loading ? t("check.checking") : t("check.checkNow")}</span>
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground text-center mt-2.5">
-                We auto-detect Cameroon (+237) numbers · Your search is anonymous
+                {t("check.autoDetect")}
               </p>
             </form>
           </div>
         </section>
 
-        {/* RESULT */}
         <section className="container pb-20">
           <div className="max-w-2xl mx-auto">
             {!searched && (
@@ -208,17 +197,15 @@ export default function CheckNumberPage() {
                 <div className="h-14 w-14 rounded-2xl bg-accent/10 grid place-items-center mx-auto mb-4">
                   <Search className="h-6 w-6 text-accent" />
                 </div>
-                <h3 className="font-display text-lg font-bold mb-1.5">Search a number to begin</h3>
-                <p className="text-sm text-muted-foreground">
-                  Enter any phone number above. We'll check it against community-submitted scam reports in real-time.
-                </p>
+                <h3 className="font-display text-lg font-bold mb-1.5">{t("check.emptyTitle")}</h3>
+                <p className="text-sm text-muted-foreground">{t("check.emptySubtitle")}</p>
               </div>
             )}
 
             {searched && loading && (
               <div className="surface-card p-10 text-center animate-fade-in">
                 <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">Searching reports…</p>
+                <p className="text-sm text-muted-foreground">{t("check.searching")}</p>
               </div>
             )}
 
@@ -227,13 +214,13 @@ export default function CheckNumberPage() {
                 <div className="h-14 w-14 rounded-2xl bg-emerald-500/10 grid place-items-center mx-auto mb-4">
                   <ShieldCheck className="h-6 w-6 text-emerald-600" />
                 </div>
-                <h3 className="font-display text-xl font-bold mb-1.5">No reports yet</h3>
+                <h3 className="font-display text-xl font-bold mb-1.5">{t("check.noReportsTitle")}</h3>
                 <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                  {formatPhone(result.phone)} hasn't been reported. Stay cautious — absence of reports doesn't guarantee safety.
+                  {t("check.noReportsSub", { phone: formatPhone(result.phone) })}
                 </p>
                 <Button asChild className="bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full h-11 px-6">
                   <Link to={`/report?phone=${result.phone}`}>
-                    <FileWarning className="h-4 w-4" /> Be the first to report
+                    <FileWarning className="h-4 w-4" /> {t("check.beFirst")}
                   </Link>
                 </Button>
               </div>
@@ -241,7 +228,6 @@ export default function CheckNumberPage() {
 
             {searched && !loading && result && hasResult && (
               <div className="space-y-4 animate-fade-up">
-                {/* Result card */}
                 <div className={`surface-elevated overflow-hidden ring-1 ${tone.ring}`}>
                   <div className={`bg-gradient-to-br ${tone.gradient} px-6 md:px-8 py-6 md:py-8 border-b border-border/60`}>
                     <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -250,7 +236,7 @@ export default function CheckNumberPage() {
                           <ToneIcon className="h-7 w-7" />
                         </div>
                         <div>
-                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Phone Number</div>
+                          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t("check.phoneLabel")}</div>
                           <div className="font-display text-xl md:text-2xl font-bold tabular-nums">{formatPhone(result.phone)}</div>
                         </div>
                       </div>
@@ -261,22 +247,21 @@ export default function CheckNumberPage() {
                   <div className="grid grid-cols-2 divide-x divide-border/60">
                     <div className="px-6 py-5 text-center">
                       <div className="font-display text-3xl font-bold tabular-nums">{result.total}</div>
-                      <div className="text-xs text-muted-foreground mt-1 font-medium">Total reports</div>
+                      <div className="text-xs text-muted-foreground mt-1 font-medium">{t("check.totalReports")}</div>
                     </div>
                     <div className="px-6 py-5 text-center">
                       <div className="font-display text-3xl font-bold tabular-nums flex items-center justify-center gap-1.5">
                         {result.recent_24h}
                         {result.spike && <TrendingUp className="h-5 w-5 text-destructive" />}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1 font-medium">Last 24 hours</div>
+                      <div className="text-xs text-muted-foreground mt-1 font-medium">{t("check.last24h")}</div>
                     </div>
                   </div>
 
-                  {/* Why this result */}
                   <Collapsible defaultOpen>
                     <CollapsibleTrigger className="w-full flex items-center justify-between px-6 py-3.5 border-t border-border/60 hover:bg-secondary/40 transition-smooth group">
                       <span className="text-sm font-semibold inline-flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-accent" /> Why this result
+                        <Sparkles className="h-4 w-4 text-accent" /> {t("check.why")}
                       </span>
                       <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                     </CollapsibleTrigger>
@@ -284,22 +269,22 @@ export default function CheckNumberPage() {
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-start gap-2">
                           <span className="h-1.5 w-1.5 rounded-full bg-accent mt-1.5 shrink-0" />
-                          <span><strong className="font-semibold">{result.total}</strong> verified report{result.total === 1 ? "" : "s"} on this number</span>
+                          <span><strong className="font-semibold">{result.total}</strong> {t("check.verifiedReport", { count: result.total })}</span>
                         </li>
                         {result.spike && (
                           <li className="flex items-start gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-destructive mt-1.5 shrink-0" />
-                            <span><strong className="font-semibold text-destructive">Sudden spike detected</strong> — {result.recent_24h} reports in last 24h</span>
+                            <span><strong className="font-semibold text-destructive">{t("check.spikeDetected")}</strong> — {t("check.spikeReports", { n: result.recent_24h })}</span>
                           </li>
                         )}
                         {topReasons.length > 0 && (
                           <li className="flex items-start gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-accent mt-1.5 shrink-0" />
                             <span>
-                              Common reasons:{" "}
+                              {t("check.commonReasons")}{" "}
                               {topReasons.map(([type, count], i) => (
                                 <span key={type}>
-                                  <strong className="font-semibold">{SCAM_REASON_LABELS[type] || type}</strong>{" "}
+                                  <strong className="font-semibold">{t(`scamReasons.${type}`)}</strong>{" "}
                                   ({count})
                                   {i < topReasons.length - 1 ? ", " : ""}
                                 </span>
@@ -310,18 +295,17 @@ export default function CheckNumberPage() {
                         {result.status === "high_risk_scam" && (
                           <li className="flex items-start gap-2">
                             <span className="h-1.5 w-1.5 rounded-full bg-destructive mt-1.5 shrink-0" />
-                            <span>Pattern matches known scam behavior — <strong className="font-semibold">do not engage</strong></span>
+                            <span>{t("check.highRiskWarning")}</span>
                           </li>
                         )}
                       </ul>
                     </CollapsibleContent>
                   </Collapsible>
 
-                  {/* Actions */}
                   <div className="px-6 py-4 border-t border-border/60 flex items-center gap-2 flex-wrap">
                     <Button asChild className="bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full h-10 px-5 flex-1 sm:flex-initial">
                       <Link to={`/report?phone=${result.phone}`}>
-                        <FileWarning className="h-4 w-4" /> Report this number
+                        <FileWarning className="h-4 w-4" /> {t("check.reportNumber")}
                       </Link>
                     </Button>
                     <Button
@@ -330,17 +314,16 @@ export default function CheckNumberPage() {
                       onClick={handleShare}
                       className="rounded-full h-10 px-5 font-semibold flex-1 sm:flex-initial"
                     >
-                      <Share2 className="h-4 w-4" /> Share warning
+                      <Share2 className="h-4 w-4" /> {t("check.shareWarning")}
                     </Button>
                   </div>
                 </div>
 
-                {/* Recent reports */}
                 {reports.length > 0 && (
                   <div className="surface-card p-5 md:p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-display text-base font-bold">Recent activity</h3>
-                      <Badge variant="secondary" className="text-xs">{reports.length} latest</Badge>
+                      <h3 className="font-display text-base font-bold">{t("check.recentActivity")}</h3>
+                      <Badge variant="secondary" className="text-xs">{t("check.latest", { n: reports.length })}</Badge>
                     </div>
                     <ul className="space-y-3">
                       {reports.map((r) => (
@@ -348,7 +331,7 @@ export default function CheckNumberPage() {
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                               <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
-                                {SCAM_REASON_LABELS[r.scam_type] || r.scam_type}
+                                {t(`scamReasons.${r.scam_type}`)}
                               </Badge>
                               <span className="text-xs text-muted-foreground">{r.location}</span>
                             </div>
@@ -364,7 +347,7 @@ export default function CheckNumberPage() {
                 )}
 
                 <p className="text-xs text-center text-muted-foreground px-4">
-                  {maskPhone(result.phone)} · Reports are user-submitted and may not be independently verified.
+                  {maskPhone(result.phone)} · {t("reports.unverifiedBadge")}
                 </p>
               </div>
             )}
