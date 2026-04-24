@@ -54,7 +54,7 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-3">
                 <Button asChild size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold text-base h-13 px-8 rounded-full shadow-glow hover:shadow-lg transition-smooth hover:-translate-y-0.5">
                   <Link to="/check">
-                    <Search className="h-4 w-4" /> Check a Number <ArrowRight className="h-4 w-4" />
+                    <Search className="h-4 w-4" /> {t("hero.ctaCheck")} <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="font-semibold text-base h-12 px-7 rounded-full border-border bg-card hover:bg-secondary">
@@ -68,9 +68,9 @@ const Index = () => {
               {/* Trust micro-strip */}
               <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 pt-5">
                 {[
-                  { icon: Radio, label: "Real-time scam detection" },
-                  { icon: Users, label: "Community-powered reports" },
-                  { icon: Brain, label: "AI risk analysis" },
+                  { icon: Radio, label: t("hero.trust.realtime") },
+                  { icon: Users, label: t("hero.trust.community") },
+                  { icon: Brain, label: t("hero.trust.ai") },
                 ].map(({ icon: Icon, label }) => (
                   <span key={label} className="inline-flex items-center gap-2 text-sm text-muted-foreground">
                     <Icon className="h-4 w-4 text-accent" /> {label}
@@ -102,7 +102,7 @@ const Index = () => {
         {/* FEATURES */}
         <section className="container py-20 md:py-28">
           <div className="max-w-2xl mx-auto text-center mb-14">
-            <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">Why CamAlert</div>
+            <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">{t("features.eyebrow")}</div>
             <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight">
               {t("features.title")}
             </h2>
@@ -123,8 +123,8 @@ const Index = () => {
         {/* SCAM CATEGORIES */}
         <section className="container py-12 md:py-16">
           <div className="max-w-2xl mx-auto text-center mb-12">
-            <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">Categories</div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">Tracked scam types</h2>
+            <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-3">{t("categories.eyebrow")}</div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("categories.title")}</h2>
           </div>
           <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">
             {SCAM_TYPES.map((type) => {
@@ -149,7 +149,7 @@ const Index = () => {
         <section className="container py-16 md:py-24">
           <div className="flex items-end justify-between mb-10 flex-wrap gap-4">
             <div>
-              <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-2">Live feed</div>
+              <div className="text-xs font-semibold text-accent uppercase tracking-widest mb-2">{t("liveFeed.eyebrow")}</div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">{t("reports.title")}</h2>
               <p className="text-muted-foreground mt-2">{t("reports.subtitle")}</p>
             </div>
@@ -166,10 +166,10 @@ const Index = () => {
             <div className="absolute inset-0 bg-gradient-mesh opacity-50 pointer-events-none" />
             <div className="relative">
               <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-4">
-                Spotted something suspicious?
+                {t("cta.title")}
               </h2>
               <p className="text-white/70 max-w-xl mx-auto mb-7">
-                Report it in 30 seconds. AI analyzes it instantly and shares safety advice.
+                {t("cta.subtitle")}
               </p>
               <Button asChild size="lg" className="bg-white text-foreground hover:bg-white/90 font-semibold rounded-full h-12 px-7">
                 <Link to="/report">{t("hero.ctaReport")} <ArrowRight className="h-4 w-4" /></Link>

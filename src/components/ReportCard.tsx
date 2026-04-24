@@ -70,7 +70,7 @@ export function ReportCard({ report }: { report: Report }) {
         )}
 
         <div className="flex items-center gap-1.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-1 text-[11px] font-medium w-fit">
-          <ShieldAlert className="h-3 w-3" /> Unverified user-submitted report
+          <ShieldAlert className="h-3 w-3" /> {t("reports.unverifiedBadge")}
         </div>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground pt-3 border-t border-border/60">
@@ -91,7 +91,7 @@ export function ReportCard({ report }: { report: Report }) {
             onClick={() => setShowWhy((v) => !v)}
           >
             {showWhy ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            Why this result
+            {t("why.title")}
           </Button>
           <ReportAbuseDialog reportId={report.id} />
         </div>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,16 +13,17 @@ import {
 } from "@/components/ui/dialog";
 import { Flag, Loader2 } from "lucide-react";
 
-const schema = z.object({
-  reason: z.string().trim().min(5, "Please provide at least 5 characters").max(1000),
-  reporter_contact: z.string().trim().max(120).optional(),
-});
-
 export function ReportAbuseDialog({ reportId }: { reportId: string }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [reason, setReason] = useState("");
   const [contact, setContact] = useState("");
+
+  const schema = z.object({
+    reason: z.string().trim().min(5, t("abuse.minChars")).max(1000),
+    reporter_contact: z.string().trim().max(120).optional(),
+  });
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,7 +39,7 @@ export function ReportAbuseDialog({ reportId }: { reportId: string }) {
     });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Thanks — our moderators will review this report.");
+    toast.success(t("abuse.success"));
     setReason(""); setContact(""); setOpen(false);
   }
 
@@ -45,33 +47,31 @@ export function ReportAbuseDialog({ reportId }: { reportId: string }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground hover:text-destructive">
-          <Flag className="h-3.5 w-3.5 mr-1.5" /> Report abuse
+          <Flag className="h-3.5 w-3.5 mr-1.5" /> {t("abuse.button")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Report this submission</DialogTitle>
-          <DialogDescription>
-            Tell us why this report appears false, defamatory, or abusive. Moderators will review.
-          </DialogDescription>
+          <DialogTitle>{t("abuse.title")}</DialogTitle>
+          <DialogDescription>{t("abuse.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-3">
           <div className="space-y-1.5">
-            <Label htmlFor="ab-reason">Reason <span className="text-destructive">*</span></Label>
+            <Label htmlFor="ab-reason">{t("abuse.reason")} <span className="text-destructive">*</span></Label>
             <Textarea id="ab-reason" rows={4} maxLength={1000}
               value={reason} onChange={(e) => setReason(e.target.value)}
-              placeholder="Describe the issue (false claim, harassment, personal data, etc.)" />
+              placeholder={t("abuse.reasonPlaceholder")} />
             <p className="text-[11px] text-muted-foreground">{reason.length}/1000</p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="ab-contact">Your contact (optional)</Label>
+            <Label htmlFor="ab-contact">{t("abuse.contact")}</Label>
             <Input id="ab-contact" maxLength={120} value={contact}
-              onChange={(e) => setContact(e.target.value)} placeholder="Email or phone" />
+              onChange={(e) => setContact(e.target.value)} placeholder={t("abuse.contactPlaceholder")} />
           </div>
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>{t("abuse.cancel")}</Button>
             <Button type="submit" disabled={busy}>
-              {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />} Submit
+              {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />} {t("abuse.submit")}
             </Button>
           </DialogFooter>
         </form>

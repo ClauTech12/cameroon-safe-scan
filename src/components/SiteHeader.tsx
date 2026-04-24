@@ -15,7 +15,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const links = [
     { to: "/", label: t("nav.home"), icon: Home },
-    { to: "/check", label: "Check Number", icon: Search },
+    { to: "/check", label: t("nav.check"), icon: Search },
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
     { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone },
@@ -58,7 +58,7 @@ export function SiteHeader() {
             size="icon"
             className="md:hidden h-9 w-9"
             onClick={() => setOpen((o) => !o)}
-            aria-label="Menu"
+            aria-label={t("nav.menu")}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
