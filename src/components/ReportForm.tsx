@@ -127,6 +127,7 @@ export function ReportForm() {
       }
 
       // 3) insert report
+      const { data: { user } } = await supabase.auth.getUser();
       const { data: inserted, error: insErr } = await supabase
         .from("scam_reports")
         .insert({
@@ -140,6 +141,7 @@ export function ReportForm() {
           ai_advice: ai.advice,
           risk_level: ai.risk_level,
           language: i18n.language?.startsWith("fr") ? "fr" : "en",
+          submitter_id: user?.id ?? null,
         })
         .select("id")
         .single();
