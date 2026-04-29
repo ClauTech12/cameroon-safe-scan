@@ -8,6 +8,9 @@ import { CameroonHeatmap } from "@/components/CameroonHeatmap";
 import { SCAM_META, ScamType } from "@/lib/scam-types";
 import { maskPhone } from "@/lib/risk";
 import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from "@/components/ui/dialog";
+import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
 } from "recharts";
 import {
@@ -28,6 +31,7 @@ type Report = {
 export default function AdminDashboardPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<Report | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -64,11 +68,11 @@ export default function AdminDashboardPage() {
       const k = new Date(r.created_at).toISOString().slice(0, 10);
       map.set(k, (map.get(k) ?? 0) + 1);
     });
-    const out: { date: string; count: number }[] = [];
+    const out: { date: string; fullDate: string; count: number }[] = [];
     for (let i = 13; i >= 0; i--) {
       const d = new Date(); d.setDate(d.getDate() - i);
       const k = d.toISOString().slice(0, 10);
-      out.push({ date: k.slice(5), count: map.get(k) ?? 0 });
+      out.push({ date: k.slice(5), fullDate: k, count: map.get(k) ?? 0 });
     }
     return out;
   }, [reports]);
@@ -209,12 +213,21 @@ export default function AdminDashboardPage() {
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} tickLine={false} axisLine={false} />
                 <Tooltip
+                  cursor={{ stroke: "hsl(var(--primary))", strokeOpacity: 0.2 }}
                   contentStyle={{
                     background: "hsl(var(--card))",
                     border: "1px solid hsl(var(--border))",
                     borderRadius: 12,
                     fontSize: 12,
                   }}
+                  labelFormatter={(_, payload) => {
+                    const p: any = payload?.[0]?.payload;
+                    if (!p?.fullDate) return "";
+                    return new Date(p.fullDate).toLocaleDateString(undefined, {
+                      weekday: "short", month: "short", day: "numeric",
+                    });
+                  }}
+                  formatter={(value: any) => [`${value} report${value === 1 ? "" : "s"}`, "Count"]}
                 />
                 <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#grad-reports)" />
               </AreaChart>
@@ -240,7 +253,12 @@ export default function AdminDashboardPage() {
                 const meta = SCAM_META[r.scam_type];
                 const Icon = meta.icon;
                 return (
-                  <div key={r.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-smooth">
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setSelected(r)}
+                    className="w-full text-left flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-smooth focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
                     <span className={`h-9 w-9 rounded-lg ${meta.ring} grid place-items-center shrink-0`}>
                       <Icon className={`h-4 w-4 ${meta.text}`} />
                     </span>
@@ -249,7 +267,7 @@ export default function AdminDashboardPage() {
                         {r.scam_type.replace("_", " ")} · {r.location}
                       </div>
                       <div className="text-[11px] text-muted-foreground truncate">
-                        {r.phone_number ? maskPhone(r.phone_number) : "No number"} ·{" "}
+                        {r.phone_number ? maskPhone(r.phone_number) : "Unknown number"} ·{" "}
                         {new Date(r.created_at).toLocaleDateString()}
                       </div>
                     </div>
@@ -263,13 +281,53 @@ export default function AdminDashboardPage() {
                     >
                       {r.risk_level}
                     </Badge>
-                  </div>
+                  </button>
                 );
               })
             )}
           </CardContent>
         </Card>
       </div>
+
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="capitalize">
+              {selected ? selected.scam_type.replace("_", " ") : "Report"} · {selected?.location}
+            </DialogTitle>
+            <DialogDescription>
+              {selected && new Date(selected.created_at).toLocaleString()}
+            </DialogDescription>
+          </DialogHeader>
+          {selected && (
+            <div className="space-y-3 text-sm">
+              <div className="flex flex-wrap gap-2">
+                <Badge
+                  variant="outline"
+                  className={
+                    selected.risk_level === "high" ? "border-risk-high/40 text-risk-high bg-risk-high/5"
+                    : selected.risk_level === "medium" ? "border-risk-medium/40 text-risk-medium bg-risk-medium/5"
+                    : "border-risk-low/40 text-risk-low bg-risk-low/5"
+                  }
+                >
+                  Risk: {selected.risk_level}
+                </Badge>
+                <Badge variant="outline">
+                  {selected.phone_number ? maskPhone(selected.phone_number) : "Unknown number"}
+                </Badge>
+              </div>
+              <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">
+                {selected.description}
+              </p>
+              <div className="pt-2 flex justify-end">
+                <Button asChild size="sm" variant="outline">
+                  <Link to="/admin/reports">Open in moderation <ChevronRight className="h-3 w-3 ml-1" /></Link>
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
