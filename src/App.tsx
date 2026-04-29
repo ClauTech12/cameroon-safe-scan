@@ -25,6 +25,7 @@ import PrivacyPage from "./pages/legal/PrivacyPage.tsx";
 import TermsPage from "./pages/legal/TermsPage.tsx";
 import DisclaimerPage from "./pages/legal/DisclaimerPage.tsx";
 import { useEffect, useState } from "react";
+import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => {
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <WhatsAppFAB />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
