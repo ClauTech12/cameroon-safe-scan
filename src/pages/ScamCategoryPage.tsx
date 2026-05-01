@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -102,35 +101,51 @@ export default function ScamCategoryPage() {
 
   const seo = useMemo(() => (scamType ? SEO[scamType] : null), [scamType]);
 
+  useEffect(() => {
+    if (!seo) return;
+    const prevTitle = document.title;
+    document.title = seo.title;
+
+    const ensureMeta = (selector: string, create: () => HTMLElement) => {
+      let el = document.head.querySelector(selector) as HTMLElement | null;
+      if (!el) {
+        el = create();
+        document.head.appendChild(el);
+      }
+      return el;
+    };
+
+    const desc = ensureMeta('meta[name="description"]', () => {
+      const m = document.createElement("meta");
+      m.setAttribute("name", "description");
+      return m;
+    });
+    const prevDesc = desc.getAttribute("content");
+    desc.setAttribute("content", seo.description);
+
+    const canonical = ensureMeta('link[rel="canonical"]', () => {
+      const l = document.createElement("link");
+      l.setAttribute("rel", "canonical");
+      return l;
+    });
+    const prevCanonical = canonical.getAttribute("href");
+    canonical.setAttribute("href", `${window.location.origin}/scams/${slug}`);
+
+    return () => {
+      document.title = prevTitle;
+      if (prevDesc !== null) desc.setAttribute("content", prevDesc);
+      if (prevCanonical !== null) canonical.setAttribute("href", prevCanonical);
+    };
+  }, [seo, slug]);
+
   if (!scamType || !seo) {
     return <Navigate to="/reports" replace />;
   }
 
   const meta = SCAM_META[scamType];
-  const canonical = `${typeof window !== "undefined" ? window.location.origin : ""}/scams/${slug}`;
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Helmet>
-        <title>{seo.title}</title>
-        <meta name="description" content={seo.description} />
-        <link rel="canonical" href={canonical} />
-        <meta property="og:title" content={seo.title} />
-        <meta property="og:description" content={seo.description} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={canonical} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            name: seo.title,
-            description: seo.description,
-            url: canonical,
-          })}
-        </script>
-      </Helmet>
-
       <SiteHeader />
       <main className="flex-1 container py-10 space-y-8">
         <Breadcrumb>
