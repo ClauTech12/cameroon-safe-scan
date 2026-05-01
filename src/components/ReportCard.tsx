@@ -7,7 +7,7 @@ import { WhyThisResult } from "./WhyThisResult";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 
@@ -21,7 +21,36 @@ export interface Report {
   ai_confidence: number | null;
   ai_advice: string[] | null;
   risk_level: RiskLevel;
+  status?: "pending" | "approved" | "rejected" | null;
   created_at: string;
+}
+
+type BadgeKind = "verified" | "suspicious" | "unverified";
+
+function getVerificationBadge(report: Report): { kind: BadgeKind; label: string; className: string; Icon: typeof ShieldAlert } {
+  // Priority: status drives the label, never the source.
+  if (report.status === "approved" && report.risk_level === "high") {
+    return {
+      kind: "suspicious",
+      label: "suspiciousBadge",
+      className: "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/20",
+      Icon: AlertTriangle,
+    };
+  }
+  if (report.status === "approved") {
+    return {
+      kind: "verified",
+      label: "verifiedBadge",
+      className: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/20",
+      Icon: ShieldCheck,
+    };
+  }
+  return {
+    kind: "unverified",
+    label: "unverifiedBadge",
+    className: "bg-muted text-muted-foreground border-border",
+    Icon: ShieldAlert,
+  };
 }
 
 export function ReportCard({ report }: { report: Report }) {
@@ -29,6 +58,8 @@ export function ReportCard({ report }: { report: Report }) {
   const [showWhy, setShowWhy] = useState(false);
   const meta = SCAM_META[report.scam_type];
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
+  const badge = getVerificationBadge(report);
+  const BadgeIcon = badge.Icon;
 
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
@@ -69,8 +100,8 @@ export function ReportCard({ report }: { report: Report }) {
           </div>
         )}
 
-        <div className="flex items-center gap-1.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 px-2 py-1 text-[11px] font-medium w-fit">
-          <ShieldAlert className="h-3 w-3" /> {t("reports.unverifiedBadge")}
+        <div className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium w-fit ${badge.className}`}>
+          <BadgeIcon className="h-3 w-3" /> {t(`reports.${badge.label}`)}
         </div>
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground pt-3 border-t border-border/60">
