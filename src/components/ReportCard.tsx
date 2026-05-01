@@ -54,6 +54,22 @@ function getVerificationBadge(report: Report): { kind: BadgeKind; label: string;
   };
 }
 
+function buildReasons(report: Report): string[] {
+  const reasons: string[] = [];
+  try {
+    if (report.status === "approved") reasons.push("reports.reasons.adminVerified");
+    if (report.risk_level === "high") reasons.push("reports.reasons.highRisk");
+    else if (report.risk_level === "medium") reasons.push("reports.reasons.mediumRisk");
+    if ((report.ai_confidence ?? 0) >= 80) reasons.push("reports.reasons.highConfidence");
+    const phrases = suspiciousPhrases(report.description ?? "");
+    if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+    if (report.status !== "approved" && reasons.length === 0) reasons.push("reports.reasons.pending");
+  } catch {
+    // never crash the card on explainability
+  }
+  return reasons;
+}
+
 export function ReportCard({ report }: { report: Report }) {
   const { t, i18n } = useTranslation();
   const [showWhy, setShowWhy] = useState(false);
@@ -61,6 +77,7 @@ export function ReportCard({ report }: { report: Report }) {
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
   const badge = getVerificationBadge(report);
   const BadgeIcon = badge.Icon;
+  const reasons = buildReasons(report);
 
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
