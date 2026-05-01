@@ -4,6 +4,7 @@ import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { ReportAbuseDialog } from "./ReportAbuseDialog";
 import { WhyThisResult } from "./WhyThisResult";
+import { suspiciousPhrases } from "@/lib/explain";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
@@ -53,6 +54,22 @@ function getVerificationBadge(report: Report): { kind: BadgeKind; label: string;
   };
 }
 
+function buildReasons(report: Report): string[] {
+  const reasons: string[] = [];
+  try {
+    if (report.status === "approved") reasons.push("reports.reasons.adminVerified");
+    if (report.risk_level === "high") reasons.push("reports.reasons.highRisk");
+    else if (report.risk_level === "medium") reasons.push("reports.reasons.mediumRisk");
+    if ((report.ai_confidence ?? 0) >= 80) reasons.push("reports.reasons.highConfidence");
+    const phrases = suspiciousPhrases(report.description ?? "");
+    if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+    if (report.status !== "approved" && reasons.length === 0) reasons.push("reports.reasons.pending");
+  } catch {
+    // never crash the card on explainability
+  }
+  return reasons;
+}
+
 export function ReportCard({ report }: { report: Report }) {
   const { t, i18n } = useTranslation();
   const [showWhy, setShowWhy] = useState(false);
@@ -60,6 +77,7 @@ export function ReportCard({ report }: { report: Report }) {
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
   const badge = getVerificationBadge(report);
   const BadgeIcon = badge.Icon;
+  const reasons = buildReasons(report);
 
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
@@ -103,6 +121,23 @@ export function ReportCard({ report }: { report: Report }) {
         <div className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[11px] font-medium w-fit ${badge.className}`}>
           <BadgeIcon className="h-3 w-3" /> {t(`reports.${badge.label}`)}
         </div>
+
+        {reasons.length > 0 && (
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-3 space-y-1.5">
+            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground/80">
+              <Lightbulb className="h-3 w-3 text-accent" />
+              {t("reports.whyFlagged")}
+            </div>
+            <ul className="space-y-1 text-[11px] text-muted-foreground">
+              {reasons.map((key) => (
+                <li key={key} className="flex gap-1.5">
+                  <span className="mt-1.5 h-1 w-1 rounded-full shrink-0 bg-accent" />
+                  <span>{t(key)}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div className="flex items-center gap-3 text-xs text-muted-foreground pt-3 border-t border-border/60">
           <span className="flex items-center gap-1"><User className="h-3 w-3" />{report.reporter_name || t("reports.anon")}</span>

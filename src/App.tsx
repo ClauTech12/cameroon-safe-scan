@@ -62,9 +62,27 @@ const App = () => {
                 <Route path="reports" element={<ReportsModerationPage />} />
                 <Route path="numbers" element={<NumberIntelPage />} />
                 <Route path="patterns" element={<FraudDashboardPage />} />
-                <Route path="heatmap" element={<PlaceholderPage title="Heatmap" subtitle="Full-screen Cameroon scam heatmap with filters." />} />
+                <Route
+                  path="heatmap"
+                  element={
+                    <PlaceholderPage
+                      title="Heatmap"
+                      subtitle="Full-screen Cameroon scam heatmap with filters."
+                      context="This page will display scam activity across regions using interactive maps, with time and category filters to spot hotspots at a glance."
+                    />
+                  }
+                />
                 <Route path="alerts" element={<FlaggedListPage />} />
-                <Route path="settings" element={<PlaceholderPage title="Settings" subtitle="Profile, notifications, language and branding." />} />
+                <Route
+                  path="settings"
+                  element={
+                    <PlaceholderPage
+                      title="Settings"
+                      subtitle="Profile, notifications, language and branding."
+                      context="This page will allow admin configuration, notification preferences, language defaults, and other system preferences for your CamAlert workspace."
+                    />
+                  }
+                />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
