@@ -152,6 +152,8 @@ export default {
     anon: "Anonyme",
     in: "à",
     unverifiedBadge: "Signalement utilisateur non vérifié",
+    verifiedBadge: "Signalement vérifié",
+    suspiciousBadge: "Signalement suspect",
   },
   abuse: {
     button: "Signaler un abus",
