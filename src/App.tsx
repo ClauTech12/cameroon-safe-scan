@@ -8,6 +8,7 @@ import Index from "./pages/Index.tsx";
 import ReportPage from "./pages/ReportPage.tsx";
 import ReportsPage from "./pages/ReportsPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
+import ScamCategoryPage from "./pages/ScamCategoryPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
 import CheckNumberPage from "./pages/CheckNumberPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
@@ -51,6 +52,7 @@ const App = () => {
               <Route path="/report" element={<ReportPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/scams/:type" element={<ScamCategoryPage />} />
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
               <Route path="/check" element={<CheckNumberPage />} />
               <Route path="/auth" element={<AuthPage />} />
