@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -98,11 +99,15 @@ export default function DashboardPage() {
             )}
             <div className="grid grid-cols-2 gap-2 mt-4">
               {chartData.map((d) => (
-                <div key={d.key} className="flex items-center gap-2 text-xs">
+                <Link
+                  key={d.key}
+                  to={`/scams/${d.key === "mobile_money" ? "mobile-money" : d.key}`}
+                  className="flex items-center gap-2 text-xs rounded-md px-2 py-1 -mx-2 hover:bg-secondary transition-smooth group"
+                >
                   <span className="h-3 w-3 rounded-sm" style={{ background: d.fill }} />
-                  <span className="text-muted-foreground">{d.name}</span>
-                  <span className="ml-auto font-semibold">{d.value}</span>
-                </div>
+                  <span className="text-muted-foreground group-hover:text-foreground">{d.name}</span>
+                  <span className="ml-auto font-semibold tabular-nums">{d.value}</span>
+                </Link>
               ))}
             </div>
           </Card>
