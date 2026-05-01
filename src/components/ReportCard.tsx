@@ -4,6 +4,7 @@ import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { ReportAbuseDialog } from "./ReportAbuseDialog";
 import { WhyThisResult } from "./WhyThisResult";
+import { suspiciousPhrases } from "@/lib/explain";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
