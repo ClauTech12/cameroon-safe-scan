@@ -154,6 +154,15 @@ export default {
     unverifiedBadge: "Signalement utilisateur non vérifié",
     verifiedBadge: "Signalement vérifié",
     suspiciousBadge: "Signalement suspect",
+    whyFlagged: "Pourquoi c'est signalé",
+    reasons: {
+      adminVerified: "Examiné et confirmé par un administrateur.",
+      highRisk: "L'analyse IA évalue le risque comme élevé.",
+      mediumRisk: "L'analyse IA évalue le risque comme moyen.",
+      patternMatch: "Correspond à des schémas d'arnaque déjà observés.",
+      highConfidence: "La confiance du classifieur IA est très élevée.",
+      pending: "Pas assez de données — en attente de modération.",
+    },
   },
   abuse: {
     button: "Signaler un abus",

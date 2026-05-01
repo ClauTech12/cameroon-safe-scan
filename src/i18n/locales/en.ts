@@ -154,6 +154,15 @@ export default {
     unverifiedBadge: "Unverified user-submitted report",
     verifiedBadge: "Verified report",
     suspiciousBadge: "Suspicious report",
+    whyFlagged: "Why this is flagged",
+    reasons: {
+      adminVerified: "Reviewed and confirmed by an admin.",
+      highRisk: "AI risk analysis rates this as high risk.",
+      mediumRisk: "AI risk analysis rates this as medium risk.",
+      patternMatch: "Matches common scam patterns we've seen before.",
+      highConfidence: "AI scam classifier confidence is very high.",
+      pending: "Not enough data yet — awaiting moderator review.",
+    },
   },
   abuse: {
     button: "Report abuse",
