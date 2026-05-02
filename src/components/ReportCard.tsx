@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScamType, SCAM_META, RiskLevel, maskContact } from "@/lib/scam-types";
 import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { ReportAbuseDialog } from "./ReportAbuseDialog";
 import { WhyThisResult } from "./WhyThisResult";
-import { suspiciousPhrases } from "@/lib/explain";
+import { suspiciousPhrases, detectTactics } from "@/lib/explain";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Report {
   id: string;
@@ -24,6 +25,7 @@ export interface Report {
   risk_level: RiskLevel;
   status?: "pending" | "approved" | "rejected" | null;
   created_at: string;
+  phone_number?: string | null;
 }
 
 type BadgeKind = "verified" | "suspicious" | "unverified";
