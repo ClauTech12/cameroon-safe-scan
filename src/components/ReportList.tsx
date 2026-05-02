@@ -14,7 +14,7 @@ export function ReportList({ limit }: { limit?: number }) {
     (async () => {
       let q = supabase
         .from("scam_reports")
-        .select("id, reporter_name, location, description, contact_info, scam_type, ai_confidence, ai_advice, risk_level, status, created_at")
+        .select("id, reporter_name, location, description, contact_info, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number")
         .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (limit) q = q.limit(limit);
