@@ -66,3 +66,32 @@ export function suspiciousPhrases(text: string): string[] {
       .filter(Boolean),
   )).slice(0, 6);
 }
+
+// Higher-level human-friendly tactic detection. Returns i18n keys (without prefix).
+const TACTIC_PATTERNS: { key: string; re: RegExp }[] = [
+  // urgent money request: urgency + money/transfer wording
+  { key: "urgentMoney", re: /\b(urgent|now|immediately|maintenant|tout de suite|asap)\b[\s\S]{0,80}\b(send|transfer|pay|envoyer|virement|payer|deposit|recharge)\b/i },
+  // credential / OTP request
+  { key: "credential", re: /\b(otp|code|pin|password|mot de passe)\b/i },
+  // mobile money keywords
+  { key: "momo", re: /\b(momo|mobile money|mtn|orange money)\b/i },
+  // impersonation: pretending to be relative / agent / staff
+  { key: "impersonation", re: /\b(brother|sister|cousin|uncle|aunt|frère|soeur|cousin|oncle|tante|family|famille|agent|staff|employee|employé|representative|représentant|police|gendarme|bank|banque)\b[\s\S]{0,60}\b(help|need|aide|besoin|stuck|coincé|hospital|hôpital|urgent|account|compte)\b/i },
+  // prize / lottery bait
+  { key: "prize", re: /\b(winner|gagnant|prize|prix|lottery|loterie|congratulations|félicitations)\b/i },
+  // job lure with fee
+  { key: "jobFee", re: /\b(job|emploi|recruit|recrutement|hire)\b[\s\S]{0,80}\b(fee|frais|deposit|caution|payment|paiement)\b/i },
+  // investment / fast returns
+  { key: "investmentReturn", re: /\b(invest|investir|profit|return|bénéfice|forex|crypto|bitcoin)\b[\s\S]{0,40}\b(double|triple|guaranteed|garanti|\d{2,3}\s*%)\b/i },
+  // suspicious external link
+  { key: "suspiciousLink", re: /https?:\/\/(?!camalert\.)/i },
+];
+
+export function detectTactics(text: string): string[] {
+  if (!text) return [];
+  const found: string[] = [];
+  for (const { key, re } of TACTIC_PATTERNS) {
+    if (re.test(text)) found.push(key);
+  }
+  return Array.from(new Set(found));
+}

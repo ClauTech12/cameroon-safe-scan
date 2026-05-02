@@ -1,16 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ScamType, SCAM_META, RiskLevel, maskContact } from "@/lib/scam-types";
 import { ScamBadge } from "./ScamBadge";
 import { RiskIndicator } from "./RiskIndicator";
 import { ReportAbuseDialog } from "./ReportAbuseDialog";
 import { WhyThisResult } from "./WhyThisResult";
-import { suspiciousPhrases } from "@/lib/explain";
+import { suspiciousPhrases, detectTactics } from "@/lib/explain";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Report {
   id: string;
@@ -24,6 +25,7 @@ export interface Report {
   risk_level: RiskLevel;
   status?: "pending" | "approved" | "rejected" | null;
   created_at: string;
+  phone_number?: string | null;
 }
 
 type BadgeKind = "verified" | "suspicious" | "unverified";
@@ -54,30 +56,72 @@ function getVerificationBadge(report: Report): { kind: BadgeKind; label: string;
   };
 }
 
-function buildReasons(report: Report): string[] {
+interface PhoneStats { total: number; recent24h: number }
+
+function buildReasons(report: Report, stats: PhoneStats | null): string[] {
   const reasons: string[] = [];
   try {
+    // Most specific signals first
+    if (stats && stats.total >= 2) reasons.push("reports.reasons.reportedMultiple");
+    if (stats && stats.recent24h >= 3) reasons.push("reports.reasons.recentSpike");
+
+    // Tactic-specific reasons from message content
+    const tactics = detectTactics(report.description ?? "");
+    for (const tac of tactics) reasons.push(`reports.reasons.tactic.${tac}`);
+
+    // Verification & risk
     if (report.status === "approved") reasons.push("reports.reasons.adminVerified");
     if (report.risk_level === "high") reasons.push("reports.reasons.highRisk");
     else if (report.risk_level === "medium") reasons.push("reports.reasons.mediumRisk");
+
+    // Generic pattern fallback only if no tactic was identified
+    if (tactics.length === 0) {
+      const phrases = suspiciousPhrases(report.description ?? "");
+      if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+    }
+
     if ((report.ai_confidence ?? 0) >= 80) reasons.push("reports.reasons.highConfidence");
-    const phrases = suspiciousPhrases(report.description ?? "");
-    if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+
     if (report.status !== "approved" && reasons.length === 0) reasons.push("reports.reasons.pending");
   } catch {
     // never crash the card on explainability
   }
-  return reasons;
+  // de-dupe while keeping order, cap at 5
+  return Array.from(new Set(reasons)).slice(0, 5);
 }
 
 export function ReportCard({ report }: { report: Report }) {
   const { t, i18n } = useTranslation();
   const [showWhy, setShowWhy] = useState(false);
+  const [stats, setStats] = useState<PhoneStats | null>(null);
   const meta = SCAM_META[report.scam_type];
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
   const badge = getVerificationBadge(report);
   const BadgeIcon = badge.Icon;
-  const reasons = buildReasons(report);
+
+  // Lazy-fetch same-number stats (best-effort, never blocks render)
+  useEffect(() => {
+    const phone = report.phone_number?.trim();
+    if (!phone) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const [{ count: total }, { count: recent24h }] = await Promise.all([
+          supabase.from("scam_reports").select("id", { count: "exact", head: true })
+            .eq("status", "approved").eq("phone_number", phone),
+          supabase.from("scam_reports").select("id", { count: "exact", head: true })
+            .eq("status", "approved").eq("phone_number", phone).gte("created_at", since),
+        ]);
+        if (!cancelled) setStats({ total: total ?? 0, recent24h: recent24h ?? 0 });
+      } catch {
+        // ignore — explainability degrades gracefully
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [report.phone_number]);
+
+  const reasons = buildReasons(report, stats);
 
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
@@ -136,6 +180,9 @@ export function ReportCard({ report }: { report: Report }) {
                 </li>
               ))}
             </ul>
+            <p className="text-[10px] text-muted-foreground/70 italic pt-1">
+              {t("reports.basedOnPattern")}
+            </p>
           </div>
         )}
 
