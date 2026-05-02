@@ -180,6 +180,9 @@ export function ReportCard({ report }: { report: Report }) {
                 </li>
               ))}
             </ul>
+            <p className="text-[10px] text-muted-foreground/70 italic pt-1">
+              {t("reports.basedOnPattern")}
+            </p>
           </div>
         )}
 
