@@ -56,30 +56,72 @@ function getVerificationBadge(report: Report): { kind: BadgeKind; label: string;
   };
 }
 
-function buildReasons(report: Report): string[] {
+interface PhoneStats { total: number; recent24h: number }
+
+function buildReasons(report: Report, stats: PhoneStats | null): string[] {
   const reasons: string[] = [];
   try {
+    // Most specific signals first
+    if (stats && stats.total >= 2) reasons.push("reports.reasons.reportedMultiple");
+    if (stats && stats.recent24h >= 3) reasons.push("reports.reasons.recentSpike");
+
+    // Tactic-specific reasons from message content
+    const tactics = detectTactics(report.description ?? "");
+    for (const tac of tactics) reasons.push(`reports.reasons.tactic.${tac}`);
+
+    // Verification & risk
     if (report.status === "approved") reasons.push("reports.reasons.adminVerified");
     if (report.risk_level === "high") reasons.push("reports.reasons.highRisk");
     else if (report.risk_level === "medium") reasons.push("reports.reasons.mediumRisk");
+
+    // Generic pattern fallback only if no tactic was identified
+    if (tactics.length === 0) {
+      const phrases = suspiciousPhrases(report.description ?? "");
+      if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+    }
+
     if ((report.ai_confidence ?? 0) >= 80) reasons.push("reports.reasons.highConfidence");
-    const phrases = suspiciousPhrases(report.description ?? "");
-    if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
+
     if (report.status !== "approved" && reasons.length === 0) reasons.push("reports.reasons.pending");
   } catch {
     // never crash the card on explainability
   }
-  return reasons;
+  // de-dupe while keeping order, cap at 5
+  return Array.from(new Set(reasons)).slice(0, 5);
 }
 
 export function ReportCard({ report }: { report: Report }) {
   const { t, i18n } = useTranslation();
   const [showWhy, setShowWhy] = useState(false);
+  const [stats, setStats] = useState<PhoneStats | null>(null);
   const meta = SCAM_META[report.scam_type];
   const locale = i18n.language?.startsWith("fr") ? frLocale : enUS;
   const badge = getVerificationBadge(report);
   const BadgeIcon = badge.Icon;
-  const reasons = buildReasons(report);
+
+  // Lazy-fetch same-number stats (best-effort, never blocks render)
+  useEffect(() => {
+    const phone = report.phone_number?.trim();
+    if (!phone) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+        const [{ count: total }, { count: recent24h }] = await Promise.all([
+          supabase.from("scam_reports").select("id", { count: "exact", head: true })
+            .eq("status", "approved").eq("phone_number", phone),
+          supabase.from("scam_reports").select("id", { count: "exact", head: true })
+            .eq("status", "approved").eq("phone_number", phone).gte("created_at", since),
+        ]);
+        if (!cancelled) setStats({ total: total ?? 0, recent24h: recent24h ?? 0 });
+      } catch {
+        // ignore — explainability degrades gracefully
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [report.phone_number]);
+
+  const reasons = buildReasons(report, stats);
 
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
