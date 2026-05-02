@@ -53,6 +53,7 @@ const App = () => {
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/scams/:type" element={<ScamCategoryPage />} />
+              <Route path="/fr/scams/:type" element={<ScamCategoryPage />} />
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
               <Route path="/check" element={<CheckNumberPage />} />
               <Route path="/auth" element={<AuthPage />} />
