@@ -214,6 +214,29 @@
   .bg-gradient-primary { background: var(--gradient-primary); }
   .bg-gradient-accent { background: var(--gradient-accent); }
   .bg-gradient-mesh { background: var(--gradient-mesh); }
+  .bg-cyber-grid {
+    background-image: var(--gradient-grid);
+    background-size: 32px 32px;
+  }
+  .ring-trust { box-shadow: inset 0 0 0 1px hsl(var(--accent) / 0.25), 0 0 0 4px hsl(var(--accent) / 0.06); }
+  .badge-trust {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold;
+    background: hsl(var(--accent) / 0.10);
+    color: hsl(var(--accent));
+    border: 1px solid hsl(var(--accent) / 0.22);
+  }
+  @keyframes scan-line {
+    0% { transform: translateY(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(2000%); opacity: 0; }
+  }
+  .animate-scan { animation: scan-line 3.2s ease-in-out infinite; }
+  @keyframes pulse-ring {
+    0% { transform: scale(0.9); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+  }
+  .animate-pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
 
   .lift-on-hover {
     transition: transform 0.25s var(--transition-smooth), box-shadow 0.25s var(--transition-smooth);
