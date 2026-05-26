@@ -233,6 +233,62 @@ const Index = () => {
           </div>
         </section>
 
+        {/* ============ AI SCAM ANALYZER ============ */}
+        <section className="container py-12 md:py-20">
+          <div className="surface-elevated overflow-hidden border-accent/20 grid md:grid-cols-5 gap-0">
+            <div className="md:col-span-3 p-8 md:p-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-xs font-bold text-accent uppercase tracking-wider mb-4">
+                <Brain className="h-3.5 w-3.5" /> AI Scam Analyzer
+              </div>
+              <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight leading-tight">
+                Paste it. Scan it. Stay safe.
+              </h2>
+              <p className="mt-4 text-foreground/75 leading-relaxed">
+                Submit a suspicious link, WhatsApp message, SMS, email, or phone number. Get an instant
+                heuristic risk score, then launch a deeper AI investigation for human-readable reasoning.
+              </p>
+              <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2">
+                {[
+                  { label: "Link", icon: "🌐" },
+                  { label: "WhatsApp", icon: "💬" },
+                  { label: "SMS", icon: "📩" },
+                  { label: "Email", icon: "✉️" },
+                  { label: "Phone", icon: "📞" },
+                ].map((c) => (
+                  <div key={c.label} className="rounded-lg border border-border/60 bg-card px-2 py-2.5 text-center text-xs font-semibold">
+                    <div className="text-base mb-0.5">{c.icon}</div>
+                    {c.label}
+                  </div>
+                ))}
+              </div>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-full px-7">
+                  <Link to="/analyzer"><Brain className="h-4 w-4" /> Open the Analyzer</Link>
+                </Button>
+                <Button asChild size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground rounded-full">
+                  <Link to="/check"><Search className="h-4 w-4" /> Quick number lookup</Link>
+                </Button>
+              </div>
+            </div>
+            <div className="md:col-span-2 bg-gradient-hero text-white p-8 md:p-12 relative overflow-hidden">
+              <div className="absolute inset-0 bg-cyber-grid opacity-25" aria-hidden="true" />
+              <div className="relative space-y-3">
+                {[
+                  { l: "Risk score", v: "87 / 100", t: "High Risk" },
+                  { l: "Indicators", v: "OTP · Urgency · Brand impersonation" },
+                  { l: "Recommendation", v: "Do not reply. Report on CAMALERT." },
+                ].map((x, i) => (
+                  <div key={i} className="rounded-lg bg-white/5 border border-white/15 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-white/60">{x.l}</div>
+                    <div className="font-mono-tech text-sm font-semibold mt-1">{x.v}</div>
+                    {x.t && <div className="text-[11px] text-white/70 mt-0.5">{x.t}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* ============ THREAT CATEGORIES ============ */}
         <section className="container py-12 md:py-16">
           <div className="max-w-2xl mx-auto text-center mb-10">
