@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage.tsx";
 import ScamCategoryPage from "./pages/ScamCategoryPage.tsx";
 import MoMoGuardPage from "./pages/MoMoGuardPage.tsx";
 import CheckNumberPage from "./pages/CheckNumberPage.tsx";
+import AIAnalyzerPage from "./pages/AIAnalyzerPage.tsx";
 import AuthPage from "./pages/AuthPage.tsx";
 import { AdminLayout } from "./pages/admin/AdminLayout.tsx";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage.tsx";
@@ -56,6 +57,7 @@ const App = () => {
               <Route path="/fr/scams/:type" element={<ScamCategoryPage />} />
               <Route path="/momo-guard" element={<MoMoGuardPage />} />
               <Route path="/check" element={<CheckNumberPage />} />
+              <Route path="/analyzer" element={<AIAnalyzerPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
