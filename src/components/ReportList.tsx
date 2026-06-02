@@ -27,14 +27,14 @@ export function ReportList({ limit }: { limit?: number }) {
   }, [limit]);
 
   if (reports === null) {
-    return (
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: limit || 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-64 rounded-2xl" />
-        ))}
-      </div>
-    );
-  }
+  return (
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {Array.from({ length: limit || 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-64 rounded-2xl" />
+      ))}
+    </div>
+  );
+}
   if (reports.length === 0) {
     return (
       <div className="text-center py-20 text-muted-foreground">
@@ -44,8 +44,18 @@ export function ReportList({ limit }: { limit?: number }) {
     );
   }
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {reports.map((r) => <ReportCard key={r.id} report={r} />)}
+  <>
+    <div className="mb-4 flex items-center justify-between">
+      <h2 className="text-xl font-bold">
+        Scam Reports ({reports.length})
+      </h2>
     </div>
-  );
+
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {reports.map((r) => (
+        <ReportCard key={r.id} report={r} />
+      ))}
+    </div>
+  </>
+);
 }
