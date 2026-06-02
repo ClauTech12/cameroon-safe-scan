@@ -122,14 +122,30 @@ export function ReportCard({ report }: { report: Report }) {
   }, [report.phone_number]);
 
   const reasons = buildReasons(report, stats);
-
+const confidenceLabel =
+  (report.ai_confidence ?? 0) >= 85
+    ? "Very High Confidence"
+    : (report.ai_confidence ?? 0) >= 70
+    ? "High Confidence"
+    : (report.ai_confidence ?? 0) >= 50
+    ? "Medium Confidence"
+    : "Low Confidence";
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
       <div className="h-1 w-full" style={{ background: meta.hex }} />
       <div className="p-5 space-y-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-3 flex-wrap">
-          <ScamBadge type={report.scam_type} confidence={report.ai_confidence} />
-          <RiskIndicator level={report.risk_level} />
+          <div>
+  <ScamBadge
+    type={report.scam_type}
+    confidence={report.ai_confidence}
+  />
+  <p className="text-[11px] text-muted-foreground mt-1">
+    {confidenceLabel}
+  </p>
+</div>
+
+<RiskIndicator level={report.risk_level} />
         </div>
 
         <HighlightedText
