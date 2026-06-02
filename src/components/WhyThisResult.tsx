@@ -65,6 +65,20 @@ export function WhyThisResult({ reportId, data, description, className, compact 
 
   const phrases = description ? suspiciousPhrases(description) : [];
   const risk = loaded.risk?.total ?? 0;
+  const riskLevel =
+  risk >= 85 ? "Critical Risk" :
+  risk >= 70 ? "High Risk" :
+  risk >= 40 ? "Medium Risk" :
+  "Low Risk";
+
+const riskDescription =
+  risk >= 85
+    ? "Multiple strong indicators suggest highly suspicious activity."
+    : risk >= 70
+    ? "Several indicators suggest a significant scam risk."
+    : risk >= 40
+    ? "Some suspicious indicators have been detected."
+    : "Limited suspicious activity has been detected.";
 
   const Row = ({ icon: Icon, label, value }: { icon: typeof Info; label: string; value: React.ReactNode }) => (
     <li className="flex items-start gap-2.5">
@@ -89,7 +103,14 @@ export function WhyThisResult({ reportId, data, description, className, compact 
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs">
           <span className="text-muted-foreground">{t("why.combined")}</span>
-          <span className="font-bold tabular-nums">{risk}/100</span>
+          <div className="text-right">
+  <div className="font-bold tabular-nums text-base">
+    {risk}/100
+  </div>
+  <div className="text-[11px] text-muted-foreground">
+    {riskLevel}
+  </div>
+</div>
         </div>
         <Progress value={risk} className={cn("h-2 [&>div]:transition-all", `[&>div]:${RISK_COLOR(risk)}`)} />
         <div className="grid grid-cols-3 gap-2 text-[11px] pt-1">
@@ -100,7 +121,35 @@ export function WhyThisResult({ reportId, data, description, className, compact 
       </div>
 
       <Separator />
+<Separator />
 
+<div className="rounded-lg border bg-muted/30 p-4 space-y-2">
+  <h4 className="font-semibold text-sm">
+    Why CAMALERT flagged this result
+  </h4>
+
+  <p className="text-sm text-muted-foreground">
+    {riskDescription}
+  </p>
+
+  <ul className="space-y-1 text-sm">
+    {loaded.total_reports > 0 && (
+      <li>• Community reports have been submitted regarding this activity.</li>
+    )}
+
+    {loaded.pattern_match && (
+      <li>• Behaviour matches previously identified scam patterns.</li>
+    )}
+
+    {loaded.spike && (
+      <li>• Reporting activity increased significantly within the last 24 hours.</li>
+    )}
+
+    {loaded.ai_confidence >= 70 && (
+      <li>• AI analysis indicates a strong likelihood of suspicious behaviour.</li>
+    )}
+  </ul>
+</div>
       <ul className="space-y-2">
         <Row icon={FileBarChart} label={t("why.totalReports")} value={loaded.total_reports} />
         <Row icon={Activity}     label={t("why.last24h")} value={
@@ -111,7 +160,23 @@ export function WhyThisResult({ reportId, data, description, className, compact 
         <Row icon={Network}      label={t("why.patternMatch")} value={loaded.pattern_match ? t("why.yes") : t("why.no")} />
         <Row icon={Brain}        label={t("why.aiConfidence")} value={`${loaded.ai_confidence}%`} />
       </ul>
+<Separator />
 
+<div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-4">
+  <div className="flex items-center gap-2 mb-2">
+    <AlertTriangle className="h-4 w-4 text-amber-500" />
+    <span className="font-semibold text-sm">
+      Recommended Safety Actions
+    </span>
+  </div>
+
+  <ul className="text-sm space-y-1 text-muted-foreground">
+    <li>• Verify identities through an independent communication channel.</li>
+    <li>• Never share OTPs, passwords, PINs, or banking credentials.</li>
+    <li>• Do not send money until legitimacy is confirmed.</li>
+    <li>• Report suspicious behaviour to CAMALERT and relevant authorities.</li>
+  </ul>
+</div>
       {!compact && phrases.length > 0 && (
         <>
           <Separator />
