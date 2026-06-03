@@ -20,6 +20,7 @@ export function WhatsAppFAB({ phone = "", message }: Props) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
+      title="Chat with us on WhatsApp"
       className="fixed bottom-5 right-5 md:bottom-6 md:right-6 z-[60] h-14 w-14 rounded-full grid place-items-center shadow-lg shadow-black/20 hover:scale-110 hover:shadow-xl active:scale-95 transition-all duration-200 ring-4 ring-white/20"
       style={{ background: "#25D366", color: "#fff" }}
     >
