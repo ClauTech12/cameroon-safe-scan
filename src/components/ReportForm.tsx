@@ -210,23 +210,20 @@ export function ReportForm() {
                 {t("form.truthful")}
               </Label>
               <p className="text-xs text-muted-foreground leading-snug">
-                {t("form.truthfulHelp", {
-                  terms: "",
-                  privacy: "",
-                  disclaimer: "",
-                }).split(/\{\{terms\}\}|\{\{privacy\}\}|\{\{disclaimer\}\}/).reduce<React.ReactNode[]>((acc, part, i, arr) => {
-                  acc.push(<span key={`p-${i}`}>{part}</span>);
-                  if (i < arr.length - 1) {
-                    const links = [
-                      <Link key="t" to="/terms" className="underline hover:text-foreground">{t("footer.terms")}</Link>,
-                      <Link key="p" to="/privacy" className="underline hover:text-foreground">{t("footer.privacy")}</Link>,
-                      <Link key="d" to="/disclaimer" className="underline hover:text-foreground">{t("footer.disclaimer")}</Link>,
-                    ];
-                    acc.push(links[i]);
-                  }
-                  return acc;
-                }, [])}
-              </p>
+  By submitting you agree to our{" "}
+  <Link to="/legal/terms" className="underline hover:text-foreground">
+    {t("footer.terms")}
+  </Link>
+  ,{" "}
+  <Link to="/legal/privacy" className="underline hover:text-foreground">
+    {t("footer.privacy")}
+  </Link>{" "}
+  and{" "}
+  <Link to="/legal/disclaimer" className="underline hover:text-foreground">
+    {t("footer.disclaimer")}
+  </Link>
+  . Reports are reviewed by moderators before becoming public.
+</p>
             </div>
           </div>
           <Button type="submit" disabled={submitting || !truthful} size="lg"
