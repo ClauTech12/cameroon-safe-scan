@@ -33,7 +33,7 @@ export default {
     badge: "Cyber trust platform · Cameroon & Africa",
     title: "Stay Alert.",
     titleAccent: "Stay Secure.",
-    subtitle: "CAMALERT helps users detect scams, report fraudulent activity, and stay informed about digital threats across Africa.",
+    subtitle: "CAMALERT helps people across Cameroon and Africa detect scams, report fraud, and stay safe online.",
     ctaCheck: "Check Scam Number",
     ctaReport: "Report Scam",
     ctaBrowse: "Learn About Threats",
