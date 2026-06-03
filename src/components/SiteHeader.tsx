@@ -19,7 +19,7 @@ export function SiteHeader() {
     { to: "/check", label: t("nav.check"), icon: Search },
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
     { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
-    { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone },
+    { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone, badge: "NEW" },
     ...(isAdmin ? [{ to: "/admin", label: t("nav.admin"), icon: ShieldCheck }] : []),
   ];
   return (
@@ -44,7 +44,12 @@ export function SiteHeader() {
               }
             >
               <Icon className="h-4 w-4" />
-              {label}
+{label}
+{(to === "/momo-guard") && (
+  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-scam-mobile/20 text-scam-mobile border border-scam-mobile/40">
+    NEW
+  </span>
+)}
             </NavLink>
           ))}
         </nav>
@@ -82,7 +87,12 @@ export function SiteHeader() {
                 }
               >
                 <Icon className="h-4 w-4" />
-                {label}
+{label}
+{(to === "/momo-guard") && (
+  <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-scam-mobile/20 text-scam-mobile border border-scam-mobile/40">
+    NEW
+  </span>
+)}
               </NavLink>
             ))}
             <Button asChild size="sm" className="mt-2 bg-foreground text-background hover:bg-foreground/90 font-semibold rounded-full">
