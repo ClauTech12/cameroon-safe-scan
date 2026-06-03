@@ -5,9 +5,6 @@ import { SCAM_TYPES } from "@/lib/scam-types";
 import { Skeleton } from "./ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { Inbox } from "lucide-react";
-import { SiteHeader } from "@/components/SiteHeader";
-import { SiteFooter } from "@/components/SiteFooter";
-import { ReportList } from "@/components/ReportList";
 
 export function ReportList({ limit }: { limit?: number }) {
   const { t } = useTranslation();
