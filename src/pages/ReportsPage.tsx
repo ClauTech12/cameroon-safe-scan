@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -5,6 +6,7 @@ import { ReportList } from "@/components/ReportList";
 
 export default function ReportsPage() {
   const { t } = useTranslation();
+  const [phoneLookup, setPhoneLookup] = useState("");
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -21,14 +23,22 @@ export default function ReportsPage() {
   <p className="text-muted-foreground mb-4">
     Check if a phone number has been reported before sending money.
   </p>
-
+<div className="flex gap-2">
   <input
     type="text"
     placeholder="Enter phone number..."
-    className="w-full px-3 py-2 border rounded-lg"
+    value={phoneLookup}
+    onChange={(e) => setPhoneLookup(e.target.value)}
+    className="flex-1 px-3 py-2 border rounded-lg"
   />
-</div>
 
+  <button
+    className="px-4 py-2 rounded-lg bg-primary text-primary-foreground"
+  >
+    Search
+  </button>
+</div>
+</div>
 <ReportList />
       </main>
       <SiteFooter />
