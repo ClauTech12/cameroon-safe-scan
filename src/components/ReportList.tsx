@@ -5,6 +5,9 @@ import { SCAM_TYPES } from "@/lib/scam-types";
 import { Skeleton } from "./ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { Inbox } from "lucide-react";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { ReportList } from "@/components/ReportList";
 
 export function ReportList({ limit }: { limit?: number }) {
   const { t } = useTranslation();
@@ -76,21 +79,29 @@ const filteredReports = reports?.filter((report) => {
 />
   <div className="flex flex-wrap gap-2">
     <button
-      onClick={() => setSelectedCategory("all")}
-      className="px-3 py-1 rounded border"
-    >
-      All
-    </button>
+  onClick={() => setSelectedCategory("all")}
+  className={`px-3 py-1 rounded border transition-colors ${
+    selectedCategory === "all"
+      ? "bg-primary text-primary-foreground"
+      : "hover:bg-secondary"
+  }`}
+>
+  {t("common.all") || "All"}
+</button>
 
     {SCAM_TYPES.map((type) => (
-      <button
-        key={type}
-        onClick={() => setSelectedCategory(type)}
-        className="px-3 py-1 rounded border"
-      >
-        {type}
-      </button>
-    ))}
+  <button
+    key={type}
+    onClick={() => setSelectedCategory(type)}
+    className={`px-3 py-1 rounded border transition-colors ${
+      selectedCategory === type
+        ? "bg-primary text-primary-foreground"
+        : "hover:bg-secondary"
+    }`}
+  >
+    {t(`scamTypes.${type}`)}
+  </button>
+))}
   </div>
 </div>
 
