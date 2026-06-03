@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ReportCard, type Report } from "./ReportCard";
+import { SCAM_TYPES } from "@/lib/scam-types";
 import { Skeleton } from "./ui/skeleton";
 import { useTranslation } from "react-i18next";
 import { Inbox } from "lucide-react";
@@ -8,7 +9,7 @@ import { Inbox } from "lucide-react";
 export function ReportList({ limit }: { limit?: number }) {
   const { t } = useTranslation();
   const [reports, setReports] = useState<Report[] | null>(null);
-
+const [selectedCategory, setSelectedCategory] = useState<string>("all");
   useEffect(() => {
     let active = true;
     (async () => {
@@ -45,11 +46,30 @@ export function ReportList({ limit }: { limit?: number }) {
   }
   return (
   <>
-    <div className="mb-4 flex items-center justify-between">
-      <h2 className="text-xl font-bold">
-        Scam Reports ({reports.length})
-      </h2>
-    </div>
+    <div className="mb-4 space-y-3">
+  <h2 className="text-xl font-bold">
+    Scam Reports ({reports.length})
+  </h2>
+
+  <div className="flex flex-wrap gap-2">
+    <button
+      onClick={() => setSelectedCategory("all")}
+      className="px-3 py-1 rounded border"
+    >
+      All
+    </button>
+
+    {SCAM_TYPES.map((type) => (
+      <button
+        key={type}
+        onClick={() => setSelectedCategory(type)}
+        className="px-3 py-1 rounded border"
+      >
+        {type}
+      </button>
+    ))}
+  </div>
+</div>
 
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {reports.map((r) => (
