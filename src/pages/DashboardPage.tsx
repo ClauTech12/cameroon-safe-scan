@@ -45,7 +45,7 @@ export default function DashboardPage() {
 
   const stats = [
     { label: t("hero.stats.reports"), value: total, icon: FileWarning, color: "text-primary", bg: "bg-primary/10" },
-    { label: t("risk.high"), value: highRisk, icon: ShieldAlert, color: "text-risk-high", bg: "bg-scam-bank/10" },
+    { label: t("risk.high"), value: highRisk, icon: ShieldAlert, color: highRisk > 0 ? "text-risk-high" : "text-muted-foreground", bg: highRisk > 0 ? "bg-scam-bank/10" : "bg-muted/40" },
     { label: t("hero.stats.types"), value: SCAM_TYPES.length, icon: TrendingUp, color: "text-accent", bg: "bg-accent/10" },
   ];
 
