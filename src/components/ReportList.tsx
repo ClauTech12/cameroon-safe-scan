@@ -10,6 +10,7 @@ export function ReportList({ limit }: { limit?: number }) {
   const { t } = useTranslation();
   const [reports, setReports] = useState<Report[] | null>(null);
 const [selectedCategory, setSelectedCategory] = useState<string>("all");
+const [searchTerm, setSearchTerm] = useState("");
   useEffect(() => {
     let active = true;
     (async () => {
@@ -36,6 +37,22 @@ const [selectedCategory, setSelectedCategory] = useState<string>("all");
     </div>
   );
 }
+const filteredReports = reports?.filter((report) => {
+  const matchesCategory =
+    selectedCategory === "all" ||
+    report.scam_type === selectedCategory;
+
+  const query = searchTerm.toLowerCase();
+
+  const matchesSearch =
+    report.description?.toLowerCase().includes(query) ||
+    report.location?.toLowerCase().includes(query) ||
+    report.reporter_name?.toLowerCase().includes(query) ||
+    report.phone_number?.toLowerCase().includes(query) ||
+    report.contact_info?.toLowerCase().includes(query);
+
+  return matchesCategory && matchesSearch;
+});
   if (reports.length === 0) {
     return (
       <div className="text-center py-20 text-muted-foreground">
@@ -48,9 +65,15 @@ const [selectedCategory, setSelectedCategory] = useState<string>("all");
   <>
     <div className="mb-4 space-y-3">
   <h2 className="text-xl font-bold">
-    Scam Reports ({reports.length})
+    Scam Reports ({filteredReports?.length ?? 0})
   </h2>
-
+<input
+  type="text"
+  placeholder="Search phone number, name or keyword..."
+  value={searchTerm}
+  onChange={(e) => setSearchTerm(e.target.value)}
+  className="w-full px-3 py-2 border rounded-lg"
+/>
   <div className="flex flex-wrap gap-2">
     <button
       onClick={() => setSelectedCategory("all")}
@@ -72,9 +95,9 @@ const [selectedCategory, setSelectedCategory] = useState<string>("all");
 </div>
 
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {reports.map((r) => (
-        <ReportCard key={r.id} report={r} />
-      ))}
+      {filteredReports?.map((r) => (
+  <ReportCard key={r.id} report={r} />
+))}
     </div>
   </>
 );
