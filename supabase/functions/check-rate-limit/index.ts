@@ -1,7 +1,8 @@
-// Rate limits report submissions: max 3 per IP per 24h, max 3 per (IP, phone) per 24h.
+// Rate limits report submissions: max 5 per IP per 24h, max 2 per (IP, phone) per 24h.
 // Records the attempt on success so subsequent calls within the window are blocked.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { jsonResponse, requireSupabaseCaller } from "../_shared/auth.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -28,6 +29,9 @@ function canonicalPhone(raw: string | null | undefined): string | null {
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const auth = await requireSupabaseCaller(req, corsHeaders);
+  if (!auth.ok) return auth.response;
+
   try {
     const { contact_info } = await req.json().catch(() => ({}));
     const phone = canonicalPhone(contact_info);
@@ -44,7 +48,6 @@ Deno.serve(async (req: Request) => {
 
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    // Per-IP global limit
     const { count: ipCount } = await supabase
       .from("report_rate_limits")
       .select("*", { count: "exact", head: true })
@@ -52,13 +55,17 @@ Deno.serve(async (req: Request) => {
       .gt("created_at", since);
 
     if ((ipCount ?? 0) >= MAX_PER_IP_24H) {
-      return new Response(
-        JSON.stringify({ allowed: false, reason: "ip_limit", message: "Too many reports from your network in the last 24h. Please try again later." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      return jsonResponse(
+        {
+          allowed: false,
+          reason: "ip_limit",
+          message: "Too many reports from your network in the last 24h. Please try again later.",
+        },
+        429,
+        corsHeaders,
       );
     }
 
-    // Per-IP-and-phone duplicate limit
     if (phone) {
       const { count: dupCount } = await supabase
         .from("report_rate_limits")
@@ -68,24 +75,24 @@ Deno.serve(async (req: Request) => {
         .gt("created_at", since);
 
       if ((dupCount ?? 0) >= MAX_PER_IP_PHONE_24H) {
-        return new Response(
-          JSON.stringify({ allowed: false, reason: "duplicate", message: "You've already reported this number recently. Thanks — your earlier report is being reviewed." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        return jsonResponse(
+          {
+            allowed: false,
+            reason: "duplicate",
+            message:
+              "You've already reported this number recently. Thanks — your earlier report is being reviewed.",
+          },
+          429,
+          corsHeaders,
         );
       }
     }
 
-    // Record this attempt
     await supabase.from("report_rate_limits").insert({ ip_hash: ipHash, phone_number: phone });
 
-    return new Response(JSON.stringify({ allowed: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ allowed: true }, 200, corsHeaders);
   } catch (e) {
     console.error("check-rate-limit error:", e);
-    // fail-open so legitimate users aren't blocked by infra issues
-    return new Response(JSON.stringify({ allowed: true, soft_error: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ allowed: true, soft_error: true }, 200, corsHeaders);
   }
 });

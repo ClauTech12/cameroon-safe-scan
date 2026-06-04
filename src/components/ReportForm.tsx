@@ -94,7 +94,7 @@ export function ReportForm() {
       );
       if (rlErr) {
         // edge function 4xx: parse the body for our message
-        const ctxBody = (rlErr as any)?.context?.body;
+        const ctxBody = (rlErr as { context?: { body?: string } })?.context?.body;
         if (ctxBody) {
           try {
             const parsedBody = JSON.parse(ctxBody);
@@ -152,9 +152,12 @@ export function ReportForm() {
       setSubmittedDescription(parsed.data.description);
       toast.success(t("form.success"));
       setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const msg = err?.context?.body ? JSON.parse(err.context.body)?.error || JSON.parse(err.context.body)?.message : err?.message;
+      const e = err as { context?: { body?: string }; message?: string };
+      const msg = e.context?.body
+        ? JSON.parse(e.context.body)?.error || JSON.parse(e.context.body)?.message
+        : e.message;
       toast.error(msg || t("form.error"));
     } finally {
       setSubmitting(false);

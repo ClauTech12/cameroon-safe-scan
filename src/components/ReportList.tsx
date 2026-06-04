@@ -23,7 +23,7 @@ const [searchTerm, setSearchTerm] = useState("");
       const { data, error } = await q;
       if (!active) return;
       if (error) { console.error(error); setReports([]); return; }
-      setReports((data as any) || []);
+      setReports((data as Report[]) || []);
     })();
     return () => { active = false; };
   }, [limit]);

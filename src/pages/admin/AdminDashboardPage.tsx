@@ -221,13 +221,13 @@ export default function AdminDashboardPage() {
                     fontSize: 12,
                   }}
                   labelFormatter={(_, payload) => {
-                    const p: any = payload?.[0]?.payload;
+                    const p = payload?.[0]?.payload as { fullDate?: string } | undefined;
                     if (!p?.fullDate) return "";
                     return new Date(p.fullDate).toLocaleDateString(undefined, {
                       weekday: "short", month: "short", day: "numeric",
                     });
                   }}
-                  formatter={(value: any) => [`${value} report${value === 1 ? "" : "s"}`, "Count"]}
+                  formatter={(value: number) => [`${value} report${value === 1 ? "" : "s"}`, "Count"]}
                 />
                 <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#grad-reports)" />
               </AreaChart>

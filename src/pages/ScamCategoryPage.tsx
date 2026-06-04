@@ -156,7 +156,7 @@ export default function ScamCategoryPage() {
         setTotalCount(0);
         return;
       }
-      setReports((data as any) || []);
+      setReports((data as Report[]) || []);
       setTotalCount(count ?? 0);
     })();
     return () => {

@@ -1,6 +1,8 @@
 // AI scam detection via Lovable AI Gateway with structured tool calling.
 // Returns: { scam_type, confidence, risk_level, advice: string[] }
 
+import { jsonResponse, requireSupabaseCaller } from "../_shared/auth.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -12,20 +14,17 @@ const SCAM_TYPES = ["mobile_money", "job", "phishing", "investment", "bank", "ot
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
+  const auth = await requireSupabaseCaller(req, corsHeaders);
+  if (!auth.ok) return auth.response;
+
   try {
     const { description, language = "en" } = await req.json();
 
     if (!description || typeof description !== "string" || description.trim().length < 10) {
-      return new Response(
-        JSON.stringify({ error: "Description must be at least 10 characters." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return jsonResponse({ error: "Description must be at least 10 characters." }, 400, corsHeaders);
     }
     if (description.length > 5000) {
-      return new Response(
-        JSON.stringify({ error: "Description too long." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return jsonResponse({ error: "Description too long." }, 400, corsHeaders);
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -81,40 +80,32 @@ Analyze the user's report and call the classify_scam tool with:
     });
 
     if (response.status === 429) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again shortly." }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "Rate limit exceeded. Please try again shortly." }, 429, corsHeaders);
     }
     if (response.status === 402) {
-      return new Response(JSON.stringify({ error: "AI credits exhausted. Please add funds." }), {
-        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "AI credits exhausted. Please add funds." }, 402, corsHeaders);
     }
     if (!response.ok) {
       const t = await response.text();
       console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI service unavailable" }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "AI service unavailable" }, 502, corsHeaders);
     }
 
     const data = await response.json();
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall?.function?.arguments) {
       console.error("No tool call returned", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: "AI did not return a classification" }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "AI did not return a classification" }, 502, corsHeaders);
     }
 
     const parsed = JSON.parse(toolCall.function.arguments);
-    return new Response(JSON.stringify(parsed), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse(parsed, 200, corsHeaders);
   } catch (e) {
     console.error("classify-scam error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse(
+      { error: e instanceof Error ? e.message : "Unknown error" },
+      500,
+      corsHeaders,
+    );
   }
 });

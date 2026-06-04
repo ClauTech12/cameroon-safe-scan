@@ -1,7 +1,10 @@
 // Edge function: deep AI scam analysis via Lovable AI Gateway.
+import { jsonResponse, requireSupabaseCaller } from "../_shared/auth.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -14,21 +17,18 @@ interface Body {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
+  const auth = await requireSupabaseCaller(req, corsHeaders);
+  if (!auth.ok) return auth.response;
+
   try {
     const body = (await req.json()) as Body;
     if (!body?.kind || !body?.input || typeof body.input !== "string" || body.input.length > 8000) {
-      return new Response(JSON.stringify({ error: "invalid_body" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "invalid_body" }, 400, corsHeaders);
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      return new Response(JSON.stringify({ error: "missing_key" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "missing_key" }, 500, corsHeaders);
     }
 
     const lang = body.language === "fr" ? "French" : "English";
@@ -53,23 +53,14 @@ Deno.serve(async (req) => {
     });
 
     if (resp.status === 429) {
-      return new Response(JSON.stringify({ error: "rate_limited" }), {
-        status: 429,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "rate_limited" }, 429, corsHeaders);
     }
     if (resp.status === 402) {
-      return new Response(JSON.stringify({ error: "credits_exhausted" }), {
-        status: 402,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "credits_exhausted" }, 402, corsHeaders);
     }
     if (!resp.ok) {
       const t = await resp.text();
-      return new Response(JSON.stringify({ error: "ai_error", detail: t }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return jsonResponse({ error: "ai_error", detail: t }, 502, corsHeaders);
     }
 
     const data = await resp.json();
@@ -78,16 +69,18 @@ Deno.serve(async (req) => {
     try {
       parsed = JSON.parse(content);
     } catch {
-      parsed = { score: 0, label: "safe", summary: "Could not parse AI output.", reasons: [], highlights: [], recommendations: [] };
+      parsed = {
+        score: 0,
+        label: "safe",
+        summary: "Could not parse AI output.",
+        reasons: [],
+        highlights: [],
+        recommendations: [],
+      };
     }
 
-    return new Response(JSON.stringify({ ok: true, analysis: parsed }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ ok: true, analysis: parsed }, 200, corsHeaders);
   } catch (e) {
-    return new Response(JSON.stringify({ error: "server_error", detail: String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return jsonResponse({ error: "server_error", detail: String(e) }, 500, corsHeaders);
   }
 });

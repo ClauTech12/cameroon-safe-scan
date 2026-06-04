@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-import type { Layer, PathOptions } from "leaflet";
+import type { GeoJSON as GeoJSONLayer, Layer, LeafletMouseEvent, Path, PathOptions } from "leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
+
+type RegionProperties = { shapeName?: string };
 import "leaflet/dist/leaflet.css";
 
 // Maps user-entered locations -> canonical GeoJSON shapeName
@@ -68,7 +70,7 @@ export function CameroonHeatmap({ reports }: Props) {
   const [geo, setGeo] = useState<FeatureCollection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ name: string; count: number } | null>(null);
-  const layerRef = useRef<L.GeoJSON | null>(null);
+  const layerRef = useRef<GeoJSONLayer | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,7 +95,7 @@ export function CameroonHeatmap({ reports }: Props) {
 
   const max = useMemo(() => Math.max(0, ...counts.values()), [counts]);
 
-  const styleFn = (feature?: Feature<Geometry, any>): PathOptions => {
+  const styleFn = (feature?: Feature<Geometry, RegionProperties>): PathOptions => {
     const name = feature?.properties?.shapeName ?? "";
     const c = counts.get(name) ?? 0;
     return {
@@ -104,20 +106,20 @@ export function CameroonHeatmap({ reports }: Props) {
     };
   };
 
-  const onEach = (feature: Feature<Geometry, any>, layer: Layer) => {
+  const onEach = (feature: Feature<Geometry, RegionProperties>, layer: Layer) => {
     const name = feature.properties?.shapeName ?? "Unknown";
     const c = counts.get(name) ?? 0;
     layer.on({
-      mouseover: (e) => {
-        (e.target as any).setStyle({ weight: 2.5, color: "hsl(var(--primary))" });
+      mouseover: (e: LeafletMouseEvent) => {
+        (e.target as Path).setStyle({ weight: 2.5, color: "hsl(var(--primary))" });
         setHovered({ name, count: c });
       },
-      mouseout: (e) => {
+      mouseout: (e: LeafletMouseEvent) => {
         layerRef.current?.resetStyle(e.target);
         setHovered(null);
       },
     });
-    (layer as any).bindTooltip(`${name}: ${c} report${c === 1 ? "" : "s"}`, { sticky: true });
+    layer.bindTooltip(`${name}: ${c} report${c === 1 ? "" : "s"}`, { sticky: true });
   };
 
   return (
@@ -146,9 +148,9 @@ export function CameroonHeatmap({ reports }: Props) {
               <GeoJSON
                 key={`${reports.length}-${max}`}
                 data={geo}
-                style={styleFn as any}
+                style={styleFn}
                 onEachFeature={onEach}
-                ref={(l) => { layerRef.current = l as any; }}
+                ref={(l) => { layerRef.current = l as GeoJSONLayer | null; }}
               />
             )}
           </MapContainer>

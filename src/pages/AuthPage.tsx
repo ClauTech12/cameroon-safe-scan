@@ -122,7 +122,7 @@ export default function AuthPage() {
               <Button variant="ghost" size="sm" className="w-full mt-3 text-xs"
                 onClick={async () => {
                   const { data } = await supabase.rpc("claim_first_admin");
-                  const r = data as any;
+                  const r = data as { ok?: boolean; error?: string };
                   if (r?.ok) { toast.success("You are now admin. Reloading…"); setTimeout(() => location.reload(), 800); }
                   else toast.error(r?.error === "admin_exists" ? "An admin already exists." : "Could not claim admin.");
                 }}>
@@ -141,7 +141,15 @@ export default function AuthPage() {
   );
 }
 
-function Field({ id, label, type, value, setValue }: any) {
+interface FieldProps {
+  id: string;
+  label: string;
+  type: string;
+  value: string;
+  setValue: (value: string) => void;
+}
+
+function Field({ id, label, type, value, setValue }: FieldProps) {
   return (
     <div className="space-y-1.5">
       <Label htmlFor={id}>{label}</Label>

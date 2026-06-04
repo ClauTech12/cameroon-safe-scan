@@ -1,10 +1,13 @@
 project_id = "tdolkwvvzqtquwcuchyq"
 
+[functions.analyze-scam]
+verify_jwt = true
+
 [functions.classify-scam]
-verify_jwt = false
+verify_jwt = true
 
 [functions.detect-pattern]
-verify_jwt = false
+verify_jwt = true
 
 [functions.check-rate-limit]
-verify_jwt = false
+verify_jwt = true

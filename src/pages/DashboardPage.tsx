@@ -6,7 +6,10 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Card } from "@/components/ui/card";
 import { SCAM_TYPES, SCAM_META, ScamType } from "@/lib/scam-types";
+import type { Tables } from "@/integrations/supabase/types";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+
+type DashboardReportRow = Pick<Tables<"scam_reports">, "scam_type" | "risk_level" | "location">;
 import { FileWarning, ShieldAlert, TrendingUp, MapPin } from "lucide-react";
 import { CameroonHeatmap } from "@/components/CameroonHeatmap";
 
@@ -28,11 +31,14 @@ export default function DashboardPage() {
       if (!data) return;
       const c: Record<ScamType, number> = { mobile_money: 0, job: 0, phishing: 0, investment: 0, bank: 0, other: 0 };
       let high = 0;
-      data.forEach((r: any) => { c[r.scam_type as ScamType]++; if (r.risk_level === "high") high++; });
+      data.forEach((r: DashboardReportRow) => {
+        c[r.scam_type as ScamType]++;
+        if (r.risk_level === "high") high++;
+      });
       setCounts(c);
       setTotal(data.length);
       setHighRisk(high);
-      setLocations(data.map((r: any) => ({ location: r.location })));
+      setLocations(data.map((r: DashboardReportRow) => ({ location: r.location })));
     })();
   }, []);
 

@@ -32,7 +32,7 @@ export default function FraudDashboardPage() {
 
       const dayMap = new Map<string, number>();
       const typeMap = new Map<string, number>();
-      (rs ?? []).forEach((r: any) => {
+      (rs ?? []).forEach((r: { created_at: string; scam_type: string; risk_level: string }) => {
         const d = new Date(r.created_at).toISOString().slice(0, 10);
         dayMap.set(d, (dayMap.get(d) ?? 0) + 1);
         typeMap.set(r.scam_type, (typeMap.get(r.scam_type) ?? 0) + 1);
@@ -112,7 +112,10 @@ export default function FraudDashboardPage() {
                 <YAxis dataKey="name" type="category" stroke="hsl(var(--muted-foreground))" fontSize={11} width={90}
                   tickFormatter={(v) => t(`scamTypes.${v}`)} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8 }}
-                  formatter={(v: any, _n, p: any) => [v, t(`scamTypes.${p.payload.key}`)]} />
+                  formatter={(v: number, _n: string, p: { payload: { key: ScamType } }) => [
+                    v,
+                    t(`scamTypes.${p.payload.key}`),
+                  ]} />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                   {typeData.map((d) => <Cell key={d.key} fill={d.color} />)}
                 </Bar>

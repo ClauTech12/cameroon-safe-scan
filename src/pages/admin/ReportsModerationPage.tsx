@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -15,6 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScamType, RiskLevel } from "@/lib/scam-types";
 
 type Status = "pending" | "approved" | "rejected";
 
@@ -24,9 +25,9 @@ interface Row {
   location: string;
   description: string;
   contact_info: string | null;
-  scam_type: any;
+  scam_type: ScamType;
   ai_confidence: number | null;
-  risk_level: any;
+  risk_level: RiskLevel;
   status: Status;
   created_at: string;
 }
@@ -37,7 +38,7 @@ export default function ReportsModerationPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [view, setView] = useState<Row | null>(null);
 
-  async function load() {
+  const load = useCallback(async () => {
     setRows(null);
     const { data, error } = await supabase
       .from("scam_reports")
@@ -46,10 +47,12 @@ export default function ReportsModerationPage() {
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) { toast.error(error.message); setRows([]); return; }
-    setRows((data as any) ?? []);
-  }
+    setRows((data as Row[]) ?? []);
+  }, [tab]);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [tab]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   async function setStatus(id: string, status: Status) {
     setBusyId(id);

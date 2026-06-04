@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { riskBand, maskPhone, fullPhone } from "@/lib/risk";
 import { SCAM_META, ScamType } from "@/lib/scam-types";
+import type { Database } from "@/integrations/supabase/types";
+
+type FlagStatus = Database["public"]["Enums"]["flag_status"];
 import { toast } from "sonner";
 import { Search, Loader2, ShieldAlert, Sparkles, Eye, EyeOff } from "lucide-react";
 
@@ -61,7 +64,12 @@ export default function NumberIntelPage() {
     const { data, error } = await supabase.rpc("number_intel_summary", { _phone: phone });
     if (error) { toast.error(error.message); setLoading(false); return; }
     const s = data as unknown as Summary;
-    if ((s as any).error) { toast.error(t("admin.intel.invalidPhone")); setSummary(null); setLoading(false); return; }
+    if ("error" in s && s.error) {
+      toast.error(t("admin.intel.invalidPhone"));
+      setSummary(null);
+      setLoading(false);
+      return;
+    }
     setSummary(s);
     setFlagStatus(s.flag?.status ?? "under_investigation");
     setFlagNotes(s.flag?.notes ?? "");
@@ -90,7 +98,7 @@ export default function NumberIntelPage() {
     if (!summary) return;
     setSavingFlag(true);
     const { error } = await supabase.from("flagged_numbers").upsert(
-      { phone_number: summary.phone, status: flagStatus as any, notes: flagNotes || null },
+      { phone_number: summary.phone, status: flagStatus as FlagStatus, notes: flagNotes || null },
       { onConflict: "phone_number" },
     );
     setSavingFlag(false);

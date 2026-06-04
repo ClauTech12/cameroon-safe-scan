@@ -35,7 +35,7 @@ export default function MoMoGuardPage() {
       .eq("scam_type", "mobile_money")
       .order("created_at", { ascending: false })
       .limit(6)
-      .then(({ data }) => setReports((data as any) || []));
+      .then(({ data }) => setReports((data as Report[]) || []));
   }, []);
 
   return (

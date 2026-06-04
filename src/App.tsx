@@ -35,7 +35,7 @@ const App = () => {
   const [theme, setTheme] = useState<"light" | "dark">("light");
   useEffect(() => {
     let saved: string | null = null;
-    try { saved = localStorage.getItem("theme"); } catch {}
+    try { saved = localStorage.getItem("theme"); } catch { /* storage unavailable */ }
     const prefers = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
     const initial = (saved as "light" | "dark" | null) || (prefers ? "dark" : "light");
     setTheme(initial);

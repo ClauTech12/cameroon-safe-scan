@@ -4,11 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ReportList } from "@/components/ReportList";
+import type { Tables } from "@/integrations/supabase/types";
+
+type LookupReport = Pick<Tables<"scam_reports">, "id" | "phone_number" | "description">;
 
 export default function ReportsPage() {
   const { t } = useTranslation();
   const [phoneLookup, setPhoneLookup] = useState("");
-  const [lookupResult, setLookupResult] = useState<any>(null);
+  const [lookupResult, setLookupResult] = useState<LookupReport[] | null>(null);
   const [loadingLookup, setLoadingLookup] = useState(false);
 
   const handleLookup = async () => {
@@ -71,7 +74,7 @@ export default function ReportsPage() {
               ) : (
                 <>
                   <p>Reports Found: {lookupResult.length}</p>
-                  {lookupResult.map((report: any) => (
+                  {lookupResult.map((report) => (
                     <div key={report.id} className="mt-2 border-t pt-2">
                       <p>Phone: {report.phone_number}</p>
                       <p>Description: {report.description}</p>
