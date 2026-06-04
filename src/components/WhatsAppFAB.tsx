@@ -6,7 +6,7 @@ interface Props {
   message?: string;
 }
 
-export function WhatsAppFAB({ phone = "", message }: Props) {
+export function WhatsAppFAB({ phone = "+237650556715", message }: Props) {
   const appUrl =
     typeof window !== "undefined" ? window.location.origin : "https://cameroon-safe-scan.lovable.app";
   const text =
