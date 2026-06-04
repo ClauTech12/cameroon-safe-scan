@@ -9,11 +9,30 @@ export function jsonResponse(body: unknown, status: number, corsHeaders: CorsHea
   });
 }
 
+/** Read JWT claims after platform verify_jwt (signature already validated at the gateway). */
+function readJwtClaims(token: string): { role: string; userId: string | null } | null {
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) return null;
+    const json = atob(segment.replace(/-/g, "+").replace(/_/g, "/"));
+    const payload = JSON.parse(json) as { role?: string; sub?: string };
+    const role = String(payload.role ?? "");
+    if (role !== "anon" && role !== "authenticated") return null;
+    const userId = typeof payload.sub === "string" ? payload.sub : null;
+    return { role, userId };
+  } catch {
+    return null;
+  }
+}
+
 export type CallerAuth =
   | { ok: true; supabase: SupabaseClient; userId: string | null; role: string }
   | { ok: false; response: Response };
 
-/** Requires a valid Supabase JWT (anonymous or signed-in user). */
+/**
+ * Requires Authorization: Bearer <JWT>.
+ * Works with verify_jwt = true in config.toml (gateway validates the signature first).
+ */
 export async function requireSupabaseCaller(
   req: Request,
   corsHeaders: CorsHeaders,
@@ -30,23 +49,17 @@ export async function requireSupabaseCaller(
     return { ok: false, response: jsonResponse({ error: "Server misconfigured" }, 500, corsHeaders) };
   }
 
+  const token = authHeader.replace("Bearer ", "");
+  const claims = readJwtClaims(token);
+  if (!claims) {
+    return { ok: false, response: jsonResponse({ error: "Unauthorized" }, 401, corsHeaders) };
+  }
+
   const supabase = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
   });
 
-  const token = authHeader.replace("Bearer ", "");
-  const { data: claims, error: claimsErr } = await supabase.auth.getClaims(token);
-  if (claimsErr || !claims?.claims) {
-    return { ok: false, response: jsonResponse({ error: "Unauthorized" }, 401, corsHeaders) };
-  }
-
-  const role = String(claims.claims.role ?? "");
-  if (role !== "anon" && role !== "authenticated") {
-    return { ok: false, response: jsonResponse({ error: "Unauthorized" }, 401, corsHeaders) };
-  }
-
-  const userId = typeof claims.claims.sub === "string" ? claims.claims.sub : null;
-  return { ok: true, supabase, userId, role };
+  return { ok: true, supabase, userId: claims.userId, role: claims.role };
 }
 
 export type AdminAuth =

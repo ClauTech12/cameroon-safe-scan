@@ -18,6 +18,7 @@ import { Sparkles, Upload, Loader2, Lightbulb, CheckCircle2 } from "lucide-react
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
+import { messageFromInvokeError } from "@/lib/invoke-error";
 
 function makeSchema(t: (k: string) => string) {
   return z.object({
@@ -93,15 +94,7 @@ export function ReportForm() {
         { body: { contact_info: parsed.data.contact_info } },
       );
       if (rlErr) {
-        // edge function 4xx: parse the body for our message
-        const ctxBody = (rlErr as { context?: { body?: string } })?.context?.body;
-        if (ctxBody) {
-          try {
-            const parsedBody = JSON.parse(ctxBody);
-            throw new Error(parsedBody?.message || t("form.rateLimit"));
-          } catch { /* fall through */ }
-        }
-        throw rlErr;
+        throw new Error(messageFromInvokeError(rlErr, t("form.rateLimit")));
       }
       if (rl && rl.allowed === false) throw new Error(rl.message || t("form.rateLimit"));
 
@@ -154,11 +147,7 @@ export function ReportForm() {
       setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
     } catch (err: unknown) {
       console.error(err);
-      const e = err as { context?: { body?: string }; message?: string };
-      const msg = e.context?.body
-        ? JSON.parse(e.context.body)?.error || JSON.parse(e.context.body)?.message
-        : e.message;
-      toast.error(msg || t("form.error"));
+      toast.error(messageFromInvokeError(err, t("form.error")));
     } finally {
       setSubmitting(false);
     }

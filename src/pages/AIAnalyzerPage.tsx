@@ -14,6 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { analyze, type AnalyzerKind, type HeuristicResult, type RiskLabel } from "@/lib/analyzer";
+import { messageFromInvokeError } from "@/lib/invoke-error";
 import {
   ShieldCheck,
   ShieldAlert,
@@ -118,14 +119,32 @@ export default function AIAnalyzerPage() {
       });
       if (error) throw error;
       if (data?.error) {
-        if (data.error === "rate_limited") toast({ title: "Too many requests, try again shortly", variant: "destructive" });
-        else if (data.error === "credits_exhausted") toast({ title: "AI credits exhausted", description: "Please add credits in workspace settings.", variant: "destructive" });
-        else toast({ title: "AI analysis failed", variant: "destructive" });
+        if (data.error === "rate_limited") {
+          toast({ title: "Too many requests, try again shortly", variant: "destructive" });
+        } else if (data.error === "credits_exhausted") {
+          toast({ title: "AI credits exhausted", description: "Please add credits in workspace settings.", variant: "destructive" });
+        } else if (data.error === "missing_key") {
+          toast({
+            title: "AI analysis unavailable",
+            description: (data as { message?: string }).message ?? "Server configuration is incomplete.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "AI analysis failed",
+            description: (data as { message?: string }).message ?? String(data.error),
+            variant: "destructive",
+          });
+        }
         return;
       }
       setAiResult(data.analysis as AIAnalysis);
     } catch (e) {
-      toast({ title: "AI analysis failed", description: String(e), variant: "destructive" });
+      toast({
+        title: "AI analysis failed",
+        description: messageFromInvokeError(e, "Something went wrong. Please try again."),
+        variant: "destructive",
+      });
     } finally {
       setAiLoading(false);
     }

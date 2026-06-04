@@ -8,6 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
 const MAX_PER_IP_24H = 5;
@@ -28,9 +29,27 @@ function canonicalPhone(raw: string | null | undefined): string | null {
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "method_not_allowed" }, 405, corsHeaders);
+  }
 
   const auth = await requireSupabaseCaller(req, corsHeaders);
   if (!auth.ok) return auth.response;
+
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  if (!serviceKey || !supabaseUrl) {
+    console.error("Missing SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL");
+    return jsonResponse(
+      {
+        allowed: false,
+        error: "service_unavailable",
+        message: "Rate limit service is temporarily unavailable. Please try again shortly.",
+      },
+      503,
+      corsHeaders,
+    );
+  }
 
   try {
     const { contact_info } = await req.json().catch(() => ({}));
@@ -41,18 +60,16 @@ Deno.serve(async (req: Request) => {
       || "unknown";
     const ipHash = await sha256(ip + ":camalert-salt-v1");
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-    );
-
+    const supabase = createClient(supabaseUrl, serviceKey);
     const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    const { count: ipCount } = await supabase
+    const { count: ipCount, error: ipCountErr } = await supabase
       .from("report_rate_limits")
       .select("*", { count: "exact", head: true })
       .eq("ip_hash", ipHash)
       .gt("created_at", since);
+
+    if (ipCountErr) throw ipCountErr;
 
     if ((ipCount ?? 0) >= MAX_PER_IP_24H) {
       return jsonResponse(
@@ -67,12 +84,14 @@ Deno.serve(async (req: Request) => {
     }
 
     if (phone) {
-      const { count: dupCount } = await supabase
+      const { count: dupCount, error: dupCountErr } = await supabase
         .from("report_rate_limits")
         .select("*", { count: "exact", head: true })
         .eq("ip_hash", ipHash)
         .eq("phone_number", phone)
         .gt("created_at", since);
+
+      if (dupCountErr) throw dupCountErr;
 
       if ((dupCount ?? 0) >= MAX_PER_IP_PHONE_24H) {
         return jsonResponse(
@@ -88,11 +107,23 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    await supabase.from("report_rate_limits").insert({ ip_hash: ipHash, phone_number: phone });
+    const { error: insertErr } = await supabase
+      .from("report_rate_limits")
+      .insert({ ip_hash: ipHash, phone_number: phone });
+
+    if (insertErr) throw insertErr;
 
     return jsonResponse({ allowed: true }, 200, corsHeaders);
   } catch (e) {
     console.error("check-rate-limit error:", e);
-    return jsonResponse({ allowed: true, soft_error: true }, 200, corsHeaders);
+    return jsonResponse(
+      {
+        allowed: false,
+        error: "service_unavailable",
+        message: "Rate limit service is temporarily unavailable. Please try again shortly.",
+      },
+      503,
+      corsHeaders,
+    );
   }
 });

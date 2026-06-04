@@ -8,27 +8,48 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+const INPUT_KINDS = ["url", "whatsapp", "sms", "email", "phone"] as const;
+type InputKind = (typeof INPUT_KINDS)[number];
+
 interface Body {
-  kind: "url" | "whatsapp" | "sms" | "email" | "phone";
+  kind: InputKind;
   input: string;
   language?: "en" | "fr";
 }
 
+function isInputKind(value: string): value is InputKind {
+  return (INPUT_KINDS as readonly string[]).includes(value);
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "method_not_allowed" }, 405, corsHeaders);
+  }
 
   const auth = await requireSupabaseCaller(req, corsHeaders);
   if (!auth.ok) return auth.response;
 
   try {
     const body = (await req.json()) as Body;
-    if (!body?.kind || !body?.input || typeof body.input !== "string" || body.input.length > 8000) {
+    if (
+      !body?.kind ||
+      typeof body.kind !== "string" ||
+      !isInputKind(body.kind) ||
+      !body?.input ||
+      typeof body.input !== "string" ||
+      body.input.length > 8000
+    ) {
       return jsonResponse({ error: "invalid_body" }, 400, corsHeaders);
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) {
-      return jsonResponse({ error: "missing_key" }, 500, corsHeaders);
+      return jsonResponse(
+        { error: "missing_key", message: "AI analysis is not configured on the server." },
+        500,
+        corsHeaders,
+      );
     }
 
     const lang = body.language === "fr" ? "French" : "English";
