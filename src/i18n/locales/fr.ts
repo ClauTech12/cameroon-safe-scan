@@ -33,7 +33,7 @@ export default {
     badge: "Plateforme cyber-confiance · Cameroun & Afrique",
     title: "Restez vigilant.",
     titleAccent: "Restez en sécurité.",
-    subtitle: "CAMALERT aide les utilisateurs à détecter les arnaques, signaler les activités frauduleuses et rester informés des menaces numériques en Afrique.",
+   subtitle: "CAMALERT aide les habitants du Cameroun et d'Afrique à détecter les arnaques, signaler les fraudes et rester en sécurité en ligne.", 
     ctaCheck: "Vérifier un numéro",
     ctaReport: "Signaler une arnaque",
     ctaBrowse: "En savoir plus",
