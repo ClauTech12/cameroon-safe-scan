@@ -135,8 +135,23 @@ export function ReportCard({ report }: { report: Report }) {
           </style>
         </head>
         <body>
-          <h1>CAMALERT Scam Report</h1>
-          <div class="badge">${report.scam_type.replace(/_/g, " ").toUpperCase()}</div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+  <img src="${window.location.origin}/src/assets/clautech-logo.png" 
+    alt="CAMALERT" 
+    style="height:40px; width:40px; object-fit:contain; border-radius:8px;" 
+    onerror="this.style.display='none'"
+  />
+  <div>
+    <div style="font-size:20px; font-weight:900; letter-spacing:-0.5px;">
+      CAM<span style="color:#6366f1;">ALERT</span>
+    </div>
+    <div style="font-size:10px; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase;">
+      Cyber Trust · Cameroon
+    </div>
+  </div>
+</div>
+<h1 style="font-size:18px; margin-bottom:4px;">Scam Report</h1>
+<div class="badge">${report.scam_type.replace(/_/g, " ").toUpperCase()}</div>
 
           <div class="section">
             <div class="label">Description</div>
