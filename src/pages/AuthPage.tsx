@@ -28,10 +28,21 @@ export default function AuthPage() {
   const [showReset, setShowReset] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
   const [resetSent, setResetSent] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   useEffect(() => {
-    if (!loading && session) nav(isAdmin ? "/admin" : "/", { replace: true });
-  }, [session, isAdmin, loading, nav]);
+    // Check if this is a password reset callback from email link
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const type = hashParams.get("type");
+    if (type === "recovery") {
+      setIsResetting(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!loading && session && !isResetting) nav(isAdmin ? "/admin" : "/", { replace: true });
+  }, [session, isAdmin, loading, nav, isResetting]);
 
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +93,56 @@ export default function AuthPage() {
     toast.success("Password reset email sent! Check your inbox.");
   }
 
+  async function updatePassword(e: React.FormEvent) {
+    e.preventDefault();
+    const pv = passwordSchema.safeParse(newPassword);
+    if (!pv.success) return toast.error(t("auth.invalidPassword"));
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pv.data });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Password updated successfully! Signing you in...");
+    setIsResetting(false);
+    setTimeout(() => nav("/admin", { replace: true }), 1000);
+  }
+
+  // Password reset callback from email link
+  if (isResetting) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1 container py-12 md:py-20 flex items-center justify-center">
+          <Card className="w-full max-w-md surface-elevated">
+            <CardHeader className="text-center">
+              <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-2">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Set New Password</CardTitle>
+              <CardDescription>Enter your new password below</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={updatePassword} className="space-y-3">
+                <Field
+                  id="new-password"
+                  label="New Password"
+                  type="password"
+                  value={newPassword}
+                  setValue={setNewPassword}
+                />
+                <Button type="submit" className="w-full" disabled={busy}>
+                  {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                  Update Password
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
+  // Send reset email form
   if (showReset) {
     return (
       <div className="min-h-screen flex flex-col">
