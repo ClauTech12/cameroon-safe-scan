@@ -16,7 +16,7 @@ const [searchTerm, setSearchTerm] = useState("");
     (async () => {
       let q = supabase
         .from("scam_reports")
-        .select("id, reporter_name, location, description, contact_info, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number")
+        .select("id, location, description, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number")
         .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (limit) q = q.limit(limit);
@@ -47,9 +47,7 @@ const filteredReports = reports?.filter((report) => {
   const matchesSearch =
     report.description?.toLowerCase().includes(query) ||
     report.location?.toLowerCase().includes(query) ||
-    report.reporter_name?.toLowerCase().includes(query) ||
-    report.phone_number?.toLowerCase().includes(query) ||
-    report.contact_info?.toLowerCase().includes(query);
+    report.phone_number?.toLowerCase().includes(query);
 
   return matchesCategory && matchesSearch;
 });
