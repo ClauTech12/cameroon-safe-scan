@@ -114,101 +114,135 @@ export function ReportCard({ report }: { report: Report }) {
     (report.ai_confidence ?? 0) >= 85 ? "Very High Confidence" :
     (report.ai_confidence ?? 0) >= 70 ? "High Confidence" :
     (report.ai_confidence ?? 0) >= 50 ? "Medium Confidence" : "Low Confidence";
+const handleDownloadPDF = () => {
+  const win = window.open("", "_blank");
+  if (!win) return;
 
-  const handleDownloadPDF = () => {
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(`
-      <html>
-        <head>
-          <title>CAMALERT Report - ${report.id}</title>
-          <style>
-            body { font-family: sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #111; }
-            h1 { font-size: 22px; margin-bottom: 4px; }
-            .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #f3f4f6; margin-bottom: 16px; }
-            .section { margin-bottom: 16px; }
-            .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 4px; }
-            .value { font-size: 14px; color: #111; }
-            .advice { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-top: 8px; }
-            .advice li { font-size: 13px; color: #374151; margin-bottom: 6px; list-style: none; }
-            .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
-          </style>
-        </head>
-        <body>
-          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-  <img src="${window.location.origin}/src/assets/clautech-logo.png" 
-    alt="CAMALERT" 
-    style="height:40px; width:40px; object-fit:contain; border-radius:8px;" 
-    onerror="this.style.display='none'"
-  />
-  <div>
-    <div style="font-size:20px; font-weight:900; letter-spacing:-0.5px;">
-      CAM<span style="color:#6366f1;">ALERT</span>
-    </div>
-    <div style="font-size:10px; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase;">
-      Cyber Trust · Cameroon
-    </div>
-  </div>
-</div>
-<h1 style="font-size:18px; margin-bottom:4px;">Scam Report</h1>
-<div class="badge">${report.scam_type.replace(/_/g, " ").toUpperCase()}</div>
+  const badgeColor = report.risk_level === "high" ? "#ef4444" : report.risk_level === "medium" ? "#f97316" : "#22c55e";
+  const borderColor = report.risk_level === "high" ? "#fecaca" : report.risk_level === "medium" ? "#fed7aa" : "#bbf7d0";
+  const verifiedHTML = report.status === "approved"
+    ? `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#f0fdf4; border:1px solid #bbf7d0; color:#16a34a; font-size:12px; font-weight:bold; margin-bottom:16px;">
+        ✅ Verified & Approved by CAMALERT
+      </div>`
+    : `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#fafafa; border:1px solid #e5e7eb; color:#6b7280; font-size:12px; font-weight:bold; margin-bottom:16px;">
+        ⏳ Pending Verification
+      </div>`;
 
-          <div class="section">
-            <div class="label">Description</div>
-            <div class="value">${report.description}</div>
-          </div>
+  win.document.write(`
+    <html>
+      <head>
+        <title>CAMALERT Report - ${report.id}</title>
+        <style>
+          body { font-family: sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #111; }
+          .section { margin-bottom: 16px; }
+          .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 4px; }
+          .value { font-size: 14px; color: #111; }
+          .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #f3f4f6; margin-bottom: 16px; }
+          .advice { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-top: 8px; }
+          .advice li { font-size: 13px; color: #374151; margin-bottom: 6px; list-style: none; }
+          .what-to-do { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-top: 8px; }
+          .what-to-do li { font-size: 13px; color: #92400e; margin-bottom: 8px; list-style: none; }
+          .risk-bar { height: 6px; border-radius: 3px; margin-bottom: 20px; }
+          .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
+          .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
+        </style>
+      </head>
+      <body>
+        <div style="height:6px; background:${badgeColor}; border-radius:3px; margin-bottom:20px;"></div>
 
-          <div class="section">
-            <div class="label">Risk Level</div>
-            <div class="value">${report.risk_level?.toUpperCase() ?? "—"}</div>
-          </div>
-
-          <div class="section">
-            <div class="label">AI Confidence</div>
-            <div class="value">${report.ai_confidence ?? "—"}%</div>
-          </div>
-
-          ${report.contact_info ? `
-          <div class="section">
-            <div class="label">Contact / Number</div>
-            <div class="value">${report.contact_info}</div>
-          </div>` : ""}
-
-          <div class="section">
-            <div class="label">Location</div>
-            <div class="value">${report.location}</div>
-          </div>
-
-          <div class="section">
-            <div class="label">Reported by</div>
-            <div class="value">${report.reporter_name ?? "Anonymous"}</div>
-          </div>
-
-          <div class="section">
-            <div class="label">Date</div>
-            <div class="value">${new Date(report.created_at).toLocaleDateString()}</div>
-          </div>
-
-          ${report.ai_advice && report.ai_advice.length > 0 ? `
-          <div class="section">
-            <div class="label">AI Advice</div>
-            <div class="advice">
-              <ul>${report.ai_advice.map((tip) => `<li>• ${tip}</li>`).join("")}</ul>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <img src="${window.location.origin}/src/assets/clautech-logo.png"
+            alt="CAMALERT"
+            style="height:40px; width:40px; object-fit:contain; border-radius:8px;"
+            onerror="this.style.display='none'"
+          />
+          <div>
+            <div style="font-size:20px; font-weight:900; letter-spacing:-0.5px;">
+              CAM<span style="color:#6366f1;">ALERT</span>
             </div>
-          </div>` : ""}
-
-          <div class="footer">
-            Generated by CAMALERT · camalert.app · Report ID: ${report.id}
+            <div style="font-size:10px; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase;">
+              Cyber Trust · Cameroon
+            </div>
           </div>
-        </body>
-      </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
-    win.close();
-  };
+        </div>
 
+        <h1 style="font-size:18px; margin-bottom:4px;">Scam Report</h1>
+        <div class="badge">${report.scam_type.replace(/_/g, " ").toUpperCase()}</div>
+        <br/>
+        ${verifiedHTML}
+
+        <div style="background:${borderColor}; height:4px; border-radius:2px; margin-bottom:20px;"></div>
+
+        <div class="section">
+          <div class="label">Description</div>
+          <div class="value">${report.description}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Risk Level</div>
+          <div class="value" style="color:${badgeColor}; font-weight:bold;">${report.risk_level?.toUpperCase() ?? "—"}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">AI Confidence</div>
+          <div class="value">${report.ai_confidence ?? "—"}%</div>
+        </div>
+
+        ${report.contact_info ? `
+        <div class="section">
+          <div class="label">Contact / Number</div>
+          <div class="value">${report.contact_info}</div>
+        </div>` : ""}
+
+        <div class="section">
+          <div class="label">Location</div>
+          <div class="value">${report.location}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Reported by</div>
+          <div class="value">${report.reporter_name ?? "Anonymous"}</div>
+        </div>
+
+        <div class="section">
+          <div class="label">Date</div>
+          <div class="value">${new Date(report.created_at).toLocaleDateString()}</div>
+        </div>
+
+        ${report.ai_advice && report.ai_advice.length > 0 ? `
+        <div class="section">
+          <div class="label">AI Advice</div>
+          <div class="advice">
+            <ul>${report.ai_advice.map((tip) => `<li>• ${tip}</li>`).join("")}</ul>
+          </div>
+        </div>` : ""}
+
+        <hr class="divider"/>
+
+        <div class="section">
+          <div class="label" style="color:#92400e;">⚠️ What to do if you were scammed</div>
+          <div class="what-to-do">
+            <ul>
+              <li>1. 📞 Call MTN (dial 180) or Orange (dial 122) immediately to freeze your account</li>
+              <li>2. 🔒 Change your MoMo PIN right away via the app or USSD</li>
+              <li>3. 🚔 File a complaint with your local police and keep this report as evidence</li>
+              <li>4. 🚫 Do NOT send any more money or share any codes with the scammer</li>
+              <li>5. 📢 Warn family and friends by sharing this report on WhatsApp</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer">
+          Generated by CAMALERT · camalert.app · Report ID: ${report.id}
+        </div>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.focus();
+  win.print();
+  win.close();
+};
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
       <div className="h-1 w-full" style={{ background: meta.hex }} />
