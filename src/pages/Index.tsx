@@ -41,7 +41,7 @@ const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, prote
       .from("scam_reports")
       .select("id", { count: "exact", head: true })
       .eq("status", "approved")
-      .eq("scam_type", "mobile_money"),
+      .ilike("scam_type", "%mobile%"),
   ]).then(([{ count: total }, { count: momo }]) => {
     setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));
   });
