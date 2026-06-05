@@ -71,6 +71,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <SiteHeader />
       <main className="flex-1">
+
         {/* ============ HERO ============ */}
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-cyber-grid opacity-60 pointer-events-none" aria-hidden="true" />
@@ -154,61 +155,60 @@ const Index = () => {
                     <Activity className="h-3 w-3" /> LIVE
                   </span>
                 </div>
-<div className="grid grid-cols-3 divide-x divide-border/60">
-            {[
-              { v: stats.reports, k: "reports", icon: ShieldCheck },
-              { v: Math.floor(stats.reports * 0.35), k: "mobile_money", icon: Smartphone },
-              { v: stats.types, k: "types", icon: Target },
-            ].map(({ v, k, icon: Icon }) => (
-              <div key={k} className="px-4 py-7 md:py-9 text-center relative">
-                <Icon className="h-4 w-4 text-accent mx-auto mb-2" />
-                <div className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-foreground tabular-nums">
-                  {v.toLocaleString()}
-                </div>
-                <div className="text-[11px] md:text-xs text-muted-foreground mt-1.5 font-semibold uppercase tracking-wider">
-                  {k === "mobile_money" ? "Mobile Money Scams" : t(`hero.stats.${k}`)}
+                <div className="grid grid-cols-3 divide-x divide-border/60">
+                  {[
+                    { v: stats.reports, k: "reports", icon: ShieldCheck },
+                    { v: Math.floor(stats.reports * 0.35), k: "mobile_money", icon: Smartphone },
+                    { v: stats.types, k: "types", icon: Target },
+                  ].map(({ v, k, icon: Icon }) => (
+                    <div key={k} className="px-4 py-7 md:py-9 text-center relative">
+                      <Icon className="h-4 w-4 text-accent mx-auto mb-2" />
+                      <div className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-foreground tabular-nums">
+                        {v.toLocaleString()}
+                      </div>
+                      <div className="text-[11px] md:text-xs text-muted-foreground mt-1.5 font-semibold uppercase tracking-wider">
+                        {k === "mobile_money" ? "Mobile Money Scams" : t(`hero.stats.${k}`)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            </div>
           </div>
+        </section>
 
-        </div> {/* ← closes surface-elevated card */}
-      </div>   {/* ← closes container div */}
-    </section> {/* ← closes hero <section> */}
+        {/* ============ MOMO GUARD PREVIEW ============ */}
+        <section className="container py-16">
+          <div className="surface-elevated p-8 md:p-10 border border-scam-mobile/30 bg-gradient-to-br from-scam-mobile/10 to-background hover:shadow-xl transition-all">
+            <div className="flex items-center gap-2 mb-4">
+              <Smartphone className="h-5 w-5 text-scam-mobile" />
+              <span className="font-bold text-scam-mobile">MoMo Guard</span>
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
+              Protect your Mobile Money
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mb-6">
+              MTN Mobile Money & Orange Money scams — common patterns,
+              live community alerts and protection tips.
+            </p>
+            <Button asChild size="lg" className="bg-scam-mobile hover:bg-scam-mobile/90 text-white font-semibold">
+              <Link to="/momo-guard">
+                <Smartphone className="h-4 w-4 mr-2" />
+                Open MoMo Guard
+              </Link>
+            </Button>
+          </div>
+        </section>
 
-    {/* ============ MOMO GUARD PREVIEW ============ */}
-    <section className="container py-16">
-      <div className="surface-elevated p-8 md:p-10 border border-scam-mobile/30 bg-gradient-to-br from-scam-mobile/10 to-background hover:shadow-xl transition-all">
-        <div className="flex items-center gap-2 mb-4">
-          <Smartphone className="h-5 w-5 text-scam-mobile" />
-          <span className="font-bold text-scam-mobile">MoMo Guard</span>
-        </div>
-        <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-          Protect your Mobile Money
-        </h2>
-        <p className="text-muted-foreground max-w-2xl mb-6">
-          MTN Mobile Money & Orange Money scams — common patterns,
-          live community alerts and protection tips.
-        </p>
-        <Button asChild size="lg" className="bg-scam-mobile hover:bg-scam-mobile/90 text-white font-semibold">
-          <Link to="/momo-guard">
-            <Smartphone className="h-4 w-4 mr-2" />
-            Open MoMo Guard
-          </Link>
-        </Button>
-      </div>
-    </section>
-
-    {/* ============ MISSION ============ */}
-    <section id="mission" className="container py-16 md:py-24">
-      {/* ...rest unchanged... */}
+        {/* ============ MISSION ============ */}
+        <section id="mission" className="container py-16 md:py-24">
           <div className="grid md:grid-cols-5 gap-10 items-center">
             <div className="md:col-span-2">
               <div className="text-xs font-bold text-accent uppercase tracking-[0.2em] mb-3">
                 Our mission
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-                A safer digital Africa, one alert at a time.
+                A safer digital Cameroon and Africa, one alert at a time.
               </h2>
             </div>
             <div className="md:col-span-3">
@@ -482,6 +482,7 @@ const Index = () => {
             </div>
           </div>
         </section>
+
       </main>
       <SiteFooter />
     </div>
