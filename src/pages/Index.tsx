@@ -30,17 +30,22 @@ import { SCAM_TYPES, SCAM_META } from "@/lib/scam-types";
 
 const Index = () => {
   const { t } = useTranslation();
-  const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, protected: 0 });
-
+const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, protected: 0, momoCount: 0 });
   useEffect(() => {
+  Promise.all([
+    supabase
+      .from("scam_reports")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "approved"),
     supabase
       .from("scam_reports")
       .select("id", { count: "exact", head: true })
       .eq("status", "approved")
-      .then(({ count }) => {
-        setStats((s) => ({ ...s, reports: count || 0, protected: (count || 0) * 17 }));
-      });
-  }, []);
+      .eq("scam_type", "mobile_money"),
+  ]).then(([{ count: total }, { count: momo }]) => {
+    setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));
+  });
+}, []);
 
   const features = [
     { icon: Brain, title: t("features.aiTitle"), desc: t("features.aiDesc") },
@@ -158,7 +163,7 @@ const Index = () => {
                 <div className="grid grid-cols-3 divide-x divide-border/60">
                   {[
                     { v: stats.reports, k: "reports", icon: ShieldCheck },
-                    { v: Math.floor(stats.reports * 0.35), k: "mobile_money", icon: Smartphone },
+                    { v: stats.momoCount, k: "mobile_money", icon: Smartphone },
                     { v: stats.types, k: "types", icon: Target },
                   ].map(({ v, k, icon: Icon }) => (
                     <div key={k} className="px-4 py-7 md:py-9 text-center relative">
