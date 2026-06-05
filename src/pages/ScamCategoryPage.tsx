@@ -142,7 +142,7 @@ export default function ScamCategoryPage() {
       const { data, error, count } = await supabase
         .from("scam_reports")
         .select(
-          "id, reporter_name, location, description, contact_info, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number",
+          "id, location, description, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number",
           { count: "exact" },
         )
         .eq("status", "approved")
