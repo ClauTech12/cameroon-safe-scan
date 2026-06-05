@@ -25,6 +25,9 @@ export default function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetSent, setResetSent] = useState(false);
 
   useEffect(() => {
     if (!loading && session) nav(isAdmin ? "/admin" : "/", { replace: true });
@@ -65,6 +68,65 @@ export default function AuthPage() {
     if (r.error) { toast.error(r.error.message ?? "Google sign-in failed"); setBusy(false); }
   }
 
+  async function resetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    const ev = emailSchema.safeParse(resetEmail);
+    if (!ev.success) return toast.error(t("auth.invalidEmail"));
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(ev.data, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+    setBusy(false);
+    if (error) return toast.error(error.message);
+    setResetSent(true);
+    toast.success("Password reset email sent! Check your inbox.");
+  }
+
+  if (showReset) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <SiteHeader />
+        <main className="flex-1 container py-12 md:py-20 flex items-center justify-center">
+          <Card className="w-full max-w-md surface-elevated">
+            <CardHeader className="text-center">
+              <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mb-2">
+                <ShieldCheck className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle className="text-2xl">Reset Password</CardTitle>
+              <CardDescription>
+                Enter your email and we'll send you a reset link
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {resetSent ? (
+                <div className="text-center space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    ✅ Reset email sent to <strong>{resetEmail}</strong>. Check your inbox and spam folder.
+                  </p>
+                  <Button variant="outline" className="w-full" onClick={() => { setShowReset(false); setResetSent(false); }}>
+                    Back to Sign In
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={resetPassword} className="space-y-3">
+                  <Field id="reset-email" label="Email" type="email" value={resetEmail} setValue={setResetEmail} />
+                  <Button type="submit" className="w-full" disabled={busy}>
+                    {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                    Send Reset Link
+                  </Button>
+                  <Button type="button" variant="ghost" className="w-full" onClick={() => setShowReset(false)}>
+                    Back to Sign In
+                  </Button>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </main>
+        <SiteFooter />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <SiteHeader />
@@ -92,6 +154,13 @@ export default function AuthPage() {
                     {busy && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                     {t("auth.signIn")}
                   </Button>
+                  <button
+                    type="button"
+                    onClick={() => { setResetEmail(email); setShowReset(true); }}
+                    className="w-full text-xs text-muted-foreground hover:text-foreground text-center mt-1 underline"
+                  >
+                    Forgot password?
+                  </button>
                 </form>
               </TabsContent>
 
