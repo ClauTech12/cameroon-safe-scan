@@ -17,7 +17,7 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
         </span>
         {size !== "sm" && (
           <span className="text-[10px] text-muted-foreground font-semibold tracking-[0.18em] uppercase mt-1">
-            Cyber Trust · Africa
+            Cyber Trust · Cameroon
           </span>
         )}
       </div>
