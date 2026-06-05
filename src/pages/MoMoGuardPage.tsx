@@ -26,7 +26,7 @@ export default function MoMoGuardPage() {
   const isFr = i18n.language?.startsWith("fr");
   const patterns = isFr ? PATTERNS_FR : PATTERNS_EN;
   const [reports, setReports] = useState<Report[] | null>(null);
-
+const [reportCount, setReportCount] = useState(0);
   useEffect(() => {
     supabase
       .from("scam_reports")
@@ -35,7 +35,11 @@ export default function MoMoGuardPage() {
       .eq("scam_type", "mobile_money")
       .order("created_at", { ascending: false })
       .limit(6)
-      .then(({ data }) => setReports((data as Report[]) || []));
+      .then(({ data }) => {
+  const rows = data || [];
+  setReports(rows);
+  setReportCount(rows.length);
+});
   }, []);
 
   return (
@@ -58,6 +62,16 @@ export default function MoMoGuardPage() {
                   ? "Arnaques MTN Mobile Money et Orange Money — schémas courants et alertes en temps réel."
                   : "MTN Mobile Money & Orange Money scams — common patterns and live community alerts."}
               </p>
+              <div className="mt-6 flex gap-4 flex-wrap">
+  <div className="glass-card px-5 py-3">
+    <div className="text-2xl font-bold text-scam-mobile">
+      {reportCount}
+    </div>
+    <div className="text-xs text-muted-foreground">
+      MoMo Reports Logged
+    </div>
+  </div>
+</div>
             </div>
           </div>
         </section>
