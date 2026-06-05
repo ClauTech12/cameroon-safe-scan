@@ -15,10 +15,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 export interface Report {
   id: string;
-  reporter_name: string | null;
+  reporter_name?: string | null;
   location: string;
   description: string;
-  contact_info: string | null;
+  contact_info?: string | null;
   scam_type: ScamType;
   ai_confidence: number | null;
   ai_advice: string[] | null;
