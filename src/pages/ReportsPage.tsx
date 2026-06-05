@@ -1,37 +1,10 @@
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ReportList } from "@/components/ReportList";
-import type { Tables } from "@/integrations/supabase/types";
-
-type LookupReport = Pick<Tables<"scam_reports">, "id" | "phone_number" | "description">;
 
 export default function ReportsPage() {
   const { t } = useTranslation();
-  const [phoneLookup, setPhoneLookup] = useState("");
-  const [lookupResult, setLookupResult] = useState<LookupReport[] | null>(null);
-  const [loadingLookup, setLoadingLookup] = useState(false);
-
-  const handleLookup = async () => {
-    if (!phoneLookup.trim()) return;
-    setLoadingLookup(true);
-
-    const { data, error } = await supabase
-      .from("scam_reports")
-      .select("*")
-      .eq("phone_number", phoneLookup);
-
-    if (error) {
-      console.error(error);
-      setLookupResult(null);
-    } else {
-      setLookupResult(data);
-    }
-
-    setLoadingLookup(false);
-  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -43,48 +16,6 @@ export default function ReportsPage() {
           </h1>
           <p className="text-muted-foreground">{t("reports.subtitle")}</p>
         </header>
-
-        <div className="mb-8 rounded-xl border p-6">
-          <h2 className="text-2xl font-bold mb-2">Phone Number Lookup</h2>
-          <p className="text-muted-foreground mb-4">
-            Check if a phone number has been reported before sending money.
-          </p>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Enter phone number..."
-              value={phoneLookup}
-              onChange={(e) => setPhoneLookup(e.target.value)}
-              className="flex-1 px-3 py-2 border rounded-lg"
-            />
-            <button
-              onClick={handleLookup}
-              disabled={loadingLookup}
-              className="px-4 py-2 rounded-lg bg-primary text-primary-foreground disabled:opacity-50"
-            >
-              {loadingLookup ? "Searching..." : "Search"}
-            </button>
-          </div>
-
-          {lookupResult && (
-            <div className="mt-4 rounded-lg border p-4">
-              <h3 className="font-bold">Lookup Result</h3>
-              {lookupResult.length === 0 ? (
-                <p className="text-green-600">No reports found for this number.</p>
-              ) : (
-                <>
-                  <p>Reports Found: {lookupResult.length}</p>
-                  {lookupResult.map((report) => (
-                    <div key={report.id} className="mt-2 border-t pt-2">
-                      <p>Phone: {report.phone_number}</p>
-                      <p>Description: {report.description}</p>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-          )}
-        </div>
 
         <ReportList />
       </main>
