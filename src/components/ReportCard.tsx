@@ -8,7 +8,7 @@ import { suspiciousPhrases, detectTactics } from "@/lib/explain";
 import { HighlightedText } from "./HighlightedText";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
-import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin, Calendar, User, Lightbulb, ShieldAlert, ShieldCheck, AlertTriangle, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr as frLocale, enUS } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,7 +31,6 @@ export interface Report {
 type BadgeKind = "verified" | "suspicious" | "unverified";
 
 function getVerificationBadge(report: Report): { kind: BadgeKind; label: string; className: string; Icon: typeof ShieldAlert } {
-  // Priority: status drives the label, never the source.
   if (report.status === "approved" && report.risk_level === "high") {
     return {
       kind: "suspicious",
@@ -61,32 +60,22 @@ interface PhoneStats { total: number; recent24h: number }
 function buildReasons(report: Report, stats: PhoneStats | null): string[] {
   const reasons: string[] = [];
   try {
-    // Most specific signals first
     if (stats && stats.total >= 2) reasons.push("reports.reasons.reportedMultiple");
     if (stats && stats.recent24h >= 3) reasons.push("reports.reasons.recentSpike");
-
-    // Tactic-specific reasons from message content
     const tactics = detectTactics(report.description ?? "");
     for (const tac of tactics) reasons.push(`reports.reasons.tactic.${tac}`);
-
-    // Verification & risk
     if (report.status === "approved") reasons.push("reports.reasons.adminVerified");
     if (report.risk_level === "high") reasons.push("reports.reasons.highRisk");
     else if (report.risk_level === "medium") reasons.push("reports.reasons.mediumRisk");
-
-    // Generic pattern fallback only if no tactic was identified
     if (tactics.length === 0) {
       const phrases = suspiciousPhrases(report.description ?? "");
       if (phrases.length >= 2) reasons.push("reports.reasons.patternMatch");
     }
-
     if ((report.ai_confidence ?? 0) >= 80) reasons.push("reports.reasons.highConfidence");
-
     if (report.status !== "approved" && reasons.length === 0) reasons.push("reports.reasons.pending");
   } catch {
     // never crash the card on explainability
   }
-  // de-dupe while keeping order, cap at 5
   return Array.from(new Set(reasons)).slice(0, 5);
 }
 
@@ -99,7 +88,6 @@ export function ReportCard({ report }: { report: Report }) {
   const badge = getVerificationBadge(report);
   const BadgeIcon = badge.Icon;
 
-  // Lazy-fetch same-number stats (best-effort, never blocks render)
   useEffect(() => {
     const phone = report.phone_number?.trim();
     if (!phone) return;
@@ -115,37 +103,107 @@ export function ReportCard({ report }: { report: Report }) {
         ]);
         if (!cancelled) setStats({ total: total ?? 0, recent24h: recent24h ?? 0 });
       } catch {
-        // ignore — explainability degrades gracefully
+        // ignore
       }
     })();
     return () => { cancelled = true; };
   }, [report.phone_number]);
 
   const reasons = buildReasons(report, stats);
-const confidenceLabel =
-  (report.ai_confidence ?? 0) >= 85
-    ? "Very High Confidence"
-    : (report.ai_confidence ?? 0) >= 70
-    ? "High Confidence"
-    : (report.ai_confidence ?? 0) >= 50
-    ? "Medium Confidence"
-    : "Low Confidence";
+  const confidenceLabel =
+    (report.ai_confidence ?? 0) >= 85 ? "Very High Confidence" :
+    (report.ai_confidence ?? 0) >= 70 ? "High Confidence" :
+    (report.ai_confidence ?? 0) >= 50 ? "Medium Confidence" : "Low Confidence";
+
+  const handleDownloadPDF = () => {
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(`
+      <html>
+        <head>
+          <title>CAMALERT Report - ${report.id}</title>
+          <style>
+            body { font-family: sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #111; }
+            h1 { font-size: 22px; margin-bottom: 4px; }
+            .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #f3f4f6; margin-bottom: 16px; }
+            .section { margin-bottom: 16px; }
+            .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 4px; }
+            .value { font-size: 14px; color: #111; }
+            .advice { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-top: 8px; }
+            .advice li { font-size: 13px; color: #374151; margin-bottom: 6px; list-style: none; }
+            .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
+          </style>
+        </head>
+        <body>
+          <h1>CAMALERT Scam Report</h1>
+          <div class="badge">${report.scam_type.replace(/_/g, " ").toUpperCase()}</div>
+
+          <div class="section">
+            <div class="label">Description</div>
+            <div class="value">${report.description}</div>
+          </div>
+
+          <div class="section">
+            <div class="label">Risk Level</div>
+            <div class="value">${report.risk_level?.toUpperCase() ?? "—"}</div>
+          </div>
+
+          <div class="section">
+            <div class="label">AI Confidence</div>
+            <div class="value">${report.ai_confidence ?? "—"}%</div>
+          </div>
+
+          ${report.contact_info ? `
+          <div class="section">
+            <div class="label">Contact / Number</div>
+            <div class="value">${report.contact_info}</div>
+          </div>` : ""}
+
+          <div class="section">
+            <div class="label">Location</div>
+            <div class="value">${report.location}</div>
+          </div>
+
+          <div class="section">
+            <div class="label">Reported by</div>
+            <div class="value">${report.reporter_name ?? "Anonymous"}</div>
+          </div>
+
+          <div class="section">
+            <div class="label">Date</div>
+            <div class="value">${new Date(report.created_at).toLocaleDateString()}</div>
+          </div>
+
+          ${report.ai_advice && report.ai_advice.length > 0 ? `
+          <div class="section">
+            <div class="label">AI Advice</div>
+            <div class="advice">
+              <ul>${report.ai_advice.map((tip) => `<li>• ${tip}</li>`).join("")}</ul>
+            </div>
+          </div>` : ""}
+
+          <div class="footer">
+            Generated by CAMALERT · camalert.app · Report ID: ${report.id}
+          </div>
+        </body>
+      </html>
+    `);
+    win.document.close();
+    win.focus();
+    win.print();
+    win.close();
+  };
+
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
       <div className="h-1 w-full" style={{ background: meta.hex }} />
       <div className="p-5 space-y-4 flex-1 flex flex-col">
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
-  <ScamBadge
-    type={report.scam_type}
-    confidence={report.ai_confidence}
-  />
-  <p className="text-[11px] text-muted-foreground mt-1">
-    {confidenceLabel}
-  </p>
-</div>
-
-<RiskIndicator level={report.risk_level} />
+            <ScamBadge type={report.scam_type} confidence={report.ai_confidence} />
+            <p className="text-[11px] text-muted-foreground mt-1">{confidenceLabel}</p>
+          </div>
+          <RiskIndicator level={report.risk_level} />
         </div>
 
         <HighlightedText
@@ -222,7 +280,19 @@ const confidenceLabel =
             {showWhy ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             {t("why.title")}
           </Button>
-          <ReportAbuseDialog reportId={report.id} />
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="h-3 w-3" />
+              PDF
+            </Button>
+            <ReportAbuseDialog reportId={report.id} />
+          </div>
         </div>
 
         {showWhy && (
