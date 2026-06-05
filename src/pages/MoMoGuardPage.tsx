@@ -56,7 +56,7 @@ export default function MoMoGuardPage() {
   useEffect(() => {
     supabase
       .from("scam_reports")
-      .select("id, reporter_name, location, description, contact_info, scam_type, ai_confidence, ai_advice, risk_level, created_at")
+      .select("id, location, description, scam_type, ai_confidence, ai_advice, risk_level, created_at")
       .eq("status", "approved")
       .eq("scam_type", "mobile_money")
       .order("created_at", { ascending: false })
