@@ -26,6 +26,7 @@ import ReportsModerationPage from "./pages/admin/ReportsModerationPage.tsx";
 import PrivacyPage from "./pages/legal/PrivacyPage.tsx";
 import TermsPage from "./pages/legal/TermsPage.tsx";
 import DisclaimerPage from "./pages/legal/DisclaimerPage.tsx";
+import ContactPage from "./pages/ContactPage.tsx";
 import { useEffect, useState } from "react";
 import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
 
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/disclaimer" element={<DisclaimerPage />} />
+              <Route path="/contact" element={<ContactPage />} />
               <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
                 <Route index element={<AdminDashboardPage />} />
                 <Route path="reports" element={<ReportsModerationPage />} />
