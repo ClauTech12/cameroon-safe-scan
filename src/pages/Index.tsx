@@ -43,7 +43,7 @@ const Index = () => {
         .from("scam_reports")
         .select("id", { count: "exact", head: true })
         .eq("status", "approved")
-        .ilike("scam_type", "%mobile%"),
+        .eq("scam_type", "mobile_money"),
     ]).then(([{ count: total }, { count: momo }]) => {
       setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));
     });
