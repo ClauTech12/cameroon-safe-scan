@@ -27,7 +27,7 @@ import {
   Zap,
 } from "lucide-react";
 import { SCAM_TYPES, SCAM_META } from "@/lib/scam-types";
-import founder from "@/assets/founder.png";
+import founder from "@/assets/Founder.jpg.jpeg";
 
 const Index = () => {
   const { t } = useTranslation();
