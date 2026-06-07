@@ -6,11 +6,9 @@ import {
   ShieldCheck,
   Sparkles,
   CheckCircle2,
-  Twitter,
-  Facebook,
-  Linkedin,
   Mail,
   Lock,
+  Instagram,
 } from "lucide-react";
 
 export function SiteFooter() {
@@ -31,16 +29,17 @@ export function SiteFooter() {
             <span className="badge-trust"><CheckCircle2 className="h-3 w-3" /> {t("brand.verified")}</span>
           </div>
           <div className="flex items-center gap-2 pt-2">
-            {[Twitter, Facebook, Linkedin, Mail].map((Icon, i) => (
-              <a
-                key={i}
-                href="#"
-                aria-label="Social"
-                className="h-9 w-9 rounded-lg border border-border bg-background grid place-items-center text-muted-foreground hover:text-accent hover:border-accent/40 transition-smooth"
-              >
-                <Icon className="h-4 w-4" />
-              </a>
-            ))}
+            <a href="https://www.facebook.com/share/1DAJgYMeN6/?mibextid=wwXIfr" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="h-9 w-9 rounded-lg border border-border bg-background grid place-items-center text-muted-foreground hover:text-accent hover:border-accent/40 transition-smooth">
+              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            <a href="https://www.instagram.com/Clauvet_scamshield" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="h-9 w-9 rounded-lg border border-border bg-background grid place-items-center text-muted-foreground hover:text-accent hover:border-accent/40 transition-smooth">
+              <Instagram className="h-4 w-4" />
+            </a>
+            <a href="mailto:clauvetmt19988@gmail.com" aria-label="Email" className="h-9 w-9 rounded-lg border border-border bg-background grid place-items-center text-muted-foreground hover:text-accent hover:border-accent/40 transition-smooth">
+              <Mail className="h-4 w-4" />
+            </a>
           </div>
         </div>
 
@@ -85,7 +84,6 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Centered logo section */}
       <div className="border-t border-border/60 relative">
         <div className="container py-8 flex flex-col items-center gap-4">
           <ClauTechLogo className="h-10 opacity-90" />
@@ -99,16 +97,11 @@ export function SiteFooter() {
         </div>
       </div>
 
-      {/* Copyright bar */}
       <div className="border-t border-border/60 relative">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <div>© {year} CAMALERT · Cyber Trust · Cameroon. {t("footer.rights")}</div>
           <div className="flex items-center gap-3">
-            <img
-              src={founder}
-              alt="Agbor Clauvet"
-              className="h-6 w-6 rounded-full object-cover object-top"
-            />
+            <img src={founder} alt="Agbor Clauvet" className="h-6 w-6 rounded-full object-cover object-top" />
             <span>Founded by Agbor Clauvet</span>
           </div>
         </div>

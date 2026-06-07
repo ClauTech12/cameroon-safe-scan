@@ -8,7 +8,7 @@ interface Props {
 
 export function WhatsAppFAB({ phone = "+237650556715", message }: Props) {
   const appUrl =
-    typeof window !== "undefined" ? window.location.origin : "https://cameroon-safe-scan.lovable.app";
+    typeof window !== "undefined" ? window.location.origin : "https://cameroon-safe-scan.vercel.app";
   const text =
     message ??
     `Hello CamAlert 👋 — I'd like to report or check a suspicious number. App: ${appUrl}`;
