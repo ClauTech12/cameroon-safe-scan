@@ -27,25 +27,27 @@ import {
   Zap,
 } from "lucide-react";
 import { SCAM_TYPES, SCAM_META } from "@/lib/scam-types";
+import founder from "@/assets/founder.png";
 
 const Index = () => {
   const { t } = useTranslation();
-const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, protected: 0, momoCount: 0 });
+  const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, protected: 0, momoCount: 0 });
+
   useEffect(() => {
-  Promise.all([
-    supabase
-      .from("scam_reports")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "approved"),
-    supabase
-      .from("scam_reports")
-      .select("id", { count: "exact", head: true })
-      .eq("status", "approved")
-      .ilike("scam_type", "%mobile%"),
-  ]).then(([{ count: total }, { count: momo }]) => {
-    setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));
-  });
-}, []);
+    Promise.all([
+      supabase
+        .from("scam_reports")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved"),
+      supabase
+        .from("scam_reports")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "approved")
+        .ilike("scam_type", "%mobile%"),
+    ]).then(([{ count: total }, { count: momo }]) => {
+      setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));
+    });
+  }, []);
 
   const features = [
     { icon: Brain, title: t("features.aiTitle"), desc: t("features.aiDesc") },
@@ -146,7 +148,6 @@ const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, prote
             {/* Threat-intel dashboard preview card */}
             <div className="mt-14 md:mt-20 max-w-5xl mx-auto animate-fade-up">
               <div className="surface-elevated overflow-hidden border-accent/20 ring-trust">
-                {/* terminal header */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border/60 bg-secondary/50">
                   <div className="flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-destructive/70" />
@@ -365,12 +366,22 @@ const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, prote
                   Built for trust. Powered by community.
                 </h2>
                 <p className="text-white/80 leading-relaxed">
-                  CAMALERT exists to make the digital experience safer for every African. We combine
+                  CAMALERT exists to make the digital experience safer for every Cameroonian and African. We combine
                   community-driven fraud reporting, AI-assisted threat detection, and public digital safety
                   education into one trusted platform.
                 </p>
-                <div className="mt-6 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold border border-white/15">
-                  <Sparkles className="h-3.5 w-3.5" /> Founded by Agbor Clauvet
+                <div className="mt-6 flex items-center gap-3">
+                  <img
+                    src={founder}
+                    alt="Agbor Clauvet"
+                    className="h-12 w-12 rounded-full object-cover object-top border-2 border-white/30"
+                  />
+                  <div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold border border-white/15">
+                      <Sparkles className="h-3.5 w-3.5" /> Founded by Agbor Clauvet
+                    </div>
+                    <p className="text-xs text-white/60 mt-1">Founder & CEO · ClauTech Digital Solutions</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -379,7 +390,7 @@ const [stats, setStats] = useState({ reports: 0, types: SCAM_TYPES.length, prote
                 {[
                   {
                     icon: Globe2,
-                    title: "Cyber awareness for Africa",
+                    title: "Cyber awareness for Cameroon",
                     desc: "Localized intelligence on Mobile Money, phishing, job, and investment scams.",
                   },
                   {
