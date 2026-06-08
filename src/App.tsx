@@ -30,6 +30,7 @@ import StatusPage from "./pages/StatusPage.tsx";
 import { useEffect, useState } from "react";
 import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
 import ContactPage from "./pages/ContactPage.tsx";
+import AboutPage from "./pages/AboutPage.tsx";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => {
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/disclaimer" element={<DisclaimerPage />} />
               <Route path="/contact" element={<ContactPage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/status" element={<StatusPage />} />
               <Route path="/status" element={<StatusPage />} />
               <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>

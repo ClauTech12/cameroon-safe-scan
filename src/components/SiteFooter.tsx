@@ -61,7 +61,7 @@ export function SiteFooter() {
             Company
           </div>
           <ul className="space-y-2.5 text-sm text-muted-foreground">
-            <li><a href="#about" className="hover:text-accent transition-smooth">About CAMALERT</a></li>
+         <li><Link to="/about" className="hover:text-accent transition-smooth">About CAMALERT</Link></li>
             <li><a href="#mission" className="hover:text-accent transition-smooth">Our mission</a></li>
             <li><a href="mailto:clauvetmt19988@gmail.com" className="hover:text-accent transition-smooth">Contact us</a></li>
             <li><a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CAMALERT" className="hover:text-accent transition-smooth">Responsible disclosure</a></li>
