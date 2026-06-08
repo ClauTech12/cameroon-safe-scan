@@ -272,6 +272,19 @@ export function ReportForm() {
         {result && insertedId && (
           <WhyThisResult reportId={insertedId} description={submittedDescription} />
         )}
+
+        {insertedId && (
+          <div className="rounded-xl border border-border/60 bg-muted/30 p-4 text-center space-y-2">
+            <p className="text-xs text-muted-foreground">Your Report ID — save this to track your report</p>
+            <p className="font-mono text-sm font-bold text-accent break-all">{insertedId}</p>
+            <a
+              href={`/status?id=${insertedId}`}
+              className="text-xs text-accent hover:underline"
+            >
+              Check report status →
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
