@@ -81,7 +81,8 @@ Deno.serve(async (req) => {
     }
     if (!resp.ok) {
       const t = await resp.text();
-      return jsonResponse({ error: "ai_error", detail: t }, 502, corsHeaders);
+      console.error("AI gateway error", resp.status, t);
+      return jsonResponse({ error: "ai_unavailable" }, 502, corsHeaders);
     }
 
     const data = await resp.json();
