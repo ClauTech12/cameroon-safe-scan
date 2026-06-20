@@ -81,7 +81,8 @@ Deno.serve(async (req) => {
     }
     if (!resp.ok) {
       const t = await resp.text();
-      return jsonResponse({ error: "ai_error", detail: t }, 502, corsHeaders);
+      console.error("AI gateway error", resp.status, t);
+      return jsonResponse({ error: "ai_unavailable" }, 502, corsHeaders);
     }
 
     const data = await resp.json();
@@ -102,6 +103,7 @@ Deno.serve(async (req) => {
 
     return jsonResponse({ ok: true, analysis: parsed }, 200, corsHeaders);
   } catch (e) {
-    return jsonResponse({ error: "server_error", detail: String(e) }, 500, corsHeaders);
+    console.error("analyze-scam server error", e);
+    return jsonResponse({ error: "server_error" }, 500, corsHeaders);
   }
 });
