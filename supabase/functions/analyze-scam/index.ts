@@ -103,6 +103,7 @@ Deno.serve(async (req) => {
 
     return jsonResponse({ ok: true, analysis: parsed }, 200, corsHeaders);
   } catch (e) {
-    return jsonResponse({ error: "server_error", detail: String(e) }, 500, corsHeaders);
+    console.error("analyze-scam server error", e);
+    return jsonResponse({ error: "server_error" }, 500, corsHeaders);
   }
 });
