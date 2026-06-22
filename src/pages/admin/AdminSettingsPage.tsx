@@ -551,7 +551,7 @@ export default function AdminSettingsPage() {
                   <div className="text-sm font-medium">Two-factor authentication</div>
                   <div className="text-xs text-muted-foreground">Add an extra layer of security to your Google account</div>
                 </div>
-                <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/two-step-verification", "_blank")}>
+                <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/signinoptions/two-step-verification", "_blank")}>
                   Enable 2FA <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
               </div>
