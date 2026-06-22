@@ -20,18 +20,40 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Users, UserPlus, ShieldCheck, Trash2, Clock } from "lucide-react";
+import {
+  Users,
+  UserPlus,
+  ShieldCheck,
+  Trash2,
+  Clock,
+  Activity,
+  FileText,
+  Shield,
+  ExternalLink,
+  Filter,
+} from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type AdminRole = "super_admin" | "admin" | "moderator";
+type Tab = "admins" | "activity" | "security";
 
 type AdminEntry = {
-  id: string;         // user_roles.id
-  user_id: string;    // user_roles.user_id
+  id: string;
+  user_id: string;
   role: AdminRole;
   created_at: string;
-  email: string;      // joined from auth.users
+  email: string;
+};
+
+type ActivityLog = {
+  id: string;
+  user_id: string | null;
+  action: string;
+  description: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  email?: string;
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -44,8 +66,8 @@ const ROLE_LABELS: Record<AdminRole, string> = {
 
 const ROLE_COLORS: Record<AdminRole, string> = {
   super_admin: "border-primary/40 text-primary bg-primary/5",
-  admin:       "border-green-500/40 text-green-700 bg-green-500/5",
-  moderator:   "border-amber-500/40 text-amber-700 bg-amber-500/5",
+  admin: "border-green-500/40 text-green-700 bg-green-500/5",
+  moderator: "border-amber-500/40 text-amber-700 bg-amber-500/5",
 };
 
 const AVATAR_COLORS = [
@@ -74,34 +96,73 @@ function RoleBadge({ role }: { role: AdminRole }) {
   );
 }
 
+function timeAgo(date: string) {
+  const diff = Date.now() - new Date(date).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return new Date(date).toLocaleDateString();
+}
+
+function actionColor(action: string) {
+  if (action.includes("delete") || action.includes("remove")) return "text-red-500 bg-red-500/10";
+  if (action.includes("invite") || action.includes("add")) return "text-green-600 bg-green-500/10";
+  if (action.includes("update") || action.includes("change")) return "text-amber-600 bg-amber-500/10";
+  if (action.includes("report")) return "text-blue-600 bg-blue-500/10";
+  return "text-muted-foreground bg-muted/40";
+}
+
+// ─── Log helper ───────────────────────────────────────────────────────────────
+
+async function logActivity(
+  userId: string,
+  action: string,
+  description: string,
+  metadata?: Record<string, unknown>
+) {
+  await supabase.from("activity_logs" as any).insert({
+    user_id: userId,
+    action,
+    description,
+    metadata: metadata ?? null,
+  });
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function AdminSettingsPage() {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<Tab>("admins");
 
-  const [admins, setAdmins]           = useState<AdminEntry[]>([]);
-  const [loading, setLoading]         = useState(true);
+  // Admin management state
+  const [admins, setAdmins] = useState<AdminEntry[]>([]);
+  const [loadingAdmins, setLoadingAdmins] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-
+  const [currentEmail, setCurrentEmail] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole]   = useState<AdminRole>("admin");
-  const [inviting, setInviting]       = useState(false);
-
+  const [inviteRole, setInviteRole] = useState<AdminRole>("admin");
+  const [inviting, setInviting] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<AdminEntry | null>(null);
-  const [removing, setRemoving]         = useState(false);
+  const [removing, setRemoving] = useState(false);
+
+  // Activity log state
+  const [logs, setLogs] = useState<ActivityLog[]>([]);
+  const [loadingLogs, setLoadingLogs] = useState(true);
+  const [logFilter, setLogFilter] = useState<"all" | "admin" | "report">("all");
 
   // ── Get current user ───────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id ?? null);
+      setCurrentEmail(data.user?.email ?? null);
     });
   }, []);
 
   // ── Fetch admins ───────────────────────────────────────────────────────────
   async function fetchAdmins() {
-    setLoading(true);
-
-    // Get all rows from user_roles
+    setLoadingAdmins(true);
     const { data: roles, error } = await supabase
       .from("user_roles")
       .select("id, user_id, role, created_at")
@@ -109,36 +170,69 @@ export default function AdminSettingsPage() {
 
     if (error) {
       toast({ title: "Failed to load admins", description: error.message, variant: "destructive" });
-      setLoading(false);
+      setLoadingAdmins(false);
       return;
     }
 
-    // Get emails for each user_id from the edge function
-    // (Supabase auth.users is not directly queryable from the client)
     const enriched: AdminEntry[] = await Promise.all(
       (roles ?? []).map(async (r) => {
-        // Try to get email via RPC or fall back to user_id display
-        let email = r.user_id;
+        let email = r.user_id.slice(0, 8) + "...";
         try {
-          const { data } = await supabase.rpc("get_user_email", { uid: r.user_id });
+          const { data } = await supabase.rpc("get_user_email" as any, { uid: r.user_id });
           if (data) email = data;
-        } catch {
-          // RPC not available yet, show user_id shortened
-          email = r.user_id.slice(0, 8) + "...";
-        }
+        } catch { /* fallback to shortened id */ }
         return { ...r, email, role: r.role as AdminRole };
       })
     );
 
     setAdmins(enriched);
-    setLoading(false);
+    setLoadingAdmins(false);
   }
 
-  useEffect(() => { fetchAdmins(); }, []);
+  // ── Fetch activity logs ────────────────────────────────────────────────────
+  async function fetchLogs() {
+    setLoadingLogs(true);
+    const { data, error } = await (supabase as any)
+      .from("activity_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    if (error) {
+      toast({ title: "Failed to load activity", description: error.message, variant: "destructive" });
+      setLoadingLogs(false);
+      return;
+    }
+
+    const enriched: ActivityLog[] = await Promise.all(
+      ((data ?? []) as any[]).map(async (log: any) => {
+        let email = "System";
+        if (log.user_id) {
+          try {
+            const { data: e } = await supabase.rpc("get_user_email" as any, { uid: log.user_id });
+            if (e) email = String(e);
+          } catch { /* fallback */ }
+        }
+        return { ...log, email };
+      })
+    );
+
+    setLogs(enriched);
+    setLoadingLogs(false);
+  }
+
+  useEffect(() => { fetchAdmins(); fetchLogs(); }, []);
+
+  // ── Filtered logs ──────────────────────────────────────────────────────────
+  const filteredLogs = logs.filter((l) => {
+    if (logFilter === "admin") return !l.action.includes("report");
+    if (logFilter === "report") return l.action.includes("report");
+    return true;
+  });
 
   // ── Stats ──────────────────────────────────────────────────────────────────
   const superAdmins = admins.filter((a) => a.role === "super_admin").length;
-  const total       = admins.length;
+  const total = admins.length;
 
   // ── Invite ─────────────────────────────────────────────────────────────────
   async function handleInvite() {
@@ -148,7 +242,6 @@ export default function AdminSettingsPage() {
     }
     setInviting(true);
 
-    // 1. Invite user via Supabase Auth (sends email)
     const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
       inviteEmail.trim()
     );
@@ -159,41 +252,41 @@ export default function AdminSettingsPage() {
       return;
     }
 
-    // 2. Add role to user_roles table
     const userId = inviteData?.user?.id;
     if (userId) {
       const { error: roleError } = await supabase.from("user_roles").insert({
         user_id: userId,
-        role: inviteRole,
+        role: inviteRole as any,
       });
       if (roleError) {
         toast({ title: "Could not assign role", description: roleError.message, variant: "destructive" });
         setInviting(false);
         return;
       }
+      if (currentUserId) {
+        await logActivity(currentUserId, "invite_admin", `Invited ${inviteEmail} as ${ROLE_LABELS[inviteRole]}`);
+      }
     }
 
-    toast({
-      title: "Invitation sent!",
-      description: `${inviteEmail} invited as ${ROLE_LABELS[inviteRole]}.`,
-    });
+    toast({ title: "Invitation sent!", description: `${inviteEmail} invited as ${ROLE_LABELS[inviteRole]}.` });
     setInviteEmail("");
     fetchAdmins();
+    fetchLogs();
     setInviting(false);
   }
 
   // ── Change role ────────────────────────────────────────────────────────────
   async function handleRoleChange(admin: AdminEntry, newRole: AdminRole) {
-    const { error } = await supabase
-      .from("user_roles")
-      .update({ role: newRole })
-      .eq("id", admin.id);
-
+    const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("id", admin.id);
     if (error) {
       toast({ title: "Role update failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Role updated", description: `Role changed to ${ROLE_LABELS[newRole]}.` });
+      if (currentUserId) {
+        await logActivity(currentUserId, "update_admin_role", `Changed ${admin.email} role to ${ROLE_LABELS[newRole]}`);
+      }
+      toast({ title: "Role updated" });
       fetchAdmins();
+      fetchLogs();
     }
   }
 
@@ -205,12 +298,22 @@ export default function AdminSettingsPage() {
     if (error) {
       toast({ title: "Remove failed", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Admin removed", description: `${removeTarget.email} has been removed.` });
+      if (currentUserId) {
+        await logActivity(currentUserId, "remove_admin", `Removed ${removeTarget.email} from admin team`);
+      }
+      toast({ title: "Admin removed" });
       setRemoveTarget(null);
       fetchAdmins();
+      fetchLogs();
     }
     setRemoving(false);
   }
+
+  const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+    { id: "admins", label: "Admin management", icon: Users },
+    { id: "activity", label: "Activity log", icon: Activity },
+    { id: "security", label: "Security", icon: Shield },
+  ];
 
   // ── UI ─────────────────────────────────────────────────────────────────────
   return (
@@ -218,148 +321,276 @@ export default function AdminSettingsPage() {
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage admin access for your CamAlert workspace
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">Manage your CamAlert workspace</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid gap-3 grid-cols-3">
-        {[
-          { label: "Total admins",  value: total,       icon: Users,      color: "text-primary",    bg: "bg-primary/10"    },
-          { label: "Super admins",  value: superAdmins, icon: ShieldCheck, color: "text-green-600", bg: "bg-green-500/10"  },
-          { label: "Roles assigned",value: total,       icon: Clock,      color: "text-amber-600",  bg: "bg-amber-500/10"  },
-        ].map((s) => (
-          <Card key={s.label} className="surface-elevated border-0 shadow-sm">
-            <CardContent className="p-4">
-              <div className={`h-9 w-9 rounded-xl grid place-items-center mb-3 ${s.bg}`}>
-                <s.icon className={`h-4 w-4 ${s.color}`} />
-              </div>
-              <div className="font-display text-3xl font-bold tabular-nums">{s.value}</div>
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-2 font-medium">
-                {s.label}
-              </div>
-            </CardContent>
-          </Card>
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-border pb-0">
+        {tabs.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${
+              activeTab === t.id
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <t.icon className="h-4 w-4" />
+            {t.label}
+          </button>
         ))}
       </div>
 
-      {/* Invite */}
-      <Card className="surface-elevated border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <UserPlus className="h-4 w-4 text-primary" /> Invite a new admin
-          </CardTitle>
-          <p className="text-xs text-muted-foreground">
-            They'll receive an email with a link to set up their account.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2 items-center">
-            <Input
-              type="email"
-              placeholder="Email address"
-              value={inviteEmail}
-              onChange={(e) => setInviteEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleInvite()}
-              className="flex-1 min-w-48 rounded-xl"
-            />
-            <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AdminRole)}>
-              <SelectTrigger className="w-36 rounded-xl">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="moderator">Moderator</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleInvite} disabled={inviting} className="rounded-xl">
-              {inviting ? "Sending…" : "Send invite"}
-            </Button>
-          </div>
-
-          {/* Role descriptions */}
-          <div className="mt-4 grid gap-1.5 grid-cols-1 sm:grid-cols-3 text-xs text-muted-foreground">
-            <div><span className="font-medium text-foreground">Super Admin</span> — full control, manages all admins</div>
-            <div><span className="font-medium text-foreground">Admin</span> — manages reports, numbers, alerts</div>
-            <div><span className="font-medium text-foreground">Moderator</span> — reviews and actions reports only</div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Admin list */}
-      <Card className="surface-elevated border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" /> Admin team
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-1">
-          {loading ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
-          ) : admins.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              No admins yet. Invite someone above.
-            </p>
-          ) : (
-            admins.map((admin) => {
-              const isMe = admin.user_id === currentUserId;
-              const isSuperAdmin = admin.role === "super_admin";
-              return (
-                <div
-                  key={admin.id}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all"
-                >
-                  {/* Avatar */}
-                  <div className={`h-9 w-9 rounded-full grid place-items-center shrink-0 text-sm font-medium ${avatarColor(admin.email)}`}>
-                    {initials(admin.email)}
+      {/* ── ADMIN MANAGEMENT TAB ─────────────────────────────────────────── */}
+      {activeTab === "admins" && (
+        <>
+          {/* Stats */}
+          <div className="grid gap-3 grid-cols-3">
+            {[
+              { label: "Total admins", value: total, icon: Users, color: "text-primary", bg: "bg-primary/10" },
+              { label: "Super admins", value: superAdmins, icon: ShieldCheck, color: "text-green-600", bg: "bg-green-500/10" },
+              { label: "Roles assigned", value: total, icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10" },
+            ].map((s) => (
+              <Card key={s.label} className="surface-elevated border-0 shadow-sm">
+                <CardContent className="p-4">
+                  <div className={`h-9 w-9 rounded-xl grid place-items-center mb-3 ${s.bg}`}>
+                    <s.icon className={`h-4 w-4 ${s.color}`} />
                   </div>
+                  <div className="font-display text-3xl font-bold tabular-nums">{s.value}</div>
+                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground mt-2 font-medium">{s.label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
 
-                  {/* Info */}
+          {/* Invite */}
+          <Card className="surface-elevated border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <UserPlus className="h-4 w-4 text-primary" /> Invite a new admin
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">They'll receive an email with a link to set up their account.</p>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2 items-center">
+                <Input
+                  type="email"
+                  placeholder="Email address"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleInvite()}
+                  className="flex-1 min-w-48 rounded-xl"
+                />
+                <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AdminRole)}>
+                  <SelectTrigger className="w-36 rounded-xl"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="moderator">Moderator</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button onClick={handleInvite} disabled={inviting} className="rounded-xl">
+                  {inviting ? "Sending…" : "Send invite"}
+                </Button>
+              </div>
+              <div className="mt-4 grid gap-1.5 grid-cols-1 sm:grid-cols-3 text-xs text-muted-foreground">
+                <div><span className="font-medium text-foreground">Super Admin</span> — full control</div>
+                <div><span className="font-medium text-foreground">Admin</span> — manages reports, numbers, alerts</div>
+                <div><span className="font-medium text-foreground">Moderator</span> — reviews reports only</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Admin list */}
+          <Card className="surface-elevated border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4 text-primary" /> Admin team
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-1">
+              {loadingAdmins ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+              ) : admins.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">No admins yet.</p>
+              ) : (
+                admins.map((admin) => {
+                  const isMe = admin.user_id === currentUserId;
+                  const isSuperAdmin = admin.role === "super_admin";
+                  return (
+                    <div key={admin.id} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all">
+                      <div className={`h-9 w-9 rounded-full grid place-items-center shrink-0 text-sm font-medium ${avatarColor(admin.email)}`}>
+                        {initials(admin.email)}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">
+                          {admin.email} {isMe && <span className="text-xs text-muted-foreground">(you)</span>}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Added {new Date(admin.created_at).toLocaleDateString()}</div>
+                      </div>
+                      {isSuperAdmin || isMe ? (
+                        <RoleBadge role={admin.role} />
+                      ) : (
+                        <Select value={admin.role} onValueChange={(v) => handleRoleChange(admin, v as AdminRole)}>
+                          <SelectTrigger className="w-36 h-7 text-xs rounded-lg"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="moderator">Moderator</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {!isMe && !isSuperAdmin && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg" onClick={() => setRemoveTarget(admin)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {/* ── ACTIVITY LOG TAB ─────────────────────────────────────────────── */}
+      {activeTab === "activity" && (
+        <Card className="surface-elevated border-0 shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" /> Activity log
+              </CardTitle>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-muted-foreground" />
+                <Select value={logFilter} onValueChange={(v) => setLogFilter(v as typeof logFilter)}>
+                  <SelectTrigger className="w-36 h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All activity</SelectItem>
+                    <SelectItem value="admin">Admin actions</SelectItem>
+                    <SelectItem value="report">Report submissions</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">Last 50 actions across admin and report activity.</p>
+          </CardHeader>
+          <CardContent className="space-y-1">
+            {loadingLogs ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+            ) : filteredLogs.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">No activity yet.</p>
+            ) : (
+              filteredLogs.map((log) => (
+                <div key={log.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all">
+                  <div className={`h-8 w-8 rounded-lg grid place-items-center shrink-0 text-xs font-medium mt-0.5 ${actionColor(log.action)}`}>
+                    {log.action.includes("report") ? <FileText className="h-4 w-4" /> : <Activity className="h-4 w-4" />}
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium truncate">
-                      {admin.email} {isMe && <span className="text-xs text-muted-foreground">(you)</span>}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Added {new Date(admin.created_at).toLocaleDateString()}
-                    </div>
+                    <div className="text-sm font-medium truncate">{log.description ?? log.action}</div>
+                    <div className="text-xs text-muted-foreground">{log.email} · {timeAgo(log.created_at)}</div>
                   </div>
-
-                  {/* Role */}
-                  {isSuperAdmin || isMe ? (
-                    <RoleBadge role={admin.role} />
-                  ) : (
-                    <Select
-                      value={admin.role}
-                      onValueChange={(v) => handleRoleChange(admin, v as AdminRole)}
-                    >
-                      <SelectTrigger className="w-36 h-7 text-xs rounded-lg">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="moderator">Moderator</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-
-                  {/* Remove — can't remove yourself or other super admins */}
-                  {!isMe && !isSuperAdmin && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg"
-                      onClick={() => setRemoveTarget(admin)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+                  <div className="text-xs text-muted-foreground shrink-0">{new Date(log.created_at).toLocaleDateString()}</div>
                 </div>
-              );
-            })
-          )}
-        </CardContent>
-      </Card>
+              ))
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* ── SECURITY TAB ─────────────────────────────────────────────────── */}
+      {activeTab === "security" && (
+        <div className="space-y-4">
+          {/* Current account */}
+          <Card className="surface-elevated border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" /> Your account
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
+                <div>
+                  <div className="text-sm font-medium">Signed in as</div>
+                  <div className="text-xs text-muted-foreground">{currentEmail ?? "Loading…"}</div>
+                </div>
+                <Badge variant="outline" className="border-green-500/40 text-green-700 bg-green-500/5">Google</Badge>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
+                <div>
+                  <div className="text-sm font-medium">Login method</div>
+                  <div className="text-xs text-muted-foreground">Managed by Google — no CamAlert password needed</div>
+                </div>
+                <ShieldCheck className="h-5 w-5 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Password & 2FA via Google */}
+          <Card className="surface-elevated border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-primary" /> Password & two-factor auth
+              </CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Since you sign in with Google, your password and 2FA are managed by your Google account.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+                <div>
+                  <div className="text-sm font-medium">Change your password</div>
+                  <div className="text-xs text-muted-foreground">Update your Google account password</div>
+                </div>
+                <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/security", "_blank")}>
+                  Open Google <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+                <div>
+                  <div className="text-sm font-medium">Two-factor authentication</div>
+                  <div className="text-xs text-muted-foreground">Add an extra layer of security to your Google account</div>
+                </div>
+                <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/two-step-verification", "_blank")}>
+                  Enable 2FA <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-xl border border-border">
+                <div>
+                  <div className="text-sm font-medium">Review active sessions</div>
+                  <div className="text-xs text-muted-foreground">See all devices signed into your Google account</div>
+                </div>
+                <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/device-activity", "_blank")}>
+                  View devices <ExternalLink className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Security tips */}
+          <Card className="surface-elevated border-0 shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Shield className="h-4 w-4 text-primary" /> Security tips for CamAlert admins
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm text-muted-foreground">
+              {[
+                "Enable 2FA on your Google account — it's the single most effective protection",
+                "Never share your admin login link or session with anyone",
+                "Review the Activity Log regularly for unexpected actions",
+                "Remove admins who no longer need access immediately",
+                "Use a strong, unique password for your Google account",
+              ].map((tip, i) => (
+                <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg hover:bg-secondary/40">
+                  <ShieldCheck className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
+                  <span>{tip}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Confirm remove dialog */}
       <Dialog open={!!removeTarget} onOpenChange={(o) => !o && setRemoveTarget(null)}>
@@ -367,14 +598,11 @@ export default function AdminSettingsPage() {
           <DialogHeader>
             <DialogTitle>Remove admin</DialogTitle>
             <DialogDescription>
-              Remove <span className="font-medium text-foreground">{removeTarget?.email}</span>? They
-              will lose all access to the CamAlert dashboard immediately.
+              Remove <span className="font-medium text-foreground">{removeTarget?.email}</span>? They will lose all access immediately.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setRemoveTarget(null)} className="rounded-xl">
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setRemoveTarget(null)} className="rounded-xl">Cancel</Button>
             <Button variant="destructive" onClick={handleRemove} disabled={removing} className="rounded-xl">
               {removing ? "Removing…" : "Remove"}
             </Button>
