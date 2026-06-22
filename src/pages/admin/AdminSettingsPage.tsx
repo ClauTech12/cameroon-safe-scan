@@ -33,8 +33,6 @@ import {
   Filter,
 } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type AdminRole = "super_admin" | "admin" | "moderator";
 type Tab = "admins" | "activity" | "security";
 
@@ -55,8 +53,6 @@ type ActivityLog = {
   created_at: string;
   email?: string;
 };
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const ROLE_LABELS: Record<AdminRole, string> = {
   super_admin: "Super Admin",
@@ -114,15 +110,13 @@ function actionColor(action: string) {
   return "text-muted-foreground bg-muted/40";
 }
 
-// ─── Log helper ───────────────────────────────────────────────────────────────
-
 async function logActivity(
   userId: string,
   action: string,
   description: string,
   metadata?: Record<string, unknown>
 ) {
-  await supabase.from("activity_logs" as any).insert({
+  await (supabase as any).from("activity_logs").insert({
     user_id: userId,
     action,
     description,
@@ -130,13 +124,9 @@ async function logActivity(
   });
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export default function AdminSettingsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("admins");
-
-  // Admin management state
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
   const [loadingAdmins, setLoadingAdmins] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -146,13 +136,10 @@ export default function AdminSettingsPage() {
   const [inviting, setInviting] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<AdminEntry | null>(null);
   const [removing, setRemoving] = useState(false);
-
-  // Activity log state
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [logFilter, setLogFilter] = useState<"all" | "admin" | "report">("all");
 
-  // ── Get current user ───────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setCurrentUserId(data.user?.id ?? null);
@@ -160,7 +147,6 @@ export default function AdminSettingsPage() {
     });
   }, []);
 
-  // ── Fetch admins ───────────────────────────────────────────────────────────
   async function fetchAdmins() {
     setLoadingAdmins(true);
     const { data: roles, error } = await supabase
@@ -180,7 +166,7 @@ export default function AdminSettingsPage() {
         try {
           const { data } = await supabase.rpc("get_user_email" as any, { uid: r.user_id });
           if (data) email = data;
-        } catch { /* fallback to shortened id */ }
+        } catch { /* fallback */ }
         return { ...r, email, role: r.role as AdminRole };
       })
     );
@@ -189,7 +175,6 @@ export default function AdminSettingsPage() {
     setLoadingAdmins(false);
   }
 
-  // ── Fetch activity logs ────────────────────────────────────────────────────
   async function fetchLogs() {
     setLoadingLogs(true);
     const { data, error } = await (supabase as any)
@@ -223,18 +208,16 @@ export default function AdminSettingsPage() {
 
   useEffect(() => { fetchAdmins(); fetchLogs(); }, []);
 
-  // ── Filtered logs ──────────────────────────────────────────────────────────
   const filteredLogs = logs.filter((l) => {
     if (logFilter === "admin") return !l.action.includes("report");
     if (logFilter === "report") return l.action.includes("report");
     return true;
   });
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
   const superAdmins = admins.filter((a) => a.role === "super_admin").length;
   const total = admins.length;
 
-  // ── Invite ─────────────────────────────────────────────────────────────────
+  // ── Invite via Edge Function ───────────────────────────────────────────────
   async function handleInvite() {
     if (!inviteEmail.trim() || !inviteEmail.includes("@")) {
       toast({ title: "Enter a valid email address", variant: "destructive" });
@@ -242,30 +225,22 @@ export default function AdminSettingsPage() {
     }
     setInviting(true);
 
-    const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
-      inviteEmail.trim()
-    );
+    const { data, error: inviteError } = await supabase.functions.invoke("invite-admin", {
+      body: { email: inviteEmail.trim(), role: inviteRole },
+    });
 
-    if (inviteError && !inviteError.message.toLowerCase().includes("already")) {
-      toast({ title: "Invite failed", description: inviteError.message, variant: "destructive" });
+    if (inviteError || data?.error) {
+      toast({
+        title: "Invite failed",
+        description: inviteError?.message ?? data?.error,
+        variant: "destructive",
+      });
       setInviting(false);
       return;
     }
 
-    const userId = inviteData?.user?.id;
-    if (userId) {
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: userId,
-        role: inviteRole as any,
-      });
-      if (roleError) {
-        toast({ title: "Could not assign role", description: roleError.message, variant: "destructive" });
-        setInviting(false);
-        return;
-      }
-      if (currentUserId) {
-        await logActivity(currentUserId, "invite_admin", `Invited ${inviteEmail} as ${ROLE_LABELS[inviteRole]}`);
-      }
+    if (currentUserId) {
+      await logActivity(currentUserId, "invite_admin", `Invited ${inviteEmail} as ${ROLE_LABELS[inviteRole]}`);
     }
 
     toast({ title: "Invitation sent!", description: `${inviteEmail} invited as ${ROLE_LABELS[inviteRole]}.` });
@@ -275,7 +250,6 @@ export default function AdminSettingsPage() {
     setInviting(false);
   }
 
-  // ── Change role ────────────────────────────────────────────────────────────
   async function handleRoleChange(admin: AdminEntry, newRole: AdminRole) {
     const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("id", admin.id);
     if (error) {
@@ -290,7 +264,6 @@ export default function AdminSettingsPage() {
     }
   }
 
-  // ── Remove ─────────────────────────────────────────────────────────────────
   async function handleRemove() {
     if (!removeTarget) return;
     setRemoving(true);
@@ -315,16 +288,13 @@ export default function AdminSettingsPage() {
     { id: "security", label: "Security", icon: Shield },
   ];
 
-  // ── UI ─────────────────────────────────────────────────────────────────────
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">Manage your CamAlert workspace</p>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 border-b border-border pb-0">
         {tabs.map((t) => (
           <button
@@ -342,10 +312,8 @@ export default function AdminSettingsPage() {
         ))}
       </div>
 
-      {/* ── ADMIN MANAGEMENT TAB ─────────────────────────────────────────── */}
       {activeTab === "admins" && (
         <>
-          {/* Stats */}
           <div className="grid gap-3 grid-cols-3">
             {[
               { label: "Total admins", value: total, icon: Users, color: "text-primary", bg: "bg-primary/10" },
@@ -364,7 +332,6 @@ export default function AdminSettingsPage() {
             ))}
           </div>
 
-          {/* Invite */}
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -401,7 +368,6 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Admin list */}
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -453,7 +419,6 @@ export default function AdminSettingsPage() {
         </>
       )}
 
-      {/* ── ACTIVITY LOG TAB ─────────────────────────────────────────────── */}
       {activeTab === "activity" && (
         <Card className="surface-elevated border-0 shadow-sm">
           <CardHeader className="pb-3">
@@ -498,10 +463,8 @@ export default function AdminSettingsPage() {
         </Card>
       )}
 
-      {/* ── SECURITY TAB ─────────────────────────────────────────────────── */}
       {activeTab === "security" && (
         <div className="space-y-4">
-          {/* Current account */}
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -526,7 +489,6 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Password & 2FA via Google */}
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -567,7 +529,6 @@ export default function AdminSettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Security tips */}
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
@@ -592,7 +553,6 @@ export default function AdminSettingsPage() {
         </div>
       )}
 
-      {/* Confirm remove dialog */}
       <Dialog open={!!removeTarget} onOpenChange={(o) => !o && setRemoveTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
