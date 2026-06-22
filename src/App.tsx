@@ -19,6 +19,7 @@ import FraudDashboardPage from "./pages/admin/FraudDashboardPage.tsx";
 import NumberIntelPage from "./pages/admin/NumberIntelPage.tsx";
 import FlaggedListPage from "./pages/admin/FlaggedListPage.tsx";
 import { PlaceholderPage } from "./pages/admin/PlaceholderPage.tsx";
+import AdminSettingsPage from "./pages/admin/AdminSettingsPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
@@ -68,7 +69,6 @@ const App = () => {
               <Route path="/contact" element={<ContactPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/status" element={<StatusPage />} />
-              <Route path="/status" element={<StatusPage />} />
               <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
                 <Route index element={<AdminDashboardPage />} />
                 <Route path="reports" element={<ReportsModerationPage />} />
@@ -85,16 +85,7 @@ const App = () => {
                   }
                 />
                 <Route path="alerts" element={<FlaggedListPage />} />
-                <Route
-                  path="settings"
-                  element={
-                    <PlaceholderPage
-                      title="Settings"
-                      subtitle="Profile, notifications, language and branding."
-                      context="This page will allow admin configuration, notification preferences, language defaults, and other system preferences for your CamAlert workspace."
-                    />
-                  }
-                />
+                <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
