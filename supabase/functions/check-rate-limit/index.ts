@@ -90,7 +90,7 @@ Deno.serve(async (req: Request) => {
         .select("*", { count: "exact", head: true })
         .eq("ip_hash", ipHash)
         .eq("phone_number", phone)
-        .gt("created_at", since);
+        .gt("created_at", since24h);
 
       if (dupCountErr) throw dupCountErr;
 
