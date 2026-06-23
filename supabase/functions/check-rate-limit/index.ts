@@ -61,22 +61,23 @@ Deno.serve(async (req: Request) => {
     const ipHash = await sha256(ip + ":camalert-salt-v1");
 
     const supabase = createClient(supabaseUrl, serviceKey);
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since1h = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     const { count: ipCount, error: ipCountErr } = await supabase
       .from("report_rate_limits")
       .select("*", { count: "exact", head: true })
       .eq("ip_hash", ipHash)
-      .gt("created_at", since);
+      .gt("created_at", since1h);
 
     if (ipCountErr) throw ipCountErr;
 
-    if ((ipCount ?? 0) >= MAX_PER_IP_24H) {
+    if ((ipCount ?? 0) >= MAX_PER_IP_HOUR) {
       return jsonResponse(
         {
           allowed: false,
           reason: "ip_limit",
-          message: "Too many reports from your network in the last 24h. Please try again later.",
+          message: "Too many reports from your network in the last hour. Please try again later.",
         },
         429,
         corsHeaders,
