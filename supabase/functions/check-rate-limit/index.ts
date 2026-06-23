@@ -1,4 +1,4 @@
-// Rate limits report submissions: max 5 per IP per 24h, max 2 per (IP, phone) per 24h.
+// Rate limits report submissions: max 3 per IP per hour, max 2 per (IP, phone) per 24h.
 // Records the attempt on success so subsequent calls within the window are blocked.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -11,7 +11,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_PER_IP_24H = 5;
+const MAX_PER_IP_HOUR = 3;
 const MAX_PER_IP_PHONE_24H = 2;
 
 async function sha256(input: string) {
@@ -61,22 +61,23 @@ Deno.serve(async (req: Request) => {
     const ipHash = await sha256(ip + ":camalert-salt-v1");
 
     const supabase = createClient(supabaseUrl, serviceKey);
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since1h = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
     const { count: ipCount, error: ipCountErr } = await supabase
       .from("report_rate_limits")
       .select("*", { count: "exact", head: true })
       .eq("ip_hash", ipHash)
-      .gt("created_at", since);
+      .gt("created_at", since1h);
 
     if (ipCountErr) throw ipCountErr;
 
-    if ((ipCount ?? 0) >= MAX_PER_IP_24H) {
+    if ((ipCount ?? 0) >= MAX_PER_IP_HOUR) {
       return jsonResponse(
         {
           allowed: false,
           reason: "ip_limit",
-          message: "Too many reports from your network in the last 24h. Please try again later.",
+          message: "Too many reports from your network in the last hour. Please try again later.",
         },
         429,
         corsHeaders,
@@ -89,7 +90,7 @@ Deno.serve(async (req: Request) => {
         .select("*", { count: "exact", head: true })
         .eq("ip_hash", ipHash)
         .eq("phone_number", phone)
-        .gt("created_at", since);
+        .gt("created_at", since24h);
 
       if (dupCountErr) throw dupCountErr;
 
