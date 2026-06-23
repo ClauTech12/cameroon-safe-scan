@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Link } from "react-router-dom";
 import { messageFromInvokeError } from "@/lib/invoke-error";
+import { TurnstileWidget } from "./TurnstileWidget";
 
 function makeSchema(t: (k: string) => string) {
   return z.object({
@@ -49,6 +50,7 @@ export function ReportForm() {
   const [result, setResult] = useState<AIResult | null>(null);
   const [insertedId, setInsertedId] = useState<string | null>(null);
   const [submittedDescription, setSubmittedDescription] = useState<string>("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -85,13 +87,17 @@ export function ReportForm() {
       toast.error(parsed.error.issues[0]?.message || t("form.invalidInput"));
       return;
     }
+    if (!captchaToken) {
+      toast.error("Please complete the CAPTCHA challenge.");
+      return;
+    }
 
     setSubmitting(true);
     try {
-      // 0) anti-abuse rate limit
+      // 0) anti-abuse rate limit + captcha verification
       const { data: rl, error: rlErr } = await supabase.functions.invoke<{ allowed: boolean; message?: string }>(
         "check-rate-limit",
-        { body: { contact_info: parsed.data.contact_info } },
+        { body: { contact_info: parsed.data.contact_info, captcha_token: captchaToken } },
       );
       if (rlErr) {
         throw new Error(messageFromInvokeError(rlErr, t("form.rateLimit")));
@@ -145,6 +151,8 @@ export function ReportForm() {
       setSubmittedDescription(parsed.data.description);
       toast.success(t("form.success"));
       setName(""); setLocation(""); setDescription(""); setContact(""); setFile(null); setTruthful(false);
+      setCaptchaToken(null);
+      if (window.turnstile) { try { window.turnstile.reset(); } catch { /* noop */ } }
     } catch (err: unknown) {
       console.error(err);
       toast.error(messageFromInvokeError(err, t("form.error")));
@@ -218,7 +226,13 @@ export function ReportForm() {
 </p>
             </div>
           </div>
-          <Button type="submit" disabled={submitting || !truthful} size="lg"
+          <div className="flex justify-center">
+            <TurnstileWidget
+              onVerify={(token) => setCaptchaToken(token)}
+              onExpire={() => setCaptchaToken(null)}
+            />
+          </div>
+          <Button type="submit" disabled={submitting || !truthful || !captchaToken} size="lg"
             className="w-full bg-gradient-primary hover:opacity-90 shadow-glow font-semibold text-base">
             {submitting ? (
               <><Loader2 className="h-5 w-5 animate-spin" /> {t("form.submitting")}</>

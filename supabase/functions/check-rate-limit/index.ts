@@ -52,12 +52,57 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { contact_info } = await req.json().catch(() => ({}));
+    const { contact_info, captcha_token } = await req.json().catch(() => ({}));
     const phone = canonicalPhone(contact_info);
 
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
       || req.headers.get("cf-connecting-ip")
       || "unknown";
+
+    // Verify Cloudflare Turnstile captcha
+    const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
+    if (!turnstileSecret) {
+      console.error("Missing TURNSTILE_SECRET_KEY");
+      return jsonResponse(
+        { allowed: false, error: "service_unavailable", message: "Captcha verification is unavailable." },
+        503,
+        corsHeaders,
+      );
+    }
+    if (!captcha_token || typeof captcha_token !== "string") {
+      return jsonResponse(
+        { allowed: false, reason: "captcha_missing", message: "Please complete the CAPTCHA challenge." },
+        400,
+        corsHeaders,
+      );
+    }
+    try {
+      const form = new FormData();
+      form.append("secret", turnstileSecret);
+      form.append("response", captcha_token);
+      if (ip !== "unknown") form.append("remoteip", ip);
+      const verifyRes = await fetch(
+        "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+        { method: "POST", body: form },
+      );
+      const verifyJson = await verifyRes.json().catch(() => ({}));
+      if (!verifyJson?.success) {
+        console.warn("Turnstile verification failed:", verifyJson);
+        return jsonResponse(
+          { allowed: false, reason: "captcha_failed", message: "CAPTCHA verification failed. Please try again." },
+          403,
+          corsHeaders,
+        );
+      }
+    } catch (verr) {
+      console.error("Turnstile verify error:", verr);
+      return jsonResponse(
+        { allowed: false, error: "captcha_error", message: "Could not verify CAPTCHA. Please try again." },
+        503,
+        corsHeaders,
+      );
+    }
+
     const ipHash = await sha256(ip + ":camalert-salt-v1");
 
     const supabase = createClient(supabaseUrl, serviceKey);
