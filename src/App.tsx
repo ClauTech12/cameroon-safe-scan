@@ -18,8 +18,8 @@ import AdminDashboardPage from "./pages/admin/AdminDashboardPage.tsx";
 import FraudDashboardPage from "./pages/admin/FraudDashboardPage.tsx";
 import NumberIntelPage from "./pages/admin/NumberIntelPage.tsx";
 import FlaggedListPage from "./pages/admin/FlaggedListPage.tsx";
-import { PlaceholderPage } from "./pages/admin/PlaceholderPage.tsx";
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage.tsx";
+import HeatmapPage from "./pages/admin/HeatmapPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
@@ -74,16 +74,7 @@ const App = () => {
                 <Route path="reports" element={<ReportsModerationPage />} />
                 <Route path="numbers" element={<NumberIntelPage />} />
                 <Route path="patterns" element={<FraudDashboardPage />} />
-                <Route
-                  path="heatmap"
-                  element={
-                    <PlaceholderPage
-                      title="Heatmap"
-                      subtitle="Full-screen Cameroon scam heatmap with filters."
-                      context="This page will display scam activity across regions using interactive maps, with time and category filters to spot hotspots at a glance."
-                    />
-                  }
-                />
+                <Route path="heatmap" element={<HeatmapPage />} />
                 <Route path="alerts" element={<FlaggedListPage />} />
                 <Route path="settings" element={<AdminSettingsPage />} />
               </Route>
