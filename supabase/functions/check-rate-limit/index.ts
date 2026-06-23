@@ -1,4 +1,4 @@
-// Rate limits report submissions: max 5 per IP per 24h, max 2 per (IP, phone) per 24h.
+// Rate limits report submissions: max 3 per IP per hour, max 2 per (IP, phone) per 24h.
 // Records the attempt on success so subsequent calls within the window are blocked.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
@@ -11,7 +11,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_PER_IP_24H = 5;
+const MAX_PER_IP_HOUR = 3;
 const MAX_PER_IP_PHONE_24H = 2;
 
 async function sha256(input: string) {
