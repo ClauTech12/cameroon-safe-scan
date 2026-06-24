@@ -2,6 +2,7 @@ import * as React from "react";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
 import { ChevronDown } from "lucide-react";
+import { Link } from "react-router-dom"; // ✅ Routing
 
 import { cn } from "@/lib/utils";
 
@@ -106,6 +107,61 @@ const NavigationMenuIndicator = React.forwardRef<
   </NavigationMenuPrimitive.Indicator>
 ));
 NavigationMenuIndicator.displayName = NavigationMenuPrimitive.Indicator.displayName;
+
+/* ✅ Header Navigation with Support button */
+export function AppNavigation() {
+  return (
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link to="/" className={navigationMenuTriggerStyle()}>Home</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link to="/about" className={navigationMenuTriggerStyle()}>About</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link to="/contact" className={navigationMenuTriggerStyle()}>Contact</Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+
+        {/* ✅ Professional Support button */}
+        <NavigationMenuItem>
+          <NavigationMenuLink asChild>
+            <Link 
+              to="/support" 
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+            >
+              Support
+            </Link>
+          </NavigationMenuLink>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
+  );
+}
+
+/* ✅ Footer Navigation with subtle Support link */
+export function AppFooter() {
+  return (
+    <footer className="w-full border-t bg-background py-6">
+      <div className="container mx-auto flex justify-between items-center text-sm text-muted-foreground">
+        <p>© {new Date().getFullYear()} CamAlert. All rights reserved.</p>
+        <nav className="flex gap-4">
+          <Link to="/privacy" className="hover:text-primary">Privacy</Link>
+          <Link to="/terms" className="hover:text-primary">Terms</Link>
+          <Link to="/support" className="hover:text-primary font-medium">Support</Link> {/* ✅ Footer link */}
+        </nav>
+      </div>
+    </footer>
+  );
+}
 
 export {
   navigationMenuTriggerStyle,
