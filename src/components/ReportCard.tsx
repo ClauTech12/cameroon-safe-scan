@@ -114,143 +114,154 @@ export function ReportCard({ report }: { report: Report }) {
     (report.ai_confidence ?? 0) >= 85 ? "Very High Confidence" :
     (report.ai_confidence ?? 0) >= 70 ? "High Confidence" :
     (report.ai_confidence ?? 0) >= 50 ? "Medium Confidence" : "Low Confidence";
-const handleDownloadPDF = () => {
-  const win = window.open("", "_blank");
-  if (!win) return;
 
-  const esc = (s: unknown) =>
-    String(s ?? "")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
+  // ── PDF Download (true download, not print) ────────────────────────────────
+  const handleDownloadPDF = async () => {
+    const esc = (s: unknown) =>
+      String(s ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 
-  const badgeColor = report.risk_level === "high" ? "#ef4444" : report.risk_level === "medium" ? "#f97316" : "#22c55e";
-  const borderColor = report.risk_level === "high" ? "#fecaca" : report.risk_level === "medium" ? "#fed7aa" : "#bbf7d0";
-  const verifiedHTML = report.status === "approved"
-    ? `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#f0fdf4; border:1px solid #bbf7d0; color:#16a34a; font-size:12px; font-weight:bold; margin-bottom:16px;">
-        ✅ Verified & Approved by CAMALERT
-      </div>`
-    : `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#fafafa; border:1px solid #e5e7eb; color:#6b7280; font-size:12px; font-weight:bold; margin-bottom:16px;">
-        ⏳ Pending Verification
-      </div>`;
+    const badgeColor = report.risk_level === "high" ? "#ef4444" : report.risk_level === "medium" ? "#f97316" : "#22c55e";
+    const borderColor = report.risk_level === "high" ? "#fecaca" : report.risk_level === "medium" ? "#fed7aa" : "#bbf7d0";
 
-  win.document.write(`
-    <html>
-      <head>
-        <title>CAMALERT Report - ${esc(report.id)}</title>
-        <style>
-          body { font-family: sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #111; }
-          .section { margin-bottom: 16px; }
-          .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 4px; }
-          .value { font-size: 14px; color: #111; }
-          .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #f3f4f6; margin-bottom: 16px; }
-          .advice { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-top: 8px; }
-          .advice li { font-size: 13px; color: #374151; margin-bottom: 6px; list-style: none; }
-          .what-to-do { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-top: 8px; }
-          .what-to-do li { font-size: 13px; color: #92400e; margin-bottom: 8px; list-style: none; }
-          .risk-bar { height: 6px; border-radius: 3px; margin-bottom: 20px; }
-          .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
-          .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
-        </style>
-      </head>
-      <body>
-        <div style="height:6px; background:${badgeColor}; border-radius:3px; margin-bottom:20px;"></div>
+    // ── Fetch latest status from DB to ensure accuracy ─────────────────────
+    let currentStatus = report.status;
+    try {
+      const { data } = await supabase
+        .from("scam_reports")
+        .select("status")
+        .eq("id", report.id)
+        .single();
+      if (data?.status) currentStatus = data.status as typeof report.status;
+    } catch { /* use prop status as fallback */ }
 
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-          <img src="${esc(window.location.origin)}/src/assets/clautech-logo.png"
-            alt="CAMALERT"
-            style="height:40px; width:40px; object-fit:contain; border-radius:8px;"
-            onerror="this.style.display='none'"
-          />
-          <div>
-            <div style="font-size:20px; font-weight:900; letter-spacing:-0.5px;">
-              CAM<span style="color:#6366f1;">ALERT</span>
+    const verifiedHTML = currentStatus === "approved"
+      ? `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#f0fdf4; border:1px solid #bbf7d0; color:#16a34a; font-size:12px; font-weight:bold; margin-bottom:16px;">
+          ✅ Verified & Approved by CAMALERT
+        </div>`
+      : currentStatus === "rejected"
+      ? `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#fff7ed; border:1px solid #fed7aa; color:#c2410c; font-size:12px; font-weight:bold; margin-bottom:16px;">
+          ❌ Rejected by CAMALERT
+        </div>`
+      : `<div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; background:#fafafa; border:1px solid #e5e7eb; color:#6b7280; font-size:12px; font-weight:bold; margin-bottom:16px;">
+          ⏳ Pending Verification
+        </div>`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8"/>
+          <title>CAMALERT Report - ${esc(report.id)}</title>
+          <style>
+            body { font-family: sans-serif; padding: 32px; max-width: 700px; margin: 0 auto; color: #111; }
+            .section { margin-bottom: 16px; }
+            .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #6b7280; margin-bottom: 4px; }
+            .value { font-size: 14px; color: #111; }
+            .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #f3f4f6; margin-bottom: 16px; }
+            .advice { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-top: 8px; }
+            .advice li { font-size: 13px; color: #374151; margin-bottom: 6px; list-style: none; }
+            .what-to-do { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 16px; margin-top: 8px; }
+            .what-to-do li { font-size: 13px; color: #92400e; margin-bottom: 8px; list-style: none; }
+            .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; }
+            .divider { border: none; border-top: 1px solid #e5e7eb; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div style="height:6px; background:${badgeColor}; border-radius:3px; margin-bottom:20px;"></div>
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+            <div>
+              <div style="font-size:20px; font-weight:900; letter-spacing:-0.5px;">
+                CAM<span style="color:#6366f1;">ALERT</span>
+              </div>
+              <div style="font-size:10px; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase;">
+                Cyber Trust · Cameroon
+              </div>
             </div>
-            <div style="font-size:10px; color:#9ca3af; letter-spacing:0.15em; text-transform:uppercase;">
-              Cyber Trust · Cameroon
+          </div>
+          <h1 style="font-size:18px; margin-bottom:4px;">Scam Report</h1>
+          <div class="badge">${esc(report.scam_type.replace(/_/g, " ").toUpperCase())}</div>
+          <br/>
+          ${verifiedHTML}
+          <div style="background:${borderColor}; height:4px; border-radius:2px; margin-bottom:20px;"></div>
+          <div class="section">
+            <div class="label">Description</div>
+            <div class="value">${esc(report.description)}</div>
+          </div>
+          <div class="section">
+            <div class="label">Risk Level</div>
+            <div class="value" style="color:${badgeColor}; font-weight:bold;">${esc(report.risk_level?.toUpperCase() ?? "—")}</div>
+          </div>
+          <div class="section">
+            <div class="label">AI Confidence</div>
+            <div class="value">${esc(report.ai_confidence ?? "—")}%</div>
+          </div>
+          ${report.contact_info ? `
+          <div class="section">
+            <div class="label">Contact / Number</div>
+            <div class="value">${esc(report.contact_info)}</div>
+          </div>` : ""}
+          <div class="section">
+            <div class="label">Location</div>
+            <div class="value">${esc(report.location)}</div>
+          </div>
+          <div class="section">
+            <div class="label">Reported by</div>
+            <div class="value">${esc(report.reporter_name ?? "Anonymous")}</div>
+          </div>
+          <div class="section">
+            <div class="label">Date</div>
+            <div class="value">${esc(new Date(report.created_at).toLocaleDateString())}</div>
+          </div>
+          <div class="section">
+            <div class="label">Report Status</div>
+            <div class="value" style="font-weight:bold; color:${currentStatus === "approved" ? "#16a34a" : currentStatus === "rejected" ? "#c2410c" : "#6b7280"};">
+              ${currentStatus === "approved" ? "✅ Verified & Approved" : currentStatus === "rejected" ? "❌ Rejected" : "⏳ Pending Verification"}
             </div>
           </div>
-        </div>
-
-        <h1 style="font-size:18px; margin-bottom:4px;">Scam Report</h1>
-        <div class="badge">${esc(report.scam_type.replace(/_/g, " ").toUpperCase())}</div>
-        <br/>
-        ${verifiedHTML}
-
-        <div style="background:${borderColor}; height:4px; border-radius:2px; margin-bottom:20px;"></div>
-
-        <div class="section">
-          <div class="label">Description</div>
-          <div class="value">${esc(report.description)}</div>
-        </div>
-
-        <div class="section">
-          <div class="label">Risk Level</div>
-          <div class="value" style="color:${badgeColor}; font-weight:bold;">${esc(report.risk_level?.toUpperCase() ?? "—")}</div>
-        </div>
-
-        <div class="section">
-          <div class="label">AI Confidence</div>
-          <div class="value">${esc(report.ai_confidence ?? "—")}%</div>
-        </div>
-
-        ${report.contact_info ? `
-        <div class="section">
-          <div class="label">Contact / Number</div>
-          <div class="value">${esc(report.contact_info)}</div>
-        </div>` : ""}
-
-        <div class="section">
-          <div class="label">Location</div>
-          <div class="value">${esc(report.location)}</div>
-        </div>
-
-        <div class="section">
-          <div class="label">Reported by</div>
-          <div class="value">${esc(report.reporter_name ?? "Anonymous")}</div>
-        </div>
-
-        <div class="section">
-          <div class="label">Date</div>
-          <div class="value">${esc(new Date(report.created_at).toLocaleDateString())}</div>
-        </div>
-
-        ${report.ai_advice && report.ai_advice.length > 0 ? `
-        <div class="section">
-          <div class="label">AI Advice</div>
-          <div class="advice">
-            <ul>${report.ai_advice.map((tip) => `<li>• ${esc(tip)}</li>`).join("")}</ul>
+          ${report.ai_advice && report.ai_advice.length > 0 ? `
+          <div class="section">
+            <div class="label">AI Advice</div>
+            <div class="advice">
+              <ul>${report.ai_advice.map((tip) => `<li>• ${esc(tip)}</li>`).join("")}</ul>
+            </div>
+          </div>` : ""}
+          <hr class="divider"/>
+          <div class="section">
+            <div class="label" style="color:#92400e;">⚠️ What to do if you were scammed</div>
+            <div class="what-to-do">
+              <ul>
+                <li>1. 📞 Call MTN (dial 180) or Orange (dial 122) immediately to freeze your account</li>
+                <li>2. 🔒 Change your MoMo PIN right away via the app or USSD</li>
+                <li>3. 🚔 File a complaint with your local police and keep this report as evidence</li>
+                <li>4. 🚫 Do NOT send any more money or share any codes with the scammer</li>
+                <li>5. 📢 Warn family and friends by sharing this report on WhatsApp</li>
+              </ul>
+            </div>
           </div>
-        </div>` : ""}
-
-        <hr class="divider"/>
-
-        <div class="section">
-          <div class="label" style="color:#92400e;">⚠️ What to do if you were scammed</div>
-          <div class="what-to-do">
-            <ul>
-              <li>1. 📞 Call MTN (dial 180) or Orange (dial 122) immediately to freeze your account</li>
-              <li>2. 🔒 Change your MoMo PIN right away via the app or USSD</li>
-              <li>3. 🚔 File a complaint with your local police and keep this report as evidence</li>
-              <li>4. 🚫 Do NOT send any more money or share any codes with the scammer</li>
-              <li>5. 📢 Warn family and friends by sharing this report on WhatsApp</li>
-            </ul>
+          <div class="footer">
+            Generated by CAMALERT · cameroon-safe-scan.vercel.app · Report ID: ${esc(report.id)}
           </div>
-        </div>
+        </body>
+      </html>
+    `;
 
-        <div class="footer">
-          Generated by CAMALERT · camalert.app · Report ID: ${esc(report.id)}
-        </div>
-      </body>
-    </html>
-  `);
-  win.document.close();
-  win.focus();
-  win.print();
-  win.close();
-};
+    // ── True file download using Blob ───────────────────────────────────────
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `camalert-report-${report.id.slice(0, 8)}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <article className="surface-card overflow-hidden lift-on-hover flex flex-col">
       <div className="h-1 w-full" style={{ background: meta.hex }} />
@@ -327,54 +338,54 @@ const handleDownloadPDF = () => {
         </div>
 
         <div className="-mt-1 -mb-1 flex justify-between items-center gap-2">
-  <Button
-    type="button"
-    variant="ghost"
-    size="sm"
-    className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
-    onClick={() => setShowWhy((v) => !v)}
-  >
-    {showWhy ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-    {t("why.title")}
-  </Button>
-  <div className="flex items-center gap-1">
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
-      onClick={handleDownloadPDF}
-    >
-      <Download className="h-3 w-3" />
-      PDF
-    </Button>
-    <Button
-      type="button"
-      variant="ghost"
-      size="sm"
-      className="h-7 px-2 text-xs gap-1 text-green-600 hover:text-green-700 hover:bg-green-50"
-      onClick={() => {
-        const text = encodeURIComponent(
-          `⚠️ *SCAM ALERT via CAMALERT*\n\n` +
-          `*Type:* ${report.scam_type.replace(/_/g, " ").toUpperCase()}\n` +
-          `*Risk:* ${report.risk_level?.toUpperCase() ?? "—"}\n` +
-          `*Location:* ${report.location}\n\n` +
-          `*Description:*\n${report.description}\n\n` +
-          `🔗 See more alerts: https://camalert.app/reports\n` +
-          `_Powered by CAMALERT · Cyber Trust · Cameroon_`
-        );
-        window.open(`https://wa.me/?text=${text}`, "_blank");
-      }}
-    >
-      <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.86L.057 23.943l6.244-1.635A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.369l-.36-.214-3.706.972.988-3.614-.235-.372A9.818 9.818 0 1112 21.818z"/>
-      </svg>
-      Share
-    </Button>
-    <ReportAbuseDialog reportId={report.id} />
-  </div>
-</div>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+            onClick={() => setShowWhy((v) => !v)}
+          >
+            {showWhy ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            {t("why.title")}
+          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-muted-foreground hover:text-foreground"
+              onClick={handleDownloadPDF}
+            >
+              <Download className="h-3 w-3" />
+              PDF
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-7 px-2 text-xs gap-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+              onClick={() => {
+                const text = encodeURIComponent(
+                  `⚠️ *SCAM ALERT via CAMALERT*\n\n` +
+                  `*Type:* ${report.scam_type.replace(/_/g, " ").toUpperCase()}\n` +
+                  `*Risk:* ${report.risk_level?.toUpperCase() ?? "—"}\n` +
+                  `*Location:* ${report.location}\n\n` +
+                  `*Description:*\n${report.description}\n\n` +
+                  `🔗 See more alerts: https://cameroon-safe-scan.vercel.app/reports\n` +
+                  `_Powered by CAMALERT · Cyber Trust · Cameroon_`
+                );
+                window.open(`https://wa.me/?text=${text}`, "_blank");
+              }}
+            >
+              <svg viewBox="0 0 24 24" className="h-3 w-3 fill-current" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.126 1.533 5.86L.057 23.943l6.244-1.635A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.006-1.369l-.36-.214-3.706.972.988-3.614-.235-.372A9.818 9.818 0 1112 21.818z"/>
+              </svg>
+              Share
+            </Button>
+            <ReportAbuseDialog reportId={report.id} />
+          </div>
+        </div>
         {showWhy && (
           <WhyThisResult reportId={report.id} description={report.description} compact />
         )}

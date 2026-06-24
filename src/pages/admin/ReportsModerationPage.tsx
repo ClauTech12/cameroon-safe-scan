@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import { ScamBadge } from "@/components/ScamBadge";
 import { RiskIndicator } from "@/components/RiskIndicator";
-import { Check, Trash2, Eye, Loader2, Inbox } from "lucide-react";
+import { Check, X, Trash2, Eye, Loader2, Inbox } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -59,8 +59,13 @@ export default function ReportsModerationPage() {
     const { error } = await supabase.from("scam_reports").update({ status }).eq("id", id);
     setBusyId(null);
     if (error) return toast.error(error.message);
-    toast.success(status === "approved" ? "Report verified & published" : "Report rejected");
+    toast.success(
+      status === "approved"
+        ? "Report verified & published"
+        : "Report rejected"
+    );
     setRows((r) => r?.filter((x) => x.id !== id) ?? null);
+    if (view?.id === id) setView(null);
   }
 
   async function remove(id: string) {
@@ -71,6 +76,7 @@ export default function ReportsModerationPage() {
     if (error) return toast.error(error.message);
     toast.success("Report deleted");
     setRows((r) => r?.filter((x) => x.id !== id) ?? null);
+    if (view?.id === id) setView(null);
   }
 
   return (
@@ -123,16 +129,27 @@ export default function ReportsModerationPage() {
                   <TableCell className="max-w-xs"><p className="line-clamp-2 text-sm">{r.description}</p></TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
+                      {/* View */}
                       <Button size="icon" variant="ghost" onClick={() => setView(r)} title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
+                      {/* Approve — only on pending and rejected tabs */}
                       {tab !== "approved" && (
                         <Button size="icon" variant="ghost" disabled={busyId === r.id}
-                          onClick={() => setStatus(r.id, "approved")} title="Verify"
+                          onClick={() => setStatus(r.id, "approved")} title="Approve"
                           className="text-emerald-600 hover:bg-emerald-500/10">
                           <Check className="h-4 w-4" />
                         </Button>
                       )}
+                      {/* Reject — only on pending and approved tabs */}
+                      {tab !== "rejected" && (
+                        <Button size="icon" variant="ghost" disabled={busyId === r.id}
+                          onClick={() => setStatus(r.id, "rejected")} title="Reject"
+                          className="text-amber-600 hover:bg-amber-500/10">
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {/* Delete */}
                       <Button size="icon" variant="ghost" disabled={busyId === r.id}
                         onClick={() => remove(r.id)} title="Delete"
                         className="text-destructive hover:bg-destructive/10">
@@ -147,6 +164,7 @@ export default function ReportsModerationPage() {
         )}
       </Card>
 
+      {/* Detail dialog */}
       <Dialog open={!!view} onOpenChange={(o) => !o && setView(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -160,6 +178,15 @@ export default function ReportsModerationPage() {
               <div className="flex flex-wrap gap-2">
                 <ScamBadge type={view.scam_type} confidence={view.ai_confidence} />
                 <RiskIndicator level={view.risk_level} />
+                <Badge variant="outline" className={
+                  view.status === "approved"
+                    ? "border-emerald-500/40 text-emerald-600 bg-emerald-500/5"
+                    : view.status === "rejected"
+                    ? "border-amber-500/40 text-amber-600 bg-amber-500/5"
+                    : "border-border text-muted-foreground"
+                }>
+                  {view.status.charAt(0).toUpperCase() + view.status.slice(1)}
+                </Badge>
               </div>
               <p className="whitespace-pre-wrap leading-relaxed">{view.description}</p>
               {view.contact_info && (
@@ -172,6 +199,30 @@ export default function ReportsModerationPage() {
                   <span className="font-semibold">Reporter:</span> {view.reporter_name}
                 </p>
               )}
+              {/* Quick actions in dialog */}
+              <div className="flex gap-2 pt-2 border-t border-border">
+                {view.status !== "approved" && (
+                  <Button size="sm" disabled={busyId === view.id}
+                    onClick={() => setStatus(view.id, "approved")}
+                    className="text-emerald-600 border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10"
+                    variant="outline">
+                    <Check className="h-4 w-4 mr-1" /> Approve
+                  </Button>
+                )}
+                {view.status !== "rejected" && (
+                  <Button size="sm" disabled={busyId === view.id}
+                    onClick={() => setStatus(view.id, "rejected")}
+                    className="text-amber-600 border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10"
+                    variant="outline">
+                    <X className="h-4 w-4 mr-1" /> Reject
+                  </Button>
+                )}
+                <Button size="sm" variant="outline" disabled={busyId === view.id}
+                  onClick={() => remove(view.id)}
+                  className="text-destructive border-destructive/40 bg-destructive/5 hover:bg-destructive/10">
+                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>
