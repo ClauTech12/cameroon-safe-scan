@@ -183,6 +183,59 @@ export default function SupportPage() {
           </CardContent>
         </Card>
 
+        {/* Thank You Footer */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-primary/10 to-background border border-primary/20 px-6 py-12 text-center">
+          {/* Decorative blobs */}
+          <div className="absolute -top-8 -left-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
+          <div className="absolute -bottom-8 -right-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
+
+          <div className="relative space-y-5">
+            <div className="flex justify-center gap-1">
+              {[...Array(5)].map((_, i) => (
+                <Heart key={i} className="h-4 w-4 text-primary" fill="currentColor" style={{ opacity: 1 - i * 0.15 }} />
+              ))}
+            </div>
+
+            <div>
+              <h2 className="font-display text-2xl font-bold tracking-tight mb-2">
+                Thank you for your support
+              </h2>
+              <p className="text-muted-foreground text-sm max-w-xs mx-auto leading-relaxed">
+                Every contribution — big or small — keeps CamAlert free and helps protect more Cameroonians from fraud and scams.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <Button
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                className="rounded-xl gap-2 px-6"
+              >
+                <Heart className="h-4 w-4" fill="currentColor" />
+                Support CamAlert
+              </Button>
+              <Button
+                variant="outline"
+                className="rounded-xl gap-2 px-6"
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: "Support CamAlert",
+                      text: "CamAlert protects Cameroonians from fraud — support them!",
+                      url: window.location.href,
+                    });
+                  }
+                }}
+              >
+                Share this page
+              </Button>
+            </div>
+
+            <p className="text-xs text-muted-foreground pt-2">
+              🇨🇲 Built for Cameroon, by Cameroonians
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );
