@@ -33,6 +33,8 @@ import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
 import ContactPage from "./pages/ContactPage.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import SupportPage from "./pages/SupportPage.tsx"; // ✅ Added
+import { AppNavigation } from "./components/ui/navigation-menu";
+import { AppFooter } from "./components/ui/navigation-menu";
 
 const queryClient = new QueryClient();
 
@@ -53,35 +55,44 @@ const App = () => {
         <Sonner theme={theme} />
         <BrowserRouter>
           <AuthProvider>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/report" element={<ReportPage />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/scams/:type" element={<ScamCategoryPage />} />
-              <Route path="/fr/scams/:type" element={<ScamCategoryPage />} />
-              <Route path="/momo-guard" element={<MoMoGuardPage />} />
-              <Route path="/check" element={<CheckNumberPage />} />
-              <Route path="/analyzer" element={<AIAnalyzerPage />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/privacy" element={<PrivacyPage />} />
-              <Route path="/terms" element={<TermsPage />} />
-              <Route path="/disclaimer" element={<DisclaimerPage />} />
-              <Route path="/contact" element={<ContactPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/status" element={<StatusPage />} />
-              <Route path="/support" element={<SupportPage />} /> {/* ✅ Added route */}
-              <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
-                <Route index element={<AdminDashboardPage />} />
-                <Route path="reports" element={<ReportsModerationPage />} />
-                <Route path="numbers" element={<NumberIntelPage />} />
-                <Route path="patterns" element={<FraudDashboardPage />} />
-                <Route path="heatmap" element={<HeatmapPage />} />
-                <Route path="alerts" element={<FlaggedListPage />} />
-                <Route path="settings" element={<AdminSettingsPage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <div className="flex flex-col min-h-screen">
+              <AppNavigation /> {/* ✅ Header nav bar */}
+
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/report" element={<ReportPage />} />
+                  <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/scams/:type" element={<ScamCategoryPage />} />
+                  <Route path="/fr/scams/:type" element={<ScamCategoryPage />} />
+                  <Route path="/momo-guard" element={<MoMoGuardPage />} />
+                  <Route path="/check" element={<CheckNumberPage />} />
+                  <Route path="/analyzer" element={<AIAnalyzerPage />} />
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route path="/terms" element={<TermsPage />} />
+                  <Route path="/disclaimer" element={<DisclaimerPage />} />
+                  <Route path="/contact" element={<ContactPage />} />
+                  <Route path="/about" element={<AboutPage />} />
+                  <Route path="/status" element={<StatusPage />} />
+                  <Route path="/support" element={<SupportPage />} /> {/* ✅ Support route */}
+                  <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+                    <Route index element={<AdminDashboardPage />} />
+                    <Route path="reports" element={<ReportsModerationPage />} />
+                    <Route path="numbers" element={<NumberIntelPage />} />
+                    <Route path="patterns" element={<FraudDashboardPage />} />
+                    <Route path="heatmap" element={<HeatmapPage />} />
+                    <Route path="alerts" element={<FlaggedListPage />} />
+                    <Route path="settings" element={<AdminSettingsPage />} />
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+
+              <AppFooter /> {/* ✅ Footer */}
+            </div>
+
             <WhatsAppFAB />
           </AuthProvider>
         </BrowserRouter>
