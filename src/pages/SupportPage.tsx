@@ -96,7 +96,7 @@ export default function SupportPage() {
             {/* Suggested amounts */}
             <div className="mt-5">
               <div className="text-xs text-muted-foreground mb-3 font-medium">Suggested amounts</div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {["500 XAF", "1,000 XAF", "2,500 XAF", "5,000 XAF"].map((amt) => (
                   <div key={amt} className="text-center p-2.5 rounded-xl border border-border bg-secondary/30 text-xs font-medium">
                     {amt}
@@ -140,7 +140,7 @@ export default function SupportPage() {
               </div>
               <div>
                 <div className="font-semibold text-lg">PayPal</div>
-                <div className="text-sm text-muted-foreground">Donate securely with your PayPal account</div>
+                <div className="text-sm text-muted-foreground">Send money directly — no PayPal account needed on your end</div>
               </div>
             </div>
 
@@ -152,22 +152,37 @@ export default function SupportPage() {
                 </div>
                 <CopyButton text="yain.noel@yahoo.com" />
               </div>
-
-              {/* Quick currency buttons */}
-              <div className="flex flex-wrap gap-2">
-                <a href="https://www.paypal.com/donate?business=yain.noel@yahoo.com&currency_code=USD" target="_blank" rel="noopener noreferrer">
-                  <Button className="rounded-xl" style={{ background: "#0070BA" }}>Donate in USD</Button>
-                </a>
-                <a href="https://www.paypal.com/donate?business=yain.noel@yahoo.com&currency_code=XAF" target="_blank" rel="noopener noreferrer">
-                  <Button className="rounded-xl" style={{ background: "#0070BA" }}>Donate in XAF</Button>
-                </a>
-                <a href="https://www.paypal.com/donate?business=yain.noel@yahoo.com&currency_code=EUR" target="_blank" rel="noopener noreferrer">
-                  <Button className="rounded-xl" style={{ background: "#0070BA" }}>Donate in EUR</Button>
-                </a>
-              </div>
             </div>
+
+            {/* Steps */}
+            <div className="mt-6 p-4 rounded-xl bg-blue-400/5 border border-blue-400/20">
+              <div className="text-sm font-medium mb-3 text-blue-700 dark:text-blue-400">
+                How to send via PayPal
+              </div>
+              <ol className="space-y-2 text-sm text-muted-foreground">
+                {[
+                  "Log in to your PayPal account at paypal.com",
+                  'Click "Send & Request" at the top',
+                  'Click "Send Money"',
+                  "Enter email: yain.noel@yahoo.com",
+                  "Enter your amount, choose currency and send",
+                ].map((step, i) => (
+                  <li key={i} className="flex gap-3">
+                    <span className="h-5 w-5 rounded-full bg-blue-400/20 text-blue-700 dark:text-blue-400 text-xs grid place-items-center shrink-0 font-medium">
+                      {i + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+
+            <p className="text-xs text-muted-foreground mt-4 text-center">
+              💡 Select <span className="font-medium">"Sending to a friend"</span> to avoid extra fees
+            </p>
           </CardContent>
         </Card>
+
       </div>
     </div>
   );
