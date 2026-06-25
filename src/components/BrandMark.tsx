@@ -1,4 +1,4 @@
-import logo from "@/assets/clautech-logo.png";
+import logo from "@/assets/clautech-logo.webp";
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const dim = size === "sm" ? "h-9 w-9" : size === "lg" ? "h-12 w-12" : "h-10 w-10";

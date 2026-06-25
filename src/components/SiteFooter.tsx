@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { BrandMark, ClauTechLogo } from "./BrandMark";
-import founder from "@/assets/Founder.jpg.jpeg";
+import founder from "@/assets/Founder.jpg.webp";
 import {
   ShieldCheck,
   Sparkles,

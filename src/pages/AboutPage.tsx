@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import founder from "@/assets/Founder.jpg.jpeg";
+import founder from "@/assets/Founder.jpg.webp";
 import {
   ShieldCheck,
   Users,
