@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -190,7 +191,7 @@ export default function AdminSettingsPage() {
     }
 
     const enriched: ActivityLog[] = await Promise.all(
-      ((data ?? []) as any[]).map(async (log: any) => {
+      ((data ?? []) as any[]).map(async (log: unknown) => {
         let email = "System";
         if (log.user_id) {
           try {
