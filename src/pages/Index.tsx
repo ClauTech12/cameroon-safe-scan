@@ -374,7 +374,7 @@ const Index = () => {
                   <img
                     src={founder}
                     alt="Agbor Clauvet"
-                    className="h-12 w-12 rounded-full object-cover object-top border-2 border-white/30"
+                    className="h-12 w-12 rounded-full object-cover object-top border-2 border-white/30" width="48" height="48"
                   />
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold border border-white/15">

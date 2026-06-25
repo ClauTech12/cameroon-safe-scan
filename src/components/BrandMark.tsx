@@ -26,5 +26,5 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 }
 
 export function ClauTechLogo({ className = "" }: { className?: string }) {
-  return <img src={logo} alt="ClauTech Digital Solutions" className={className} loading="lazy" />;
+  return <img src={logo} alt="ClauTech Digital Solutions" className={className} loading="lazy" width="200" height="60" />;
 }

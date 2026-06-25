@@ -124,7 +124,7 @@ export default function AboutPage() {
                 <img
                   src={founder}
                   alt="Agbor Clauvet"
-                  className="h-20 w-20 rounded-full object-cover object-top border-2 border-accent/30 shrink-0"
+                  className="h-20 w-20 rounded-full object-cover object-top border-2 border-accent/30 shrink-0" width="80" height="80"
                 />
                 <div>
                   <div className="font-display font-bold text-xl">Agbor Clauvet</div>
