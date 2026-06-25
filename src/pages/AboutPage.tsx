@@ -130,7 +130,7 @@ export default function AboutPage() {
                   <div className="font-display font-bold text-xl">Agbor Clauvet</div>
                   <div className="text-sm text-accent font-semibold mb-3">Founder & CEO · ClauTech Digital Solutions</div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    "I built CAMALERT because I believe every Cameroonian deserves access to the tools and information needed to stay safe in the digital age. Scammers count on silence — we're breaking it."
+                    "We built CAMALERT because I believe every Cameroonian deserves access to the tools and information needed to stay safe in the digital age. Scammers count on silence — we're breaking it."
                   </p>
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                     <ShieldCheck className="h-3.5 w-3.5 text-accent" />

@@ -366,7 +366,7 @@ const Index = () => {
                   Built for trust. Powered by community.
                 </h2>
                 <p className="text-white/80 leading-relaxed">
-                  CAMALERT exists to make the digital experience safer for every Cameroonian and African. We combine
+                  CAMALERT was created to make the digital experience safer for every Cameroonian and African. We combine
                   community-driven fraud reporting, AI-assisted threat detection, and public digital safety
                   education into one trusted platform.
                 </p>
