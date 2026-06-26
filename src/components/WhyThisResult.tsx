@@ -125,7 +125,7 @@ const riskDescription =
 
 <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
   <h4 className="font-semibold text-sm">
-    Why CAMALERT flagged this result
+    Why CamAlert flagged this result
   </h4>
 
   <p className="text-sm text-muted-foreground">
@@ -174,7 +174,7 @@ const riskDescription =
     <li>• Verify identities through an independent communication channel.</li>
     <li>• Never share OTPs, passwords, PINs, or banking credentials.</li>
     <li>• Do not send money until legitimacy is confirmed.</li>
-    <li>• Report suspicious behaviour to CAMALERT and relevant authorities.</li>
+    <li>• Report suspicious behaviour to CamAlert and relevant authorities.</li>
   </ul>
 </div>
       {!compact && phrases.length > 0 && (

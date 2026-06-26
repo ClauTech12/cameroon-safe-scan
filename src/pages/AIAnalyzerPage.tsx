@@ -165,7 +165,7 @@ export default function AIAnalyzerPage() {
             Analyze any suspicious content in seconds
           </h1>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            Paste a website, WhatsApp message, SMS, email, or phone number. CAMALERT runs an instant
+            Paste a website, WhatsApp message, SMS, email, or phone number. CamAlert runs an instant
             heuristic scan and can launch a deeper AI investigation on demand.
           </p>
         </header>
@@ -355,7 +355,7 @@ export default function AIAnalyzerPage() {
 
         <div className="max-w-4xl mx-auto mt-6 flex justify-center">
           <Button asChild variant="ghost" className="text-muted-foreground">
-            <Link to="/report">Found a real scam? Report it on CAMALERT →</Link>
+            <Link to="/report">Found a real scam? Report it on CamAlert →</Link>
           </Button>
         </div>
       </main>

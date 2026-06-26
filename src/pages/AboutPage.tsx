@@ -25,7 +25,7 @@ const values = [
   {
     icon: Users,
     title: "Community",
-    desc: "CAMALERT is built by the community, for the community. Every report helps protect someone else.",
+    desc: "CamAlert is built by the community, for the community. Every report helps protect someone else.",
   },
   {
     icon: Eye,
@@ -69,14 +69,14 @@ export default function AboutPage() {
           <div className="container py-20 md:py-28 relative">
             <div className="max-w-3xl space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/30 text-sm font-bold text-accent">
-                <Sparkles className="h-4 w-4" /> About CAMALERT
+                <Sparkles className="h-4 w-4" /> About CamAlert
               </div>
               <h1 className="font-display text-5xl md:text-6xl font-extrabold tracking-tighter">
                 Built for trust.{" "}
                 <span className="text-gradient-primary">Powered by community.</span>
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
-                CAMALERT is Cameroon's first community-driven scam intelligence platform — combining AI-assisted threat detection, bilingual reporting, and public digital safety education to protect people across Cameroon, with plans to expand across Africa.
+                CamAlert is Cameroon's first community-driven scam intelligence platform — combining AI-assisted threat detection, bilingual reporting, and public digital safety education to protect people across Cameroon, with plans to expand across Africa.
               </p>
             </div>
           </div>
@@ -107,13 +107,13 @@ export default function AboutPage() {
             <div className="space-y-5">
               <div className="text-xs font-bold text-accent uppercase tracking-[0.2em]">Our story</div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-                Why we built CAMALERT
+                Why we built CamAlert
               </h2>
               <p className="text-foreground/80 leading-relaxed">
                 Mobile Money scams, phishing attacks, and investment fraud are growing rapidly across Cameroon. Most victims had no way to warn others or check if a number was suspicious before sending money.
               </p>
               <p className="text-foreground/80 leading-relaxed">
-                CAMALERT was founded in 2026 by Agbor Clauvet to change that — giving every Cameroonian a free, bilingual tool to report scams, check suspicious numbers, and access real-time fraud intelligence powered by AI.
+                CamAlert was founded in 2026 by Agbor Clauvet to change that — giving every Cameroonian a free, bilingual tool to report scams, check suspicious numbers, and access real-time fraud intelligence powered by AI.
               </p>
               <p className="text-foreground/80 leading-relaxed">
                 What started as a simple idea is now a growing platform trusted by the community to keep Cameroon safer — one alert at a time.
@@ -130,7 +130,7 @@ export default function AboutPage() {
                   <div className="font-display font-bold text-xl">Agbor Clauvet</div>
                   <div className="text-sm text-accent font-semibold mb-3">Founder & CEO · ClauTech Digital Solutions</div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    "We built CAMALERT because I believe every Cameroonian deserves access to the tools and information needed to stay safe in the digital age. Scammers count on silence — we're breaking it."
+                    "We built CamAlert because I believe every Cameroonian deserves access to the tools and information needed to stay safe in the digital age. Scammers count on silence — we're breaking it."
                   </p>
                   <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
                     <ShieldCheck className="h-3.5 w-3.5 text-accent" />
@@ -199,7 +199,7 @@ export default function AboutPage() {
                   Cameroon first. Africa next.
                 </h2>
                 <p className="text-foreground/80 leading-relaxed max-w-2xl">
-                  CAMALERT started in Cameroon because that's where we know the problem best. But digital fraud doesn't respect borders. Our vision is to expand CAMALERT across Africa — giving every community the tools to fight back against scammers, in their own language.
+                  CamAlert started in Cameroon because that's where we know the problem best. But digital fraud doesn't respect borders. Our vision is to expand CamAlert across Africa — giving every community the tools to fight back against scammers, in their own language.
                 </p>
               </div>
             </div>

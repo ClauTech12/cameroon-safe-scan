@@ -1,6 +1,6 @@
 export default {
   brand: {
-    name: "CAMALERT",
+    name: "CamAlert",
     tagline: "Digital fraud awareness and scam intelligence for Cameroon and Africa.",
     poweredBy: "Powered by ClauTech Digital Solutions",
     secure: "Secure by design",
@@ -33,7 +33,7 @@ export default {
     badge: "Cyber trust platform · Cameroon & Africa",
     title: "Stay Alert.",
     titleAccent: "Stay Secure.",
-    subtitle: "CAMALERT helps people across Cameroon and Africa detect scams, report fraud, and stay safe online.",
+    subtitle: "CamAlert helps people across Cameroon and Africa detect scams, report fraud, and stay safe online.",
     ctaCheck: "Check Scam Number",
     ctaReport: "Report Scam",
     ctaBrowse: "Learn About Threats",

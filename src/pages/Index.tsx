@@ -219,7 +219,7 @@ const Index = () => {
             </div>
             <div className="md:col-span-3">
               <p className="text-lg text-foreground/80 leading-relaxed">
-                CAMALERT is a digital fraud awareness and scam intelligence platform helping individuals and
+                CamAlert is a digital fraud awareness and scam intelligence platform helping individuals and
                 businesses identify scams, report suspicious activity, and improve online safety across
                 Cameroon and Africa.
               </p>
@@ -306,7 +306,7 @@ const Index = () => {
                 {[
                   { l: "Risk score", v: "87 / 100", t: "High Risk" },
                   { l: "Indicators", v: "OTP · Urgency · Brand impersonation" },
-                  { l: "Recommendation", v: "Do not reply. Report on CAMALERT." },
+                  { l: "Recommendation", v: "Do not reply. Report on CamAlert." },
                 ].map((x, i) => (
                   <div key={i} className="rounded-lg bg-white/5 border border-white/15 p-3">
                     <div className="text-[10px] uppercase tracking-wider text-white/60">{x.l}</div>
@@ -360,13 +360,13 @@ const Index = () => {
               <div className="absolute inset-0 bg-cyber-grid opacity-25" aria-hidden="true" />
               <div className="relative">
                 <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/70 mb-3">
-                  About CAMALERT
+                  About CamAlert
                 </div>
                 <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">
                   Built for trust. Powered by community.
                 </h2>
                 <p className="text-white/80 leading-relaxed">
-                  CAMALERT was created to make the digital experience safer for every Cameroonian and African. We combine
+                  CamAlert was created to make the digital experience safer for every Cameroonian and African. We combine
                   community-driven fraud reporting, AI-assisted threat detection, and public digital safety
                   education into one trusted platform.
                 </p>

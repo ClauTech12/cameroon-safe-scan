@@ -1,6 +1,6 @@
 export default {
   brand: {
-    name: "CAMALERT",
+    name: "CamAlert",
     tagline: "Sensibilisation à la fraude numérique et intelligence anti-arnaque pour le Cameroun et l'Afrique.",
     poweredBy: "Propulsé par ClauTech Digital Solutions",
     secure: "Sécurisé par conception",
@@ -33,7 +33,7 @@ export default {
     badge: "Plateforme cyber-confiance · Cameroun & Afrique",
     title: "Restez vigilant.",
     titleAccent: "Restez en sécurité.",
-   subtitle: "CAMALERT aide les habitants du Cameroun et d'Afrique à détecter les arnaques, signaler les fraudes et rester en sécurité en ligne.", 
+   subtitle: "CamAlert aide les habitants du Cameroun et d'Afrique à détecter les arnaques, signaler les fraudes et rester en sécurité en ligne.", 
     ctaCheck: "Vérifier un numéro",
     ctaReport: "Signaler une arnaque",
     ctaBrowse: "En savoir plus",

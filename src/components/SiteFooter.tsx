@@ -61,10 +61,10 @@ export function SiteFooter() {
             Company
           </div>
           <ul className="space-y-2.5 text-sm text-muted-foreground">
-         <li><Link to="/about" className="hover:text-accent transition-smooth">About CAMALERT</Link></li>
+         <li><Link to="/about" className="hover:text-accent transition-smooth">About CamAlert</Link></li>
             <li><a href="#mission" className="hover:text-accent transition-smooth">Our mission</a></li>
             <li><a href="mailto:clauvetmt19988@gmail.com" className="hover:text-accent transition-smooth">Contact us</a></li>
-            <li><a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CAMALERT" className="hover:text-accent transition-smooth">Responsible disclosure</a></li>
+            <li><a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CamAlert" className="hover:text-accent transition-smooth">Responsible disclosure</a></li>
           </ul>
         </div>
 
@@ -76,7 +76,7 @@ export function SiteFooter() {
             <li><Link to="/privacy" className="hover:text-accent transition-smooth">{t("footer.privacy")}</Link></li>
             <li><Link to="/terms" className="hover:text-accent transition-smooth">{t("footer.terms")}</Link></li>
             <li><Link to="/disclaimer" className="hover:text-accent transition-smooth">{t("footer.disclaimer")}</Link></li>
-            <li><a href="mailto:clauvetmt19988@gmail.com?subject=Abuse%20Report%20-%20CAMALERT" className="hover:text-accent transition-smooth">Report abuse</a></li>
+            <li><a href="mailto:clauvetmt19988@gmail.com?subject=Abuse%20Report%20-%20CamAlert" className="hover:text-accent transition-smooth">Report abuse</a></li>
           </ul>
           <div className="mt-6 inline-flex items-center gap-2 text-[11px] text-muted-foreground">
             <Lock className="h-3 w-3 text-accent" /> TLS · privacy-first
@@ -88,7 +88,7 @@ export function SiteFooter() {
         <div className="container py-8 flex flex-col items-center gap-4">
           <ClauTechLogo className="h-10 opacity-90" />
           <p className="text-xs text-muted-foreground text-center max-w-sm">
-            CAMALERT is a product of ClauTech Digital Solutions — building digital trust tools for Cameroon and Africa.
+            CamAlert is a product of ClauTech Digital Solutions — building digital trust tools for Cameroon and Africa.
           </p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <ShieldCheck className="h-3 w-3 text-accent" />
@@ -99,7 +99,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border/60 relative">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div>© {year} CAMALERT · Cyber Trust · Cameroon. {t("footer.rights")}</div>
+          <div>© {year} CamAlert · Cyber Trust · Cameroon. {t("footer.rights")}</div>
           <div className="flex items-center gap-3">
             <img src={founder} alt="Agbor Clauvet" className="h-6 w-6 rounded-full object-cover object-top" width="24" height="24" />
             <span>Founded by Agbor Clauvet</span>

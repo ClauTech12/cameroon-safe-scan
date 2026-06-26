@@ -76,9 +76,9 @@ function buildRecommendations(kind: AnalyzerKind, label: RiskLabel, signals: Sig
     r.push("Avoid clicking the link. Type the official domain manually in your browser.");
   }
   if (kind === "phone") {
-    r.push("Search the number on CAMALERT to see if it has been reported before.");
+    r.push("Search the number on CamAlert to see if it has been reported before.");
   }
-  r.push("Report the case on CAMALERT to help protect your community.");
+  r.push("Report the case on CamAlert to help protect your community.");
   return r;
 }
 

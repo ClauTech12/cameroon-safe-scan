@@ -56,7 +56,7 @@ export default function ContactPage() {
               Contact Us
             </h1>
             <p className="text-muted-foreground text-lg">
-              Have a question, want to report abuse, or interested in partnering with CAMALERT?
+              Have a question, want to report abuse, or interested in partnering with CamAlert?
             </p>
           </div>
 
@@ -94,7 +94,7 @@ export default function ContactPage() {
                   </div>
                   <div className="font-semibold text-sm">Security</div>
                 </div>
-                <a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CAMALERT" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
+                <a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CamAlert" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
                   Responsible disclosure
                 </a>
               </Card>
