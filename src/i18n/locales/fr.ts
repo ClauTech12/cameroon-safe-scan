@@ -358,4 +358,31 @@ export default {
     optional: "facultatif",
     required: "Requis",
   },
+  assistant: {
+    open: "Ouvrir l'assistant CAMALERT AI",
+    title: "CAMALERT AI",
+    subtitle: "Assistant de cybersécurité",
+    welcome: "Bonjour 👋 Je suis CAMALERT AI. Comment puis-je vous aider à rester en sécurité aujourd'hui ?",
+    placeholder: "Posez une question : arnaque, SMS, MoMo, sécurité…",
+    send: "Envoyer le message",
+    footer: "Généré par IA. Ne partagez jamais votre PIN, OTP ou mots de passe.",
+    quick: {
+      report: "Signaler une arnaque",
+      check: "Vérifier un numéro",
+      analyzer: "Analyseur IA",
+      momo: "MoMo Guard",
+      tips: "Conseils de sécurité",
+    },
+    prompts: {
+      report: "Comment signaler une arnaque ?",
+      check: "Comment vérifier un numéro de téléphone ?",
+      analyzer: "Comment fonctionne l'Analyseur IA ?",
+      momo: "Qu'est-ce que MoMo Guard et comment ça m'aide ?",
+      tips: "Donnez-moi 5 conseils pratiques de sécurité en ligne.",
+    },
+    error: {
+      generic: "Désolé, impossible de joindre l'assistant. Veuillez réessayer.",
+      rate: "Trop de messages. Patientez un instant puis réessayez.",
+    },
+  },
 };
