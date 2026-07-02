@@ -191,7 +191,7 @@ export default function AdminSettingsPage() {
     }
 
     const enriched: ActivityLog[] = await Promise.all(
-      ((data ?? []) as any[]).map(async (log: unknown) => {
+      ((data ?? []) as any[]).map(async (log: any) => {
         let email = "System";
         if (log.user_id) {
           try {
