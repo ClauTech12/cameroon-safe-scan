@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.check-rate-limit]
 verify_jwt = true
+
+[functions.chat-assistant]
+verify_jwt = false
