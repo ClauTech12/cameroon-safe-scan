@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/i18n";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
+import { FloatingAssistant } from "./components/FloatingAssistant.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { AppNavigation } from "./components/ui/navigation-menu";
@@ -98,6 +99,7 @@ const App = () => {
               <AppFooter />
             </div>
             <WhatsAppFAB />
+            <FloatingAssistant />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

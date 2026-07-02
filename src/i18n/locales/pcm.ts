@@ -358,4 +358,31 @@ export default {
     optional: "optional",
     required: "Required",
   },
+  assistant: {
+    open: "Open CAMALERT AI assistant",
+    title: "CAMALERT AI",
+    subtitle: "Cyber Safety Helper",
+    welcome: "Hallo 👋 Na CAMALERT AI dis. How I fit helep you today make you stay safe?",
+    placeholder: "Ask me any tin — scam, SMS, MoMo, safety…",
+    send: "Send message",
+    footer: "Na AI dey talk. Never share your PIN, OTP or password.",
+    quick: {
+      report: "Report scam",
+      check: "Check number",
+      analyzer: "AI Analyzer",
+      momo: "MoMo Guard",
+      tips: "Safety tips",
+    },
+    prompts: {
+      report: "How I go take report some scam?",
+      check: "How I fit check one phone number?",
+      analyzer: "How di AI Analyzer dey work?",
+      momo: "Wetin be MoMo Guard, and how e go helep me?",
+      tips: "Give me 5 sharp tips make I stay safe online.",
+    },
+    error: {
+      generic: "Sorry oh, I no fit reach di assistant. Try again small time.",
+      rate: "You don send too much message. Wait small, then try again.",
+    },
+  },
 };

@@ -358,4 +358,31 @@ export default {
     optional: "optional",
     required: "Required",
   },
+  assistant: {
+    open: "Open CAMALERT AI assistant",
+    title: "CAMALERT AI",
+    subtitle: "Cyber Safety Assistant",
+    welcome: "Hello 👋 I'm CAMALERT AI. How can I help you stay safe today?",
+    placeholder: "Ask about a scam, SMS, MoMo, safety…",
+    send: "Send message",
+    footer: "AI-generated. Never share your PIN, OTP or passwords.",
+    quick: {
+      report: "Report a scam",
+      check: "Check a number",
+      analyzer: "AI Analyzer",
+      momo: "MoMo Guard",
+      tips: "Safety tips",
+    },
+    prompts: {
+      report: "How do I report a scam?",
+      check: "How do I check a phone number?",
+      analyzer: "How does the AI Analyzer work?",
+      momo: "What is MoMo Guard and how does it help me?",
+      tips: "Give me 5 practical online safety tips.",
+    },
+    error: {
+      generic: "Sorry, I couldn't reach the assistant. Please try again.",
+      rate: "Too many messages. Please wait a moment and try again.",
+    },
+  },
 };
