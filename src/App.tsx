@@ -99,6 +99,7 @@ const App = () => {
               <AppFooter />
             </div>
             <WhatsAppFAB />
+            <FloatingAssistant />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
