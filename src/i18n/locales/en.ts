@@ -366,6 +366,7 @@ export default {
     placeholder: "Ask about a scam, SMS, MoMo, safety…",
     send: "Send message",
     footer: "AI-generated. Never share your PIN, OTP or passwords.",
+    clear: "Clear",
     quick: {
       report: "Report a scam",
       check: "Check a number",
@@ -383,6 +384,13 @@ export default {
     error: {
       generic: "Sorry, I couldn't reach the assistant. Please try again.",
       rate: "Too many messages. Please wait a moment and try again.",
+    },
+    try: "Try asking",
+    examples: {
+      pin: "Someone asked for my MTN PIN",
+      whatsapp: "Is this WhatsApp message fake?",
+      number: "Check this phone number",
+      investment: "Is this investment genuine?",
     },
   },
 };

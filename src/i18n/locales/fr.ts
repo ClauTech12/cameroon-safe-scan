@@ -33,7 +33,7 @@ export default {
     badge: "Plateforme cyber-confiance · Cameroun & Afrique",
     title: "Restez vigilant.",
     titleAccent: "Restez en sécurité.",
-   subtitle: "CamAlert aide les habitants du Cameroun et d'Afrique à détecter les arnaques, signaler les fraudes et rester en sécurité en ligne.", 
+    subtitle: "CamAlert aide les habitants du Cameroun et d'Afrique à détecter les arnaques, signaler les fraudes et rester en sécurité en ligne.",
     ctaCheck: "Vérifier un numéro",
     ctaReport: "Signaler une arnaque",
     ctaBrowse: "En savoir plus",
@@ -366,6 +366,7 @@ export default {
     placeholder: "Posez une question : arnaque, SMS, MoMo, sécurité…",
     send: "Envoyer le message",
     footer: "Généré par IA. Ne partagez jamais votre PIN, OTP ou mots de passe.",
+    clear: "Effacer",
     quick: {
       report: "Signaler une arnaque",
       check: "Vérifier un numéro",
@@ -383,6 +384,15 @@ export default {
     error: {
       generic: "Désolé, impossible de joindre l'assistant. Veuillez réessayer.",
       rate: "Trop de messages. Patientez un instant puis réessayez.",
+    },
+
+    try: "Essayez de demander",
+
+    examples: {
+      pin: "Quelqu'un demande mon code PIN MTN",
+      whatsapp: "Ce message WhatsApp est-il faux ?",
+      number: "Vérifier ce numéro",
+      investment: "Cet investissement est-il fiable ?",
     },
   },
 };

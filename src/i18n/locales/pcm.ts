@@ -366,6 +366,7 @@ export default {
     placeholder: "Ask me any tin — scam, SMS, MoMo, safety…",
     send: "Send message",
     footer: "Na AI dey talk. Never share your PIN, OTP or password.",
+    clear: "Clear",
     quick: {
       report: "Report scam",
       check: "Check number",
@@ -381,8 +382,17 @@ export default {
       tips: "Give me 5 sharp tips make I stay safe online.",
     },
     error: {
-      generic: "Sorry oh, I no fit reach di assistant. Try again small time.",
-      rate: "You don send too much message. Wait small, then try again.",
-    },
+  generic: "Sorry oh, I no fit reach di assistant. Try again small time.",
+  rate: "You don send too much message. Wait small, then try again.",
+},
+
+try: "You fit ask",
+
+examples: {
+  pin: "Person ask my MTN PIN",
+  whatsapp: "Dis WhatsApp message na fake?",
+  number: "Check dis number",
+  investment: "Dis investment correct?",
+},
   },
 };
