@@ -49,7 +49,14 @@ export function FloatingAssistant() {
 
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
-  const [messages, setMessages] = useState<ChatMsg[]>([]);
+  const [messages, setMessages] = useState<ChatMsg[]>(() => {
+  try {
+    const saved = localStorage.getItem("camalert-chat-history");
+    return saved ? JSON.parse(saved) : [];
+  } catch {
+    return [];
+  }
+});
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -79,14 +86,31 @@ export function FloatingAssistant() {
   }, [messages, streaming]);
 
   useEffect(() => {
-    if (!open) return;
-    const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  if (!open) return;
 
+  const onKey = (e: globalThis.KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+    }
+  };
+
+  window.addEventListener("keydown", onKey);
+
+  return () => {
+    window.removeEventListener("keydown", onKey);
+  };
+}, [open]);
+
+useEffect(() => {
+  try {
+    localStorage.setItem(
+      "camalert-chat-history",
+      JSON.stringify(messages)
+    );
+  } catch {
+    // Ignore storage errors
+  }
+}, [messages]);
   const send = async (text: string) => {
     const clean = text.trim();
     if (!clean || streaming) return;
@@ -231,52 +255,131 @@ export function FloatingAssistant() {
     </div>
   </div>
 
-  <button
-    type="button"
-    aria-label={t("common.close")}
-    onClick={() => setOpen(false)}
-    className="h-8 w-8 rounded-md hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground"
-  >
-    <X className="h-4 w-4" />
-  </button>
+  <div className="flex items-center gap-2">
+    <button
+      type="button"
+      onClick={() => {
+        setMessages([]);
+        localStorage.removeItem("camalert-chat-history");
+      }}
+      className="text-xs px-2 py-1 rounded-md border border-border hover:bg-secondary transition"
+    >
+      {t("assistant.clear")}
+    </button>
+
+    <button
+      type="button"
+      aria-label={t("common.close")}
+      onClick={() => setOpen(false)}
+      className="h-8 w-8 rounded-md hover:bg-secondary flex items-center justify-center text-muted-foreground hover:text-foreground"
+    >
+      <X className="h-4 w-4" />
+    </button>
+  </div>
 </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3 text-sm">
-            {messages.length === 0 && (
-  <div className="space-y-4">
-    <div className="rounded-xl bg-accent/10 border border-accent/20 p-4">
-      <h3 className="font-semibold text-base mb-2">
-        {t("assistant.title")} 👋
-      </h3>
+          <div
+  ref={scrollRef}
+  className="flex-1 overflow-y-auto px-3 py-3 space-y-3 text-sm chat-scroll"
+>
+          {messages.length === 0 && (
+  <div className="space-y-5">
 
-      <p className="text-sm text-muted-foreground">
+    <div className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 to-background p-5">
+
+      <div className="flex items-center gap-3 mb-4">
+
+        <div className="h-12 w-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xl">
+          🛡
+        </div>
+
+        <div>
+          <h2 className="font-bold text-lg">
+            CAMALERT AI
+          </h2>
+
+          <p className="text-xs text-muted-foreground">
+            {t("assistant.subtitle")}
+          </p>
+        </div>
+
+      </div>
+
+      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
         {welcome}
       </p>
+
+      <div className="grid grid-cols-2 gap-2">
+
+        <div className="rounded-lg bg-background border border-border px-3 py-2 text-xs">
+          📱 Mobile Money
+        </div>
+
+        <div className="rounded-lg bg-background border border-border px-3 py-2 text-xs">
+          💬 WhatsApp
+        </div>
+
+        <div className="rounded-lg bg-background border border-border px-3 py-2 text-xs">
+          📧 Phishing
+        </div>
+
+        <div className="rounded-lg bg-background border border-border px-3 py-2 text-xs">
+          🚨 Scam Detection
+        </div>
+
+      </div>
+
     </div>
 
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
+
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
         {t("assistant.try", "Try asking")}
       </p>
 
       <div className="grid gap-2">
+
         {[
-          t("assistant.examples.pin", "Someone asked for my MTN PIN"),
-          t("assistant.examples.whatsapp", "Is this WhatsApp message fake?"),
-          t("assistant.examples.number", "Check this phone number"),
-          t("assistant.examples.investment", "Is this investment genuine?")
-        ].map((example) => (
+          {
+            icon: "🔐",
+            text: t("assistant.examples.pin", "Someone asked for my MTN PIN"),
+          },
+          {
+            icon: "💬",
+            text: t("assistant.examples.whatsapp", "Is this WhatsApp message fake?"),
+          },
+          {
+            icon: "☎",
+            text: t("assistant.examples.number", "Check this phone number"),
+          },
+          {
+            icon: "💰",
+            text: t("assistant.examples.investment", "Is this investment genuine?"),
+          },
+        ].map((item) => (
+
           <button
-            key={example}
-            onClick={() => void send(example)}
-            className="text-left rounded-lg border border-border px-3 py-2 text-sm hover:bg-secondary transition"
+            key={item.text}
+            onClick={() => void send(item.text)}
+            className="flex items-center gap-3 rounded-xl border border-border bg-background px-4 py-3 text-sm hover:bg-secondary transition-all hover:scale-[1.01]"
           >
-            {example}
+            <span className="text-lg">
+              {item.icon}
+            </span>
+
+            <span className="text-left">
+              {item.text}
+            </span>
+
           </button>
+
         ))}
+
       </div>
+
     </div>
+
   </div>
 )}
             {messages.map((m) => (
@@ -316,7 +419,25 @@ export function FloatingAssistant() {
                         </ReactMarkdown>
                       </div>
                     ) : (
-                      <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      <div className="flex items-center gap-2 py-1">
+                        <span className="text-xs font-medium text-muted-foreground">
+                          CAMALERT AI
+                        </span>
+
+                        <div className="flex gap-1">
+                          <span className="h-2 w-2 rounded-full bg-accent animate-bounce"></span>
+
+                          <span
+                            className="h-2 w-2 rounded-full bg-accent animate-bounce"
+                            style={{ animationDelay: "0.15s" }}
+                          ></span>
+
+                          <span
+                            className="h-2 w-2 rounded-full bg-accent animate-bounce"
+                            style={{ animationDelay: "0.3s" }}
+                          ></span>
+                        </div>
+                      </div>
                     )
                   ) : (
                     m.content
@@ -371,7 +492,23 @@ export function FloatingAssistant() {
                 disabled={streaming || !input.trim()}
                 className="h-10 w-10 rounded-xl shrink-0"
               >
-                {streaming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                {streaming ? (
+  <div className="flex gap-1">
+    <span className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"></span>
+
+    <span
+      className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"
+      style={{ animationDelay: "0.15s" }}
+    ></span>
+
+    <span
+      className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"
+      style={{ animationDelay: "0.3s" }}
+    ></span>
+  </div>
+) : (
+  <Send className="h-4 w-4" />
+)}
               </Button>
             </div>
             <div className="mt-1.5 text-[10px] text-muted-foreground text-center">
