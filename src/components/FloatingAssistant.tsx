@@ -2,7 +2,15 @@ import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react"
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { MessageCircle, X, Send, Loader2, Sparkles } from "lucide-react";
+import {
+  MessageCircle,
+  X,
+  Send,
+  Loader2,
+  Sparkles,
+  Copy,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -11,6 +19,7 @@ interface ChatMsg {
   id: string;
   role: Role;
   content: string;
+  timestamp: string;
 }
 type Lang = "en" | "fr" | "pcm";
 
@@ -27,7 +36,12 @@ function resolveLang(code: string | undefined): Lang {
 function newId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
-
+function currentTime(): string {
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 interface QuickAction {
   labelKey: string;
   promptKey: string;
@@ -59,6 +73,7 @@ export function FloatingAssistant() {
 });
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -112,85 +127,131 @@ useEffect(() => {
   }
 }, [messages]);
   const send = async (text: string) => {
-    const clean = text.trim();
-    if (!clean || streaming) return;
-    setError(null);
+  const clean = text.trim();
+  if (!clean || streaming) return;
+  setError(null);
 
-    const userMsg: ChatMsg = { id: newId(), role: "user", content: clean };
-    const assistantId = newId();
-    const nextHistory = [...messages, userMsg];
-    setMessages([...nextHistory, { id: assistantId, role: "assistant", content: "" }]);
-    setInput("");
-    setStreaming(true);
-
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    try {
-      const resp = await fetch(ENDPOINT, {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          "Content-Type": "application/json",
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
-        },
-        body: JSON.stringify({
-          language: lang,
-          messages: nextHistory.map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      if (!resp.ok || !resp.body) {
-        const code = resp.status === 429 ? "assistant.error.rate" : "assistant.error.generic";
-        setError(t(code));
-        setMessages((prev) => prev.filter((m) => m.id !== assistantId));
-        return;
-      }
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let acc = "";
-
-      // eslint-disable-next-line no-constant-condition
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const raw of lines) {
-          const line = raw.trim();
-          if (!line.startsWith("data:")) continue;
-          const payload = line.slice(5).trim();
-          if (payload === "[DONE]") continue;
-          try {
-            const parsed = JSON.parse(payload);
-            const delta = parsed?.choices?.[0]?.delta?.content;
-            if (typeof delta === "string" && delta.length > 0) {
-              acc += delta;
-              setMessages((prev) =>
-                prev.map((m) => (m.id === assistantId ? { ...m, content: acc } : m)),
-              );
-            }
-          } catch {
-            /* ignore malformed chunk */
-          }
-        }
-      }
-    } catch (err) {
-      if ((err as { name?: string })?.name !== "AbortError") {
-        setError(t("assistant.error.generic"));
-        setMessages((prev) => prev.filter((m) => m.id !== assistantId));
-      }
-    } finally {
-      abortRef.current = null;
-      setStreaming(false);
-      requestAnimationFrame(() => inputRef.current?.focus());
-    }
+  const userMsg: ChatMsg = {
+    id: newId(),
+    role: "user",
+    content: clean,
+    timestamp: currentTime(),
   };
 
+  const assistantId = newId();
+
+  const nextHistory = [...messages, userMsg];
+
+  setMessages([
+    ...nextHistory,
+    {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      timestamp: currentTime(),
+    },
+  ]);
+
+  setInput("");
+  setStreaming(true);
+
+  const controller = new AbortController();
+  abortRef.current = controller;
+
+  try {
+    const resp = await fetch(ENDPOINT, {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+      },
+      body: JSON.stringify({
+        language: lang,
+        messages: nextHistory.map((m) => ({
+          role: m.role,
+          content: m.content,
+        })),
+      }),
+    });
+
+    if (!resp.ok || !resp.body) {
+      const code =
+        resp.status === 429
+          ? "assistant.error.rate"
+          : "assistant.error.generic";
+
+      setError(t(code));
+      setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+      return;
+    }
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = "";
+    let acc = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+
+      for (const raw of lines) {
+        const line = raw.trim();
+
+        if (!line.startsWith("data:")) continue;
+
+        const payload = line.slice(5).trim();
+
+        if (payload === "[DONE]") continue;
+
+        try {
+          const parsed = JSON.parse(payload);
+
+          const delta = parsed?.choices?.[0]?.delta?.content;
+
+          if (typeof delta === "string" && delta.length > 0) {
+            acc += delta;
+
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? { ...m, content: acc }
+                  : m
+              )
+            );
+          }
+        } catch {
+          // Ignore malformed chunks
+        }
+      }
+    }
+  } catch (err) {
+    if ((err as { name?: string }).name !== "AbortError") {
+      setError(t("assistant.error.generic"));
+      setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+    }
+  } finally {
+    abortRef.current = null;
+    setStreaming(false);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
+};
+
+const stopGenerating = () => {
+  if (abortRef.current) {
+    abortRef.current.abort();
+    abortRef.current = null;
+    setStreaming(false);
+  }
+};
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -205,6 +266,16 @@ useEffect(() => {
       return;
     }
     void send(t(action.promptKey));
+  };
+
+  const copyMessage = async (id: string, content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch {
+      // ignore clipboard errors
+    }
   };
 
   return (
@@ -382,14 +453,20 @@ useEffect(() => {
 
   </div>
 )}
-            {messages.map((m) => (
+           {messages.map((m) => (
               <div
                 key={m.id}
                 className={cn(
-                  "flex",
+                  "flex items-end gap-2",
                   m.role === "user" ? "justify-end" : "justify-start",
                 )}
               >
+                {m.role === "assistant" && (
+                  <div className="h-8 w-8 rounded-full bg-accent/15 flex items-center justify-center text-accent shrink-0">
+                    ✨
+                  </div>
+                )}
+
                 <div
                   className={cn(
                     "max-w-[85%] rounded-2xl px-3.5 py-2 text-sm leading-relaxed whitespace-pre-wrap",
@@ -399,48 +476,94 @@ useEffect(() => {
                   )}
                 >
                   {m.role === "assistant" ? (
-                    m.content ? (
-                      <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-accent break-words">
-                        <ReactMarkdown
-                          components={{
-                            a: ({ href, children }) => (
-                              <a
-                                href={href}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="underline"
-                              >
-                                {children}
-                              </a>
-                            ),
-                          }}
-                        >
-                          {m.content}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 py-1">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          CAMALERT AI
-                        </span>
+                    <div>
 
-                        <div className="flex gap-1">
-                          <span className="h-2 w-2 rounded-full bg-accent animate-bounce"></span>
+                      {m.content ? (
 
-                          <span
-                            className="h-2 w-2 rounded-full bg-accent animate-bounce"
-                            style={{ animationDelay: "0.15s" }}
-                          ></span>
+                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-accent break-words">
 
-                          <span
-                            className="h-2 w-2 rounded-full bg-accent animate-bounce"
-                            style={{ animationDelay: "0.3s" }}
-                          ></span>
+                          <ReactMarkdown
+                            components={{
+                              a: ({ href, children }) => (
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline"
+                                >
+                                  {children}
+                                </a>
+                              ),
+                            }}
+                          >
+                            {m.content}
+                          </ReactMarkdown>
+
                         </div>
+
+                      ) : (
+
+                        <div className="flex items-center gap-2 py-1">
+
+                          <span className="text-xs font-medium text-muted-foreground">
+                            CAMALERT AI
+                          </span>
+
+                          <div className="flex gap-1">
+                            <span className="h-2 w-2 rounded-full bg-accent animate-bounce"></span>
+
+                            <span
+                              className="h-2 w-2 rounded-full bg-accent animate-bounce"
+                              style={{ animationDelay: "0.15s" }}
+                            ></span>
+
+                            <span
+                              className="h-2 w-2 rounded-full bg-accent animate-bounce"
+                              style={{ animationDelay: "0.3s" }}
+                            ></span>
+                          </div>
+
+                        </div>
+
+                      )}
+
+                      {m.content && (
+                        <div className="mt-3 flex justify-end">
+
+                          <button
+                            type="button"
+                            onClick={() => copyMessage(m.id, m.content)}
+                            className="flex items-center gap-1 rounded-lg border border-border px-2 py-1 text-[11px] text-muted-foreground hover:bg-secondary transition"
+                          >
+                            {copiedId === m.id ? (
+                              <>
+                                <Check className="h-3 w-3 text-green-600" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="h-3 w-3" />
+                                Copy
+                              </>
+                            )}
+                          </button>
+
+                        </div>
+                      )}
+
+                      <div className="mt-2 text-[10px] text-right text-muted-foreground">
+                        {m.timestamp}
                       </div>
-                    )
+
+                    </div>
                   ) : (
-                    m.content
+                    <div>
+                      <div>{m.content}</div>
+
+                      <div className="mt-1 text-[10px] text-right text-muted-foreground">
+                        {m.timestamp}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -470,9 +593,14 @@ useEffect(() => {
           <div className="border-t border-border p-2.5">
             <div className="flex items-end gap-2">
               <textarea
-                ref={inputRef}
-                rows={1}
-                value={input}
+  ref={inputRef}
+  rows={1}
+  value={input}
+  onInput={(e) => {
+    const target = e.currentTarget;
+    target.style.height = "auto";
+    target.style.height = `${target.scrollHeight}px`;
+  }}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={onKeyDown}
                 placeholder={t("assistant.placeholder")}
@@ -484,32 +612,34 @@ useEffect(() => {
                   "disabled:opacity-60",
                 )}
               />
-              <Button
-                type="button"
-                size="icon"
-                aria-label={t("assistant.send")}
-                onClick={() => void send(input)}
-                disabled={streaming || !input.trim()}
-                className="h-10 w-10 rounded-xl shrink-0"
-              >
-                {streaming ? (
-  <div className="flex gap-1">
-    <span className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"></span>
-
-    <span
-      className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"
-      style={{ animationDelay: "0.15s" }}
-    ></span>
-
-    <span
-      className="h-1.5 w-1.5 rounded-full bg-white animate-bounce"
-      style={{ animationDelay: "0.3s" }}
-    ></span>
-  </div>
+              {streaming ? (
+  <Button
+    type="button"
+    onClick={stopGenerating}
+    className="h-10 rounded-xl px-4 bg-red-600 hover:bg-red-700 text-white shrink-0"
+  >
+    <>
+  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+  Stop
+</>
+  </Button>
 ) : (
-  <Send className="h-4 w-4" />
+  <Button
+    type="button"
+    size="icon"
+    aria-label={t("assistant.send")}
+    onClick={() => void send(input)}
+    disabled={!input.trim()}
+    className={cn(
+      "h-10 w-10 rounded-xl shrink-0 transition-all duration-200",
+      input.trim()
+        ? "scale-100 hover:scale-110"
+        : "scale-95 opacity-70"
+    )}
+  >
+    <Send className="h-4 w-4" />
+  </Button>
 )}
-              </Button>
             </div>
             <div className="mt-1.5 text-[10px] text-muted-foreground text-center">
               {t("assistant.footer")}
