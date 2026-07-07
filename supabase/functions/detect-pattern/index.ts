@@ -23,7 +23,7 @@ Deno.serve(async (req: Request) => {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) return jsonResponse({ error: "GEMINI_API_KEY missing" }, 500, corsHeaders);
     const prompt = `You are a Cameroon fraud analyst. Analyze these reports for phone ${canonical} and return STRICT JSON only with: signature (short name e.g. "Fake MoMo Transfer"), insights (array of 3-6 short insights), severity (low|medium|high). No prose outside JSON.\n\nReports:\n${summary}`;
-    const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
