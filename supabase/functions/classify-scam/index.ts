@@ -20,7 +20,7 @@ Deno.serve(async (req: Request) => {
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY missing");
     const lang = language === "fr" ? "French" : "English";
     const prompt = `You are CamAlert AI, a scam classifier for Cameroon. Analyze this report and return STRICT JSON only with: scam_type (one of ${SCAM_TYPES.join(", ")}), confidence (0-100), risk_level (low|medium|high), advice (array of 4-5 tips in ${lang}). No prose outside JSON.\n\nReport: ${description}`;
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),

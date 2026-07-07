@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     if (!apiKey) return jsonResponse({ error: "missing_key" }, 500, corsHeaders);
     const lang = body.language === "fr" ? "French" : "English";
     const prompt = `You are CamAlert, an African cyber threat analyst. Analyze the supplied ${body.kind} content for scam indicators. Respond in ${lang}. Return STRICT JSON only with keys: score (0-100 integer), label (one of "safe","suspicious","high_risk","phishing"), summary (one sentence), reasons (array of short bullet strings, max 5), highlights (array of suspicious phrases max 5), recommendations (array of action items max 4). No prose outside JSON.\n\nKind: ${body.kind}\n---\n${body.input}`;
-    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
