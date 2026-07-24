@@ -40,6 +40,7 @@ const FlaggedListPage = lazy(() => import("./pages/admin/FlaggedListPage.tsx"));
 const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage.tsx"));
 const HeatmapPage = lazy(() => import("./pages/admin/HeatmapPage.tsx"));
 const ReportsModerationPage = lazy(() => import("./pages/admin/ReportsModerationPage.tsx"));
+const ModelAccuracyPage = lazy(() => import("./pages/admin/ModelAccuracyPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -90,6 +91,7 @@ const App = () => {
                       <Route path="patterns" element={<FraudDashboardPage />} />
                       <Route path="heatmap" element={<HeatmapPage />} />
                       <Route path="alerts" element={<FlaggedListPage />} />
+                      <Route path="accuracy" element={<ModelAccuracyPage />} />
                       <Route path="settings" element={<AdminSettingsPage />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />
