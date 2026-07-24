@@ -19,17 +19,18 @@ import {
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FileText, Search, Brain, Map, Bell,
-  Settings, LogOut, Search as SearchIcon, ShieldCheck,
+  Settings, LogOut, Search as SearchIcon, ShieldCheck, Target,
 } from "lucide-react";
 
 const NAV = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/reports", label: "Reports", icon: FileText },
-  { to: "/admin/numbers", label: "Number Intelligence", icon: Search },
-  { to: "/admin/patterns", label: "Fraud Patterns", icon: Brain },
-  { to: "/admin/heatmap", label: "Heatmap", icon: Map },
-  { to: "/admin/alerts", label: "Alerts", icon: Bell },
-  { to: "/admin/settings", label: "Settings", icon: Settings },
+  { to: "/admin", key: "dashboard", icon: LayoutDashboard, end: true },
+  { to: "/admin/reports", key: "reports", icon: FileText },
+  { to: "/admin/numbers", key: "numbers", icon: Search },
+  { to: "/admin/patterns", key: "patterns", icon: Brain },
+  { to: "/admin/heatmap", key: "heatmap", icon: Map },
+  { to: "/admin/alerts", key: "alerts", icon: Bell },
+  { to: "/admin/accuracy", key: "accuracy", icon: Target },
+  { to: "/admin/settings", key: "settings", icon: Settings },
 ];
 
 export function AdminLayout() {
@@ -52,7 +53,7 @@ export function AdminLayout() {
             <SidebarGroup>
               <SidebarGroupContent>
                 <SidebarMenu className="gap-1 px-2 pt-3">
-                  {NAV.map(({ to, label, icon: Icon, end }) => (
+                  {NAV.map(({ to, key, icon: Icon, end }) => (
                     <SidebarMenuItem key={to}>
                       <SidebarMenuButton asChild className="h-10">
                         <NavLink
@@ -68,7 +69,7 @@ export function AdminLayout() {
                           }
                         >
                           <Icon className="h-4 w-4 shrink-0" />
-                          <span>{label}</span>
+                          <span>{t(`admin.nav.${key}`)}</span>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>

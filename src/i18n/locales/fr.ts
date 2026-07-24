@@ -302,7 +302,11 @@ export default {
   },
   admin: {
     disclaimer: "Cette plateforme analyse des signalements d'arnaques. Elle ne piste ni ne surveille les individus.",
-    nav: { fraud: "Intelligence Fraude", numbers: "Intelligence Numéros", flagged: "Numéros signalés" },
+    nav: {
+      fraud: "Intelligence Fraude", numbers: "Intelligence Numéros", flagged: "Numéros signalés",
+      dashboard: "Tableau de bord", reports: "Signalements", patterns: "Schémas de fraude",
+      heatmap: "Carte thermique", alerts: "Alertes", accuracy: "Précision du modèle", settings: "Paramètres",
+    },
     intel: {
       title: "Intelligence et analyse de risque par numéro",
       subtitle: "Recherchez un numéro signalé pour voir une intelligence agrégée et anonymisée.",
@@ -330,6 +334,28 @@ export default {
         confirmed_scam: "Arnaque confirmée",
         under_investigation: "Sous enquête",
         cleared: "Innocenté",
+      },
+    },
+    accuracy: {
+      title: "Précision du moteur de règles",
+      subtitle: "Dans quelle mesure le score de risque automatique correspond aux confirmations des administrateurs.",
+      emptyTitle: "Aucune donnée étiquetée pour le moment",
+      emptyBody: "Chaque fois qu'un administrateur définit le statut d'un numéro sur « Arnaque confirmée » ou « Innocenté » depuis la page Intelligence Numéros, cette décision est enregistrée avec ce que le moteur de règles avait prédit à ce moment-là. Une fois quelques décisions accumulées, les statistiques de précision apparaîtront ici.",
+      labeledCases: "Cas étiquetés",
+      accuracyStat: "Précision",
+      falsePositives: "Faux positifs",
+      falsePositivesHint: "Prédit comme risqué, innocenté par l'admin",
+      falseNegatives: "Faux négatifs",
+      falseNegativesHint: "Prédit comme sûr, confirmé comme arnaque par l'admin",
+      matrixTitle: "Prédiction vs. verdict de l'admin",
+      matrixSubtitle: "Lignes = ce que le moteur de règles a prédit. Colonnes = ce qu'un administrateur a confirmé ensuite.",
+      predicted: "Prédit",
+      footerNote: "Cet ensemble de données se constitue automatiquement à partir des décisions de modération sur la page Intelligence Numéros — aucun travail supplémentaire requis. Une fois suffisamment volumineux, c'est ce sur quoi un futur modèle de ML s'entraînerait et serait validé.",
+      predictedStatus: {
+        high_risk_scam: "Risque élevé",
+        suspicious: "Suspect",
+        unverified: "Non vérifié",
+        unknown: "Aucun signalement",
       },
     },
     fraud: {

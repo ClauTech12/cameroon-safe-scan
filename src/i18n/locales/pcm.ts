@@ -302,7 +302,11 @@ export default {
   },
   admin: {
     disclaimer: "Dis platform dey analyse reported scam data. E no dey track or monitor people.",
-    nav: { fraud: "Fraud Intelligence", numbers: "Number Intelligence", flagged: "Flagged Numbers" },
+    nav: {
+      fraud: "Fraud Intelligence", numbers: "Number Intelligence", flagged: "Flagged Numbers",
+      dashboard: "Dashboard", reports: "Reports", patterns: "Fraud Patterns",
+      heatmap: "Heatmap", alerts: "Alerts", accuracy: "Model Accuracy", settings: "Settings",
+    },
     intel: {
       title: "Number Intelligence & Risk Analysis",
       subtitle: "Search reported phone number to see aggregated anonymous scam intelligence.",
@@ -330,6 +334,28 @@ export default {
         confirmed_scam: "Confirmed Scam",
         under_investigation: "Under Investigation",
         cleared: "Cleared",
+      },
+    },
+    accuracy: {
+      title: "Rule Engine Accuracy",
+      subtitle: "How di automatic risk score dey match wetin admin dem confirm.",
+      emptyTitle: "No labeled data yet",
+      emptyBody: "Anytime admin set number flag status na \"Confirmed Scam\" or \"Cleared\" for di Number Intelligence page, dat decision dey save togeda wit wetin di rule engine predict for dat moment. Once small don gather, accuracy stats go show for here.",
+      labeledCases: "Labeled Cases",
+      accuracyStat: "Accuracy",
+      falsePositives: "False Positives",
+      falsePositivesHint: "E predict say e risky, but admin clear am",
+      falseNegatives: "False Negatives",
+      falseNegativesHint: "E predict say e safe, but admin confirm say na scam",
+      matrixTitle: "Prediction vs. Admin Verdict",
+      matrixSubtitle: "Rows na wetin di rule engine predict. Columns na wetin admin later confirm.",
+      predicted: "Predicted",
+      footerNote: "Dis dataset dey build automatically from moderation decisions for di Number Intelligence page — no extra work need. Once e big reach, na dis one one future ML model go train and check am self with.",
+      predictedStatus: {
+        high_risk_scam: "High Risk",
+        suspicious: "Suspicious",
+        unverified: "Unverified",
+        unknown: "No Reports",
       },
     },
     fraud: {

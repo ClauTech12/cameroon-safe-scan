@@ -302,7 +302,11 @@ export default {
   },
   admin: {
     disclaimer: "This platform analyzes reported scam data. It does not track or monitor individuals.",
-    nav: { fraud: "Fraud Intelligence", numbers: "Number Intelligence", flagged: "Flagged Numbers" },
+    nav: {
+      fraud: "Fraud Intelligence", numbers: "Number Intelligence", flagged: "Flagged Numbers",
+      dashboard: "Dashboard", reports: "Reports", patterns: "Fraud Patterns",
+      heatmap: "Heatmap", alerts: "Alerts", accuracy: "Model Accuracy", settings: "Settings",
+    },
     intel: {
       title: "Number Intelligence & Risk Analysis",
       subtitle: "Search a reported phone number to view aggregated, anonymized scam intelligence.",
@@ -330,6 +334,28 @@ export default {
         confirmed_scam: "Confirmed Scam",
         under_investigation: "Under Investigation",
         cleared: "Cleared",
+      },
+    },
+    accuracy: {
+      title: "Rule Engine Accuracy",
+      subtitle: "How well the automatic risk scoring matches what admins confirm.",
+      emptyTitle: "No labeled data yet",
+      emptyBody: "Every time an admin sets a number's flag status to \"Confirmed Scam\" or \"Cleared\" on the Number Intelligence page, that decision is captured alongside what the rule engine predicted at that moment. Once a few of those exist, accuracy stats will show up here.",
+      labeledCases: "Labeled Cases",
+      accuracyStat: "Accuracy",
+      falsePositives: "False Positives",
+      falsePositivesHint: "Predicted risky, admin cleared",
+      falseNegatives: "False Negatives",
+      falseNegativesHint: "Predicted safe, admin confirmed scam",
+      matrixTitle: "Prediction vs. Admin Verdict",
+      matrixSubtitle: "Rows = what the rule engine predicted. Columns = what an admin later confirmed.",
+      predicted: "Predicted",
+      footerNote: "This dataset builds automatically from moderation decisions on the Number Intelligence page — no extra work required. Once it's large enough, it's what a future ML model would train and validate against.",
+      predictedStatus: {
+        high_risk_scam: "High Risk",
+        suspicious: "Suspicious",
+        unverified: "Unverified",
+        unknown: "No Reports",
       },
     },
     fraud: {
