@@ -1,4 +1,7 @@
 // CamAlert AI Cyber Safety Assistant. Uses Google Gemini.
+import { requireSupabaseCaller } from "../_shared/auth.ts";
+import { checkAiRateLimit } from "../_shared/rate-limit.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
@@ -20,6 +23,18 @@ function buildSystemPrompt(lang: Lang): string {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return new Response(JSON.stringify({ error: "method_not_allowed" }), { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+  const auth = await requireSupabaseCaller(req, corsHeaders);
+  if (!auth.ok) return auth.response;
+
+  const rl = await checkAiRateLimit(req, "chat-assistant", { maxRequests: 20, windowMinutes: 10 });
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: "rate_limited", message: "You're sending messages too quickly. Please wait a bit and try again." }),
+      { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  }
+
   let body: Body;
   try { body = (await req.json()) as Body; }
   catch { return new Response(JSON.stringify({ error: "invalid_json" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }

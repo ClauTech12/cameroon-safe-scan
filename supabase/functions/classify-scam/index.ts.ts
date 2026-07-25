@@ -1,5 +1,6 @@
 // AI scam detection via Google Gemini.
 import { jsonResponse, requireSupabaseCaller } from "../_shared/auth.ts";
+import { checkAiRateLimit } from "../_shared/rate-limit.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,6 +13,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   const auth = await requireSupabaseCaller(req, corsHeaders);
   if (!auth.ok) return auth.response;
+  const rl = await checkAiRateLimit(req, "classify-scam", { maxRequests: 10, windowMinutes: 10 });
+  if (!rl.allowed) return jsonResponse({ error: "rate_limited", message: "Too many requests. Please slow down and try again shortly." }, 429, corsHeaders);
   try {
     const { description, language = "en" } = await req.json();
     if (!description || typeof description !== "string" || description.trim().length < 10) return jsonResponse({ error: "Description must be at least 10 characters." }, 400, corsHeaders);
