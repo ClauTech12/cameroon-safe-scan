@@ -31,6 +31,7 @@ logic lives in three places, in order of preference:
 | `scam_reports` | User-submitted reports. Public approved rows are exposed only through the `public_scam_reports` **view** (see below) — never the raw table. |
 | `flagged_numbers` | Admin-set risk status per phone number (`under_investigation` / `confirmed_scam` / `cleared`). |
 | `risk_prediction_labels` | Auto-populated snapshot of what the rule engine predicted vs. what an admin later confirmed — the dataset a future ML model would train against. |
+| `ai_rate_limits` | Salted IP hash + endpoint name + timestamp, used to rate-limit the public AI Edge Functions. No personal data; not readable by any client role. |
 | `user_roles` | Role assignments (currently just `admin`), checked via `has_role()` in RLS policies. |
 
 ## RLS is row-level, not column-level
@@ -91,6 +92,48 @@ independent AI-based read. The two layers are intentionally
 non-overlapping: the client-side rules work instantly with zero cost
 and no dependency on an external API being up; Gemini adds broader
 language understanding the hand-written rules can't capture.
+
+## Edge Function auth & rate limiting
+
+Each Edge Function has its own `verify_jwt` setting in
+`supabase/config.toml` — this matters more than it looks like it should:
+
+```toml
+[functions.analyze-scam]
+verify_jwt = true
+[functions.classify-scam]
+verify_jwt = true
+[functions.chat-assistant]
+verify_jwt = false
+```
+
+When `verify_jwt = true`, Supabase's gateway cryptographically verifies
+the caller's JWT **before the function code ever runs** — so by the
+time `requireSupabaseCaller()` (in `_shared/auth.ts`) reads the token's
+claims, it's already a guaranteed-valid, signature-checked token.
+
+`chat-assistant` is deliberately `verify_jwt = false` — it needs to stay
+reachable with zero friction. Because of that, its own manual JWT
+decoding doesn't behave the same way the gateway-verified functions do;
+adding `requireSupabaseCaller()` to it caused a real outage the first
+time it was tried (see `CHANGELOG.md` 1.1.0). **Don't add a JWT-based
+auth check to a `verify_jwt = false` function** — rate limiting alone
+(see below) is the right tool there instead.
+
+**Rate limiting:** `_shared/rate-limit.ts` exports `checkAiRateLimit()`,
+used by all three public AI functions to cap requests per IP per
+endpoint (stored in `ai_rate_limits`). It fails *open* on its own
+errors — a transient issue with the rate-limit table shouldn't take
+down the AI features; Gemini's own account-level limit remains the
+backstop either way. `detect-pattern` doesn't need this at all — it
+already requires a verified admin JWT via `requireAdmin()`, so it was
+never reachable by anonymous callers in the first place.
+
+**When adding a new public Edge Function:** decide up front whether it
+needs `requireSupabaseCaller()`/`requireAdmin()` (only meaningful if
+`verify_jwt = true`) and whether it should call `checkAiRateLimit()` —
+default to yes for anything that costs money to run (calls an external
+paid API) or writes to the database on behalf of an anonymous caller.
 
 ## Notifications / side effects via triggers, not queues
 
