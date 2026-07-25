@@ -41,26 +41,22 @@ interface AIAnalysis {
   recommendations: string[];
 }
 
-const TABS: { key: AnalyzerKind; label: string; icon: typeof Globe; placeholder: string; multiline: boolean }[] = [
-  { key: "url", label: "Website Link", icon: Globe, placeholder: "https://suspicious-site.example/login", multiline: false },
-  { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, placeholder: "Paste a suspicious WhatsApp message…", multiline: true },
-  { key: "sms", label: "SMS", icon: MessageCircle, placeholder: "Paste a suspicious SMS…", multiline: true },
-  { key: "email", label: "Email", icon: Mail, placeholder: "Paste the email body (and subject)…", multiline: true },
-  { key: "phone", label: "Phone Number", icon: Phone, placeholder: "+237 6XX XXX XXX", multiline: false },
-];
+const TAB_ICONS: Record<AnalyzerKind, typeof Globe> = {
+  url: Globe,
+  whatsapp: MessageCircle,
+  sms: MessageCircle,
+  email: Mail,
+  phone: Phone,
+};
 
-function labelMeta(label: RiskLabel) {
-  switch (label) {
-    case "safe":
-      return { text: "Safe", tone: "success", Icon: ShieldCheck, ring: "ring-[hsl(var(--success))]/30", bg: "bg-[hsl(var(--success))]/10", fg: "text-[hsl(var(--success))]" };
-    case "suspicious":
-      return { text: "Suspicious", tone: "warning", Icon: ShieldAlert, ring: "ring-[hsl(var(--warning))]/30", bg: "bg-[hsl(var(--warning))]/10", fg: "text-[hsl(var(--warning))]" };
-    case "high_risk":
-      return { text: "High Risk", tone: "danger", Icon: ShieldX, ring: "ring-destructive/30", bg: "bg-destructive/10", fg: "text-destructive" };
-    case "phishing":
-      return { text: "Potential Phishing", tone: "danger", Icon: ShieldX, ring: "ring-destructive/40", bg: "bg-destructive/15", fg: "text-destructive" };
-  }
-}
+const TAB_KEYS: AnalyzerKind[] = ["url", "whatsapp", "sms", "email", "phone"];
+const MULTILINE: Record<AnalyzerKind, boolean> = {
+  url: false,
+  whatsapp: true,
+  sms: true,
+  email: true,
+  phone: false,
+};
 
 function Highlighted({ text, terms }: { text: string; terms: string[] }) {
   if (!terms.length) return <span className="whitespace-pre-wrap break-words">{text}</span>;
@@ -85,6 +81,20 @@ function Highlighted({ text, terms }: { text: string; terms: string[] }) {
 
 export default function AIAnalyzerPage() {
   const { t, i18n } = useTranslation();
+
+  const labelMeta = (label: RiskLabel) => {
+    switch (label) {
+      case "safe":
+        return { text: t("analyzerPage.labels.safe"), tone: "success", Icon: ShieldCheck, ring: "ring-[hsl(var(--success))]/30", bg: "bg-[hsl(var(--success))]/10", fg: "text-[hsl(var(--success))]" };
+      case "suspicious":
+        return { text: t("analyzerPage.labels.suspicious"), tone: "warning", Icon: ShieldAlert, ring: "ring-[hsl(var(--warning))]/30", bg: "bg-[hsl(var(--warning))]/10", fg: "text-[hsl(var(--warning))]" };
+      case "high_risk":
+        return { text: t("analyzerPage.labels.high_risk"), tone: "danger", Icon: ShieldX, ring: "ring-destructive/30", bg: "bg-destructive/10", fg: "text-destructive" };
+      case "phishing":
+        return { text: t("analyzerPage.labels.phishing"), tone: "danger", Icon: ShieldX, ring: "ring-destructive/40", bg: "bg-destructive/15", fg: "text-destructive" };
+    }
+  };
+
   const [kind, setKind] = useState<AnalyzerKind>("url");
   const [inputs, setInputs] = useState<Record<AnalyzerKind, string>>({
     url: "",
@@ -98,12 +108,11 @@ export default function AIAnalyzerPage() {
   const [aiLoading, setAiLoading] = useState(false);
 
   const currentInput = inputs[kind];
-  const meta = TABS.find((x) => x.key === kind)!;
 
   const runHeuristic = () => {
     setAiResult(null);
     if (!currentInput.trim()) {
-      toast({ title: "Enter content to analyze", variant: "destructive" });
+      toast({ title: t("analyzerPage.toast.emptyInput"), variant: "destructive" });
       return;
     }
     const r = analyze(kind, currentInput);
@@ -120,18 +129,18 @@ export default function AIAnalyzerPage() {
       if (error) throw error;
       if (data?.error) {
         if (data.error === "rate_limited") {
-          toast({ title: "Too many requests, try again shortly", variant: "destructive" });
+          toast({ title: t("analyzerPage.toast.rateLimited"), variant: "destructive" });
         } else if (data.error === "credits_exhausted") {
-          toast({ title: "AI credits exhausted", description: "Please add credits in workspace settings.", variant: "destructive" });
+          toast({ title: t("analyzerPage.toast.creditsExhaustedTitle"), description: t("analyzerPage.toast.creditsExhaustedDesc"), variant: "destructive" });
         } else if (data.error === "missing_key") {
           toast({
-            title: "AI analysis unavailable",
-            description: (data as { message?: string }).message ?? "Server configuration is incomplete.",
+            title: t("analyzerPage.toast.unavailableTitle"),
+            description: (data as { message?: string }).message ?? t("analyzerPage.toast.unavailableDesc"),
             variant: "destructive",
           });
         } else {
           toast({
-            title: "AI analysis failed",
+            title: t("analyzerPage.toast.failedTitle"),
             description: (data as { message?: string }).message ?? String(data.error),
             variant: "destructive",
           });
@@ -141,8 +150,8 @@ export default function AIAnalyzerPage() {
       setAiResult(data.analysis as AIAnalysis);
     } catch (e) {
       toast({
-        title: "AI analysis failed",
-        description: messageFromInvokeError(e, "Something went wrong. Please try again."),
+        title: t("analyzerPage.toast.failedTitle"),
+        description: messageFromInvokeError(e, t("analyzerPage.toast.genericError")),
         variant: "destructive",
       });
     } finally {
@@ -150,8 +159,8 @@ export default function AIAnalyzerPage() {
     }
   };
 
-  const headerMeta = useMemo(() => (result ? labelMeta(result.label) : null), [result]);
-  const aiMeta = useMemo(() => (aiResult ? labelMeta(aiResult.label) : null), [aiResult]);
+  const headerMeta = useMemo(() => (result ? labelMeta(result.label) : null), [result, i18n.language]);
+  const aiMeta = useMemo(() => (aiResult ? labelMeta(aiResult.label) : null), [aiResult, i18n.language]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -159,14 +168,13 @@ export default function AIAnalyzerPage() {
       <main className="flex-1 container py-10 md:py-14">
         <header className="max-w-3xl mx-auto text-center space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/30 text-xs font-semibold text-accent">
-            <Brain className="h-3.5 w-3.5" /> AI Scam Analyzer
+            <Brain className="h-3.5 w-3.5" /> {t("analyzerPage.badge")}
           </div>
           <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
-            Analyze any suspicious content in seconds
+            {t("analyzerPage.title")}
           </h1>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            Paste a website, WhatsApp message, SMS, email, or phone number. CamAlert runs an instant
-            heuristic scan and can launch a deeper AI investigation on demand.
+            {t("analyzerPage.subtitle")}
           </p>
         </header>
 
@@ -174,21 +182,24 @@ export default function AIAnalyzerPage() {
           <CardHeader className="pb-3">
             <Tabs value={kind} onValueChange={(v) => { setKind(v as AnalyzerKind); setResult(null); setAiResult(null); }}>
               <TabsList className="grid grid-cols-5 w-full h-auto p-1 bg-secondary/60">
-                {TABS.map(({ key, label, icon: Icon }) => (
-                  <TabsTrigger key={key} value={key} className="flex flex-col gap-1 py-2.5 text-[11px] md:text-xs">
-                    <Icon className="h-4 w-4" />
-                    <span>{label}</span>
-                  </TabsTrigger>
-                ))}
+                {TAB_KEYS.map((key) => {
+                  const Icon = TAB_ICONS[key];
+                  return (
+                    <TabsTrigger key={key} value={key} className="flex flex-col gap-1 py-2.5 text-[11px] md:text-xs">
+                      <Icon className="h-4 w-4" />
+                      <span>{t(`analyzerPage.tabs.${key}`)}</span>
+                    </TabsTrigger>
+                  );
+                })}
               </TabsList>
 
-              {TABS.map(({ key, placeholder, multiline }) => (
+              {TAB_KEYS.map((key) => (
                 <TabsContent key={key} value={key} className="mt-5 space-y-4">
-                  {multiline ? (
+                  {MULTILINE[key] ? (
                     <Textarea
                       value={inputs[key]}
                       onChange={(e) => setInputs((s) => ({ ...s, [key]: e.target.value }))}
-                      placeholder={placeholder}
+                      placeholder={t(`analyzerPage.placeholders.${key}`)}
                       rows={7}
                       maxLength={8000}
                       className="font-mono-tech text-sm resize-y"
@@ -197,22 +208,22 @@ export default function AIAnalyzerPage() {
                     <Input
                       value={inputs[key]}
                       onChange={(e) => setInputs((s) => ({ ...s, [key]: e.target.value }))}
-                      placeholder={placeholder}
+                      placeholder={t(`analyzerPage.placeholders.${key}`)}
                       maxLength={500}
                       className="font-mono-tech"
                     />
                   )}
                   <div className="flex flex-wrap gap-2 items-center justify-between">
                     <p className="text-xs text-muted-foreground">
-                      Your input is analyzed privately. We never share it without your consent.
+                      {t("analyzerPage.privacyNote")}
                     </p>
                     <div className="flex gap-2">
                       <Button onClick={runHeuristic} variant="outline" className="gap-2">
-                        <ScanLine className="h-4 w-4" /> Quick scan
+                        <ScanLine className="h-4 w-4" /> {t("analyzerPage.quickScan")}
                       </Button>
                       <Button onClick={runDeepAI} disabled={aiLoading || !currentInput.trim()} className="gap-2">
                         {aiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                        Deep AI analysis
+                        {t("analyzerPage.deepAI")}
                       </Button>
                     </div>
                   </div>
@@ -234,7 +245,7 @@ export default function AIAnalyzerPage() {
                       <Badge variant="outline" className={`${headerMeta.fg} border-current font-bold`}>
                         {headerMeta.text}
                       </Badge>
-                      <span className="text-xs text-muted-foreground font-mono-tech">Heuristic scan</span>
+                      <span className="text-xs text-muted-foreground font-mono-tech">{t("analyzerPage.heuristicScan")}</span>
                     </div>
                     <div className="mt-2 flex items-center gap-3">
                       <Progress value={result.score} className="h-2 flex-1" />
@@ -246,13 +257,13 @@ export default function AIAnalyzerPage() {
                 {result.signals.length > 0 && (
                   <div className="mt-4">
                     <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                      Threat indicators
+                      {t("analyzerPage.threatIndicators")}
                     </div>
                     <ul className="grid sm:grid-cols-2 gap-2">
                       {result.signals.map((s, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
                           <AlertTriangle className={`h-4 w-4 mt-0.5 shrink-0 ${s.severity === "high" ? "text-destructive" : s.severity === "medium" ? "text-[hsl(var(--warning))]" : "text-muted-foreground"}`} />
-                          <span><span className="font-semibold">{s.label}</span>{s.match ? <span className="text-muted-foreground"> — “{s.match}”</span> : null}</span>
+                          <span><span className="font-semibold">{s.label}</span>{s.match ? <span className="text-muted-foreground"> — "{s.match}"</span> : null}</span>
                         </li>
                       ))}
                     </ul>
@@ -267,7 +278,7 @@ export default function AIAnalyzerPage() {
 
                 <div className="mt-4">
                   <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                    <Lightbulb className="h-3.5 w-3.5" /> Recommended actions
+                    <Lightbulb className="h-3.5 w-3.5" /> {t("analyzerPage.recommendedActions")}
                   </div>
                   <ul className="space-y-1.5 text-sm">
                     {result.recommendations.map((r, i) => (
@@ -282,7 +293,7 @@ export default function AIAnalyzerPage() {
             {aiLoading && (
               <div className="rounded-xl border p-5 border-accent/30 bg-accent/5 space-y-3">
                 <div className="flex items-center gap-2 text-sm text-accent font-semibold">
-                  <Sparkles className="h-4 w-4 animate-pulse" /> Running deep AI analysis…
+                  <Sparkles className="h-4 w-4 animate-pulse" /> {t("analyzerPage.runningDeepAI")}
                 </div>
                 <Skeleton className="h-3 w-2/3" />
                 <Skeleton className="h-3 w-full" />
@@ -302,7 +313,7 @@ export default function AIAnalyzerPage() {
                       <Badge variant="outline" className={`${aiMeta.fg} border-current font-bold`}>
                         {aiMeta.text}
                       </Badge>
-                      <span className="text-xs text-muted-foreground font-mono-tech">AI deep analysis</span>
+                      <span className="text-xs text-muted-foreground font-mono-tech">{t("analyzerPage.aiDeepAnalysis")}</span>
                     </div>
                     <div className="mt-2 flex items-center gap-3">
                       <Progress value={aiResult.score} className="h-2 flex-1" />
@@ -315,7 +326,7 @@ export default function AIAnalyzerPage() {
                 {aiResult.reasons?.length > 0 && (
                   <div className="mt-4">
                     <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-                      AI reasoning
+                      {t("analyzerPage.aiReasoning")}
                     </div>
                     <ul className="space-y-1.5 text-sm">
                       {aiResult.reasons.map((r, i) => (
@@ -328,7 +339,7 @@ export default function AIAnalyzerPage() {
                 {aiResult.recommendations?.length > 0 && (
                   <div className="mt-4">
                     <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
-                      <Lightbulb className="h-3.5 w-3.5" /> Suggested actions
+                      <Lightbulb className="h-3.5 w-3.5" /> {t("analyzerPage.suggestedActions")}
                     </div>
                     <ul className="space-y-1.5 text-sm">
                       {aiResult.recommendations.map((r, i) => (
@@ -343,10 +354,9 @@ export default function AIAnalyzerPage() {
             {!result && !aiResult && !aiLoading && (
               <Alert>
                 <ShieldCheck className="h-4 w-4" />
-                <AlertTitle>Privacy-first analysis</AlertTitle>
+                <AlertTitle>{t("analyzerPage.emptyStateTitle")}</AlertTitle>
                 <AlertDescription>
-                  Quick scan runs entirely in your browser. Deep AI analysis sends the content to our secure
-                  threat-intelligence model for richer reasoning.
+                  {t("analyzerPage.emptyStateBody")}
                 </AlertDescription>
               </Alert>
             )}
@@ -355,7 +365,7 @@ export default function AIAnalyzerPage() {
 
         <div className="max-w-4xl mx-auto mt-6 flex justify-center">
           <Button asChild variant="ghost" className="text-muted-foreground">
-            <Link to="/report">Found a real scam? Report it on CamAlert →</Link>
+            <Link to="/report">{t("analyzerPage.reportCta")}</Link>
           </Button>
         </div>
       </main>
