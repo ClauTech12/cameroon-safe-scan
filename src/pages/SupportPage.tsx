@@ -233,7 +233,7 @@ export default function SupportPage() {
             <p className="text-xs text-muted-foreground pt-2">
               🇨🇲 Built for Cameroon, by Cameroonians
             </p>
-          </div>
+          </div> 
         </div>
 
       </div>
