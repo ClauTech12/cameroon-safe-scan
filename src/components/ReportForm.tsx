@@ -211,15 +211,15 @@ export function ReportForm() {
               </Label>
               <p className="text-xs text-muted-foreground leading-snug">
   By submitting you agree to our{" "}
-  <Link to="/legal/terms" className="underline hover:text-foreground">
+  <Link to="/terms" className="underline hover:text-foreground">
     {t("footer.terms")}
   </Link>
   ,{" "}
-  <Link to="/legal/privacy" className="underline hover:text-foreground">
+  <Link to="/privacy" className="underline hover:text-foreground">
     {t("footer.privacy")}
   </Link>{" "}
   and{" "}
-  <Link to="/legal/disclaimer" className="underline hover:text-foreground">
+  <Link to="/disclaimer" className="underline hover:text-foreground">
     {t("footer.disclaimer")}
   </Link>
   . Reports are reviewed by moderators before becoming public.
