@@ -1,0 +1,45 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Verify: typecheck + lint + test + build",
+      "type": "shell",
+      "command": "npm run verify",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": ["$tsc", "$eslint-stylish"]
+    },
+    {
+      "label": "Typecheck only",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "Lint only",
+      "type": "shell",
+      "command": "npm run lint",
+      "group": "build",
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": ["$eslint-stylish"]
+    },
+    {
+      "label": "Test only",
+      "type": "shell",
+      "command": "npm run test",
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "dedicated", "clear": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev server",
+      "type": "shell",
+      "command": "npm run dev",
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" },
+      "problemMatcher": []
+    }
+  ]
+}
