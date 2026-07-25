@@ -96,10 +96,10 @@ export function ReportCard({ report }: { report: Report }) {
       try {
         const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
         const [{ count: total }, { count: recent24h }] = await Promise.all([
-          supabase.from("scam_reports").select("id", { count: "exact", head: true })
-            .eq("status", "approved").eq("phone_number", phone),
-          supabase.from("scam_reports").select("id", { count: "exact", head: true })
-            .eq("status", "approved").eq("phone_number", phone).gte("created_at", since),
+          supabase.from("public_scam_reports").select("id", { count: "exact", head: true })
+            .eq("phone_number", phone),
+          supabase.from("public_scam_reports").select("id", { count: "exact", head: true })
+            .eq("phone_number", phone).gte("created_at", since),
         ]);
         if (!cancelled) setStats({ total: total ?? 0, recent24h: recent24h ?? 0 });
       } catch {
@@ -132,7 +132,7 @@ export function ReportCard({ report }: { report: Report }) {
     let currentStatus = report.status;
     try {
       const { data } = await supabase
-        .from("scam_reports")
+        .from("public_scam_reports")
         .select("status")
         .eq("id", report.id)
         .single();

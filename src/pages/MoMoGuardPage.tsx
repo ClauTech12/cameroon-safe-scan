@@ -55,9 +55,8 @@ export default function MoMoGuardPage() {
 
   useEffect(() => {
     supabase
-      .from("scam_reports")
+      .from("public_scam_reports")
       .select("id, location, description, scam_type, ai_confidence, ai_advice, risk_level, created_at")
-      .eq("status", "approved")
       .eq("scam_type", "mobile_money")
       .order("created_at", { ascending: false })
       .limit(6)
@@ -72,7 +71,7 @@ export default function MoMoGuardPage() {
     if (!phoneLookup.trim()) return;
     setLoadingLookup(true);
     const { data, error } = await supabase
-      .from("scam_reports")
+      .from("public_scam_reports")
       .select("phone_number, description")
       .eq("phone_number", phoneLookup.trim());
     if (error) {

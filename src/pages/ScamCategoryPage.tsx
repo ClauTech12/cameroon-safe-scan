@@ -140,12 +140,11 @@ export default function ScamCategoryPage() {
       const from = (page - 1) * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data, error, count } = await supabase
-        .from("scam_reports")
+        .from("public_scam_reports")
         .select(
           "id, location, description, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number",
           { count: "exact" },
         )
-        .eq("status", "approved")
         .eq("scam_type", scamType)
         .order("created_at", { ascending: false })
         .range(from, to);

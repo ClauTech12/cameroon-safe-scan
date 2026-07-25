@@ -36,13 +36,11 @@ const Index = () => {
   useEffect(() => {
     Promise.all([
       supabase
-        .from("scam_reports")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "approved"),
+        .from("public_scam_reports")
+        .select("id", { count: "exact", head: true }),
       supabase
-        .from("scam_reports")
+        .from("public_scam_reports")
         .select("id", { count: "exact", head: true })
-        .eq("status", "approved")
         .eq("scam_type", "mobile_money"),
     ]).then(([{ count: total }, { count: momo }]) => {
       setStats((s) => ({ ...s, reports: total || 0, protected: (total || 0) * 17, momoCount: momo || 0 }));

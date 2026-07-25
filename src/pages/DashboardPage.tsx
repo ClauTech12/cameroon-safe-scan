@@ -25,9 +25,8 @@ export default function DashboardPage() {
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from("scam_reports")
-        .select("scam_type, risk_level, location")
-        .eq("status", "approved");
+        .from("public_scam_reports")
+        .select("scam_type, risk_level, location");
       if (!data) return;
       const c: Record<ScamType, number> = { mobile_money: 0, job: 0, phishing: 0, investment: 0, bank: 0, other: 0 };
       let high = 0;

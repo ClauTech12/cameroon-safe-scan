@@ -34,9 +34,8 @@ export default function ReportsPage() {
   const handleExport = async () => {
     setExporting(true);
     const { data, error } = await supabase
-      .from("scam_reports")
+      .from("public_scam_reports")
       .select("id, reporter_name, location, description, scam_type, risk_level, ai_confidence, created_at")
-      .eq("status", "approved")
       .order("created_at", { ascending: false });
 
     if (error) {

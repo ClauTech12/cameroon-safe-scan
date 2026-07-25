@@ -55,11 +55,28 @@ export default function StatusPage() {
     setLoading(true);
     setError("");
     setSearched(true);
-    const { data, error } = await supabase
+    // Try the base table first -- covers a logged-in submitter checking
+    // their own report at any status (RLS: "Submitters can view their
+    // own reports") and admins. Anonymous visitors have no base-table
+    // read policy anymore, so this simply returns nothing for them.
+    let { data, error } = await supabase
       .from("scam_reports")
       .select("id, status, scam_type, risk_level, location, created_at, description")
       .eq("id", reportId.trim())
-      .single();
+      .maybeSingle();
+
+    // Fall back to the public safe view -- covers anonymous visitors
+    // checking a report that has since been approved.
+    if (!data) {
+      const fallback = await supabase
+        .from("public_scam_reports")
+        .select("id, status, scam_type, risk_level, location, created_at, description")
+        .eq("id", reportId.trim())
+        .maybeSingle();
+      data = fallback.data;
+      error = fallback.error;
+    }
+
     if (error || !data) {
       setReport(null);
       setError("No report found with this ID. Please check and try again.");

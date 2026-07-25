@@ -15,9 +15,8 @@ const [searchTerm, setSearchTerm] = useState("");
     let active = true;
     (async () => {
       let q = supabase
-        .from("scam_reports")
+        .from("public_scam_reports")
         .select("id, location, description, scam_type, ai_confidence, ai_advice, risk_level, status, created_at, phone_number")
-        .eq("status", "approved")
         .order("created_at", { ascending: false });
       if (limit) q = q.limit(limit);
       const { data, error } = await q;

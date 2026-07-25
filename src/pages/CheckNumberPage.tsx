@@ -87,10 +87,9 @@ export default function CheckNumberPage() {
       const [{ data: statusData, error: statusErr }, { data: reportData }] = await Promise.all([
         supabase.rpc("phone_status", { _phone: canonical }),
         supabase
-          .from("scam_reports")
+          .from("public_scam_reports")
           .select("id, scam_type, description, created_at, location")
           .eq("phone_number", canonical)
-          .eq("status", "approved")
           .order("created_at", { ascending: false })
           .limit(5),
       ]);

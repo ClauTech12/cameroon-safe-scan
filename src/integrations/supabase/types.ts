@@ -211,11 +211,66 @@ export type Database = {
         }
         Relationships: []
       }
+      risk_prediction_labels: {
+        Row: {
+          admin_label: Database["public"]["Enums"]["flag_status"]
+          created_at: string
+          id: string
+          labeled_by: string | null
+          pattern_match: boolean
+          phone_number: string
+          predicted_risk_score: number
+          predicted_status: string
+          recent_24h: number
+          total_reports: number
+        }
+        Insert: {
+          admin_label: Database["public"]["Enums"]["flag_status"]
+          created_at?: string
+          id?: string
+          labeled_by?: string | null
+          pattern_match?: boolean
+          phone_number: string
+          predicted_risk_score?: number
+          predicted_status: string
+          recent_24h?: number
+          total_reports?: number
+        }
+        Update: {
+          admin_label?: Database["public"]["Enums"]["flag_status"]
+          created_at?: string
+          id?: string
+          labeled_by?: string | null
+          pattern_match?: boolean
+          phone_number?: string
+          predicted_risk_score?: number
+          predicted_status?: string
+          recent_24h?: number
+          total_reports?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      public_scam_reports: {
+        Row: {
+          ai_advice: string[] | null
+          ai_confidence: number | null
+          created_at: string
+          description: string
+          id: string
+          location: string
+          phone_number: string | null
+          reporter_name: string | null
+          risk_level: Database["public"]["Enums"]["risk_level"]
+          scam_type: Database["public"]["Enums"]["scam_type"]
+          status: Database["public"]["Enums"]["report_status"]
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      algorithm_accuracy_stats: { Args: never; Returns: Json }
       claim_first_admin: { Args: never; Returns: Json }
       get_user_email: { Args: { uid: string }; Returns: string }
       has_role: {
@@ -226,6 +281,21 @@ export type Database = {
         Returns: boolean
       }
       jsonb_object_keys_count: { Args: { j: Json }; Returns: number }
+      list_risk_prediction_labels: {
+        Args: { _limit?: number }
+        Returns: {
+          admin_label: Database["public"]["Enums"]["flag_status"]
+          created_at: string
+          id: string
+          labeled_by: string | null
+          pattern_match: boolean
+          phone_number: string
+          predicted_risk_score: number
+          predicted_status: string
+          recent_24h: number
+          total_reports: number
+        }[]
+      }
       number_intel_summary: { Args: { _phone: string }; Returns: Json }
       phone_status: { Args: { _phone: string }; Returns: Json }
       report_explainability: { Args: { _report_id: string }; Returns: Json }
