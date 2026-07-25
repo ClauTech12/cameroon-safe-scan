@@ -36,6 +36,22 @@ future team members, or contracted developers.
    live, and it's the part of the codebase most worth protecting with
    real test coverage.
 
+## Edge Functions
+
+If you add a new public-facing Edge Function (anything callable by
+`anon`, not just admins):
+- Decide whether it needs `requireSupabaseCaller()` or `requireAdmin()`
+  from `_shared/auth.ts` — but check the function's `verify_jwt` setting
+  in `supabase/config.toml` first. These auth helpers rely on the
+  gateway having already verified the JWT (`verify_jwt = true`); adding
+  one to a `verify_jwt = false` function doesn't work reliably and has
+  already caused a real outage once — see `docs/ARCHITECTURE.md`.
+- If the function calls an external paid API (Gemini) or does anything
+  that costs money per call, add rate limiting via
+  `checkAiRateLimit()` from `_shared/rate-limit.ts`. Don't assume the
+  frontend's own request pattern is the only way the function will
+  ever be called — any public Edge Function can be hit directly.
+
 ## Database changes
 
 - Every migration should be safe to re-run without breaking anything if

@@ -5,6 +5,70 @@ being kept rigorously from **2026-07-24** onward; entries before that
 are a condensed summary of the project's earlier history rather than a
 commit-by-commit account.
 
+## [1.1.0] — 2026-07-25 — Security audit + repo cleanup
+
+A full security review pass, plus a codebase sweep for broken links,
+dead code, and translation gaps.
+
+### Added
+- Rate limiting on the three public AI-calling Edge Functions
+  (`chat-assistant`, `classify-scam`, `analyze-scam`) — previously
+  none of them capped how often a single caller could invoke them,
+  meaning scripted abuse could run up real Gemini API costs or exhaust
+  Gemini's own rate limit for every legitimate user. New `ai_rate_limits`
+  table tracks a salted IP hash + endpoint + timestamp (no personal
+  data); a shared `checkAiRateLimit()` helper enforces per-endpoint
+  limits and fails open on its own errors so a DB hiccup never takes
+  down the AI features entirely.
+- `analyzerPage.*` translation keys (en/fr/pcm) for the AI Analyzer
+  page — see Fixed below.
+
+### Fixed
+- **`chat-assistant` had no authentication check of any kind** — the
+  other two AI functions at least required a valid Supabase caller
+  JWT; this one had nothing. Note: this function is deliberately
+  configured with `verify_jwt = false` at the platform level (see
+  `supabase/config.toml`), so it relies on the new rate limiting alone
+  rather than a JWT check, which doesn't play well with that setting.
+- **The entire AI Analyzer page ignored the language switcher.** Every
+  string — title, all 5 tab labels, placeholders, both action buttons,
+  every result label, the empty state — was hardcoded in English with
+  zero calls into i18n, despite full trilingual support being a
+  headline feature. Rewired the whole page onto proper translation
+  keys.
+- **Broken `/legal/terms`, `/legal/privacy`, `/legal/disclaimer` links**
+  in the report submission form — the real routes have no `/legal/`
+  prefix. Anyone clicking those on the report form hit a 404.
+- **Wrong slug in `sitemap.xml`** — listed `/scams/mobile_money`
+  (underscore) instead of the app's actual route,
+  `/scams/mobile-money` (hyphen).
+- Removed `PlaceholderPage.tsx`, an unused "coming soon" component
+  left over from early admin scaffolding — no longer referenced
+  anywhere.
+- A migration and an Edge Function fix had each been applied directly
+  to the live Supabase project (via the SQL editor and the CLI,
+  respectively) without ever being committed to git, leaving the repo
+  silently out of sync with what was actually running in production.
+  Both are now tracked.
+
+### Audited, no changes needed
+- Row-Level Security is enabled on every table with correctly scoped
+  policies; no privilege-escalation path in `user_roles`.
+- Every `SECURITY DEFINER` function pins `search_path` correctly.
+- Storage bucket policies (screenshot uploads) are properly hardened:
+  size caps, MIME whitelist, UUID-only filenames, no public listing.
+- `invite-admin` does real server-side JWT + admin-role verification.
+- HTTP security headers (`vercel.json`) are thorough: HSTS w/ preload,
+  a real CSP, frame/content-type/referrer/permissions policies.
+- Translation key parity confirmed exact across en/fr/pcm (396/396/396).
+- `npm audit` findings traced to source: all build-tooling only
+  (ESLint/Tailwind/PostCSS dependency chains), none reachable from the
+  shipped bundle or the Deno Edge Functions.
+- One known, accepted risk: `react-router-dom` has a moderate
+  open-redirect CVE; the fix requires a v6→v7 major upgrade with
+  breaking API changes, scheduled as a dedicated task rather than
+  rushed into this pass.
+
 ## [1.0.0] — 2026-07-25 — Pre-launch hardening
 
 The push to get CamAlert ready for a custom domain and real traffic.

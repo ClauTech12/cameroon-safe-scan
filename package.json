@@ -1,7 +1,7 @@
 {
   "name": "camalert",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Community-driven scam reporting and fraud intelligence platform for Cameroon, with AI-assisted risk scoring and mobile money fraud protection.",
   "author": "Clauvet Agbor (ClauTech Digital Solutions)",
   "license": "SEE LICENSE IN LICENSE",
