@@ -243,7 +243,7 @@ export function FloatingAssistant() {
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "fixed z-40 bottom-5 right-5 sm:bottom-6 sm:right-24 h-14 w-14 rounded-full",
+          "fixed z-40 bottom-24 right-5 md:bottom-6 md:right-24 h-14 w-14 rounded-full",
           "bg-accent text-accent-foreground shadow-lg shadow-accent/30",
           "flex items-center justify-center transition-smooth hover:scale-[1.04] active:scale-95",
           "focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-accent/30",
@@ -262,7 +262,7 @@ export function FloatingAssistant() {
           aria-modal="false"
           aria-label={t("assistant.title")}
           className={cn(
-            "fixed z-40 bottom-24 right-3 sm:right-24",
+            "fixed z-40 bottom-40 right-3 md:bottom-24 md:right-24",
             "w-[calc(100vw-1.5rem)] max-w-sm h-[70vh] max-h-[560px]",
             "flex flex-col rounded-2xl border border-border bg-card shadow-2xl",
             "overflow-hidden animate-fade-in",
