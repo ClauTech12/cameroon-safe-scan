@@ -133,7 +133,9 @@ export function analyzeUrl(input: string): HeuristicResult {
       score += bandWeight("high");
       highlights.push(host);
     }
-    if (IMPERSONATION.test(host) && !/\.(mtn|orange|afrilandfirstbank|ecobank)\.[a-z.]+$/i.test(host)) {
+    const OFFICIAL_BRAND_DOMAINS =
+      /\.(mtn(\.cm|onlineshop\.cm)?|orange\.cm|momo\.mtn\.cm|afrilandfirstbank\.com|ecobank\.com|ubagroup\.com|sgbc\.cm|bicec\.cm|google\.com|microsoft\.com|whatsapp\.com|amazon\.(com|fr|co\.uk|de)|dhl\.com)$/i;
+    if (IMPERSONATION.test(host) && !OFFICIAL_BRAND_DOMAINS.test(host)) {
       // brand name inside a non-brand domain
       add(signals, { key: "brand_lookalike", label: "Brand name in unofficial domain", severity: "high" });
       score += bandWeight("high");
