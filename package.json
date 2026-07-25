@@ -1,7 +1,14 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "camalert",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Community-driven scam reporting and fraud intelligence platform for Cameroon, with AI-assisted risk scoring and mobile money fraud protection.",
+  "author": "Clauvet Agbor (ClauTech Digital Solutions)",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClauTech12/cameroon-safe-scan.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
