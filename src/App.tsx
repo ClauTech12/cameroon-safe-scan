@@ -10,7 +10,6 @@ import { FloatingAssistant } from "./components/FloatingAssistant.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
 import { AppNavigation } from "./components/ui/navigation-menu";
-import { AppFooter } from "./components/ui/navigation-menu";
 
 // Lazy load all pages
 const Index = lazy(() => import("./pages/Index.tsx"));
@@ -98,7 +97,6 @@ const App = () => {
                   </Routes>
                 </Suspense>
               </main>
-              <AppFooter />
             </div>
             <WhatsAppFAB />
             <FloatingAssistant />

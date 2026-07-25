@@ -15,6 +15,9 @@ export default {
     dashboard: "Tableau de bord",
     momoGuard: "MoMo Guard",
     admin: "Admin",
+    about: "À propos",
+    contact: "Contact",
+    support: "Assistance",
     menu: "Menu",
   },
   footer: {

@@ -3,6 +3,7 @@ import { Copy, Check, Heart, Shield, Phone, MessageCircle, Users } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { SiteFooter } from "@/components/SiteFooter";
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -233,10 +234,11 @@ export default function SupportPage() {
             <p className="text-xs text-muted-foreground pt-2">
               🇨🇲 Built for Cameroon, by Cameroonians
             </p>
-          </div> 
+          </div>
         </div>
 
       </div>
+      <SiteFooter />
     </div>
   );
 }

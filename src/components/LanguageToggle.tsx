@@ -7,7 +7,7 @@ const LANGS = [
   { code: "pcm", label: "CM" },
 ] as const;
 
-export function LanguageToggle() {
+export function LanguageToggle({ forceVisible = false }: { forceVisible?: boolean } = {}) {
   const { i18n } = useTranslation();
   const current = i18n.language?.startsWith("fr")
     ? "fr"
@@ -17,7 +17,10 @@ export function LanguageToggle() {
   const setLang = (lng: "en" | "fr" | "pcm") => i18n.changeLanguage(lng);
 
   return (
-    <div className="hidden sm:inline-flex items-center rounded-full border border-border bg-secondary/50 p-0.5 text-xs font-semibold">
+    <div className={cn(
+      "items-center rounded-full border border-border bg-secondary/50 p-0.5 text-xs font-semibold",
+      forceVisible ? "inline-flex" : "hidden sm:inline-flex",
+    )}>
       {LANGS.map((l) => {
         const active = current === l.code;
         return (

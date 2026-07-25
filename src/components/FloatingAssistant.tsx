@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
 import {
   MessageCircle,
   X,
@@ -13,6 +12,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+
+const MarkdownMessage = lazy(() => import("./MarkdownMessage"));
 
 type Role = "user" | "assistant";
 interface ChatMsg {
@@ -353,9 +354,9 @@ export function FloatingAssistant() {
                     <div>
                       {m.content ? (
                         <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-accent break-words">
-                          <ReactMarkdown components={{ a: ({ href, children }) => (<a href={href} target="_blank" rel="noopener noreferrer" className="underline">{children}</a>) }}>
-                            {m.content}
-                          </ReactMarkdown>
+                          <Suspense fallback={<span className="whitespace-pre-wrap">{m.content}</span>}>
+                            <MarkdownMessage content={m.content} />
+                          </Suspense>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2 py-1">

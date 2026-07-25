@@ -1,10 +1,14 @@
 import * as React from "react";
 import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 import { cva } from "class-variance-authority";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu } from "lucide-react";
 import { Link } from "react-router-dom"; // ✅ Routing
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const NavigationMenu = React.forwardRef<
   React.ElementRef<typeof NavigationMenuPrimitive.Root>,
@@ -110,58 +114,87 @@ NavigationMenuIndicator.displayName = NavigationMenuPrimitive.Indicator.displayN
 
 /* ✅ Header Navigation with Support button */
 export function AppNavigation() {
+  const { t } = useTranslation();
+  const [open, setOpen] = React.useState(false);
+
+  const links = [
+    { to: "/", label: t("nav.home") },
+    { to: "/about", label: t("nav.about") },
+    { to: "/contact", label: t("nav.contact") },
+  ];
+
   return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link to="/" className={navigationMenuTriggerStyle()}>Home</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+        <Link to="/" className="flex items-center gap-2 font-bold text-lg shrink-0">
+          <span className="text-primary">Cam</span>
+          <span>Alert</span>
+        </Link>
 
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link to="/about" className={navigationMenuTriggerStyle()}>About</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-2">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {links.map((l) => (
+                <NavigationMenuItem key={l.to}>
+                  <NavigationMenuLink asChild>
+                    <Link to={l.to} className={navigationMenuTriggerStyle()}>{l.label}</Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+          <LanguageToggle />
+          <Link
+            to="/support"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+          >
+            {t("nav.support")}
+          </Link>
+        </div>
 
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link to="/contact" className={navigationMenuTriggerStyle()}>Contact</Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-
-        {/* ✅ Professional Support button */}
-        <NavigationMenuItem>
-          <NavigationMenuLink asChild>
-            <Link 
-              to="/support" 
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-            >
-              Support
-            </Link>
-          </NavigationMenuLink>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
-  );
-}
-
-/* ✅ Footer Navigation with subtle Support link */
-export function AppFooter() {
-  return (
-    <footer className="w-full border-t bg-background py-6">
-      <div className="container mx-auto flex justify-between items-center text-sm text-muted-foreground">
-        <p>© {new Date().getFullYear()} CamAlert. All rights reserved.</p>
-        <nav className="flex gap-4">
-          <Link to="/privacy" className="hover:text-primary">Privacy</Link>
-          <Link to="/terms" className="hover:text-primary">Terms</Link>
-          <Link to="/support" className="hover:text-primary font-medium">Support</Link> {/* ✅ Footer link */}
-        </nav>
+        {/* Mobile hamburger */}
+        <div className="flex md:hidden items-center gap-1">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label={t("nav.menu")}>
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <nav className="flex flex-col gap-1 mt-8">
+                {links.map((l) => (
+                  <Link
+                    key={l.to}
+                    to={l.to}
+                    onClick={() => setOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-base font-medium hover:bg-secondary"
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+                <Link
+                  to="/support"
+                  onClick={() => setOpen(false)}
+                  className="mt-2 rounded-md bg-primary px-3 py-2.5 text-center text-base font-semibold text-white hover:bg-primary/90"
+                >
+                  {t("nav.support")}
+                </Link>
+                <div className="mt-4 flex justify-center">
+                  <LanguageToggle forceVisible />
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
-    </footer>
+    </header>
   );
 }
+
+/* AppFooter removed -- was a bare-bones footer rendered globally in App.tsx,
+   duplicating the full-featured SiteFooter that nearly every page already
+   renders itself. See src/components/SiteFooter.tsx for the real footer. */
 
 export {
   navigationMenuTriggerStyle,
