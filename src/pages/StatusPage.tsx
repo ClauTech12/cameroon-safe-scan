@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -20,25 +21,26 @@ interface Report {
   description: string;
 }
 
-function StatusBadge({ status }: { status: Status }) {
+function StatusBadge({ status, t }: { status: Status; t: (key: string) => string }) {
   if (status === "approved") return (
     <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 font-semibold text-sm w-fit">
-      <ShieldCheck className="h-4 w-4" /> Verified & Published
+      <ShieldCheck className="h-4 w-4" /> {t("statusPage.badge.approved")}
     </div>
   );
   if (status === "rejected") return (
     <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 text-destructive border border-destructive/20 font-semibold text-sm w-fit">
-      <AlertTriangle className="h-4 w-4" /> Not Published
+      <AlertTriangle className="h-4 w-4" /> {t("statusPage.badge.rejected")}
     </div>
   );
   return (
     <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-600 border border-orange-500/20 font-semibold text-sm w-fit">
-      <Clock className="h-4 w-4" /> Pending Review
+      <Clock className="h-4 w-4" /> {t("statusPage.badge.pending")}
     </div>
   );
 }
 
 export default function StatusPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [reportId, setReportId] = useState(searchParams.get("id") ?? "");
   const [report, setReport] = useState<Report | null>(null);
@@ -48,6 +50,7 @@ export default function StatusPage() {
 
   useEffect(() => {
     if (searchParams.get("id")) handleSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = async () => {
@@ -79,7 +82,7 @@ export default function StatusPage() {
 
     if (error || !data) {
       setReport(null);
-      setError("No report found with this ID. Please check and try again.");
+      setError(t("statusPage.notFoundError"));
     } else {
       setReport(data as Report);
     }
@@ -93,17 +96,17 @@ export default function StatusPage() {
         <div className="max-w-2xl mx-auto">
           <div className="mb-10 space-y-2 text-center">
             <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
-              Track Your Report
+              {t("statusPage.title")}
             </h1>
             <p className="text-muted-foreground">
-              Enter your Report ID to check the current status of your submission.
+              {t("statusPage.subtitle")}
             </p>
           </div>
 
           <Card className="glass-card p-6 mb-6">
             <div className="flex gap-2">
               <Input
-                placeholder="Enter your Report ID..."
+                placeholder={t("statusPage.placeholder")}
                 value={reportId}
                 onChange={(e) => setReportId(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -111,7 +114,7 @@ export default function StatusPage() {
               />
               <Button onClick={handleSearch} disabled={loading}>
                 <Search className="h-4 w-4 mr-2" />
-                {loading ? "Searching..." : "Check"}
+                {loading ? t("statusPage.searching") : t("statusPage.checkBtn")}
               </Button>
             </div>
           </Card>
@@ -128,49 +131,49 @@ export default function StatusPage() {
                 <Card className="glass-card p-6 space-y-4">
                   <div className="flex items-start justify-between flex-wrap gap-3">
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Report ID</p>
+                      <p className="text-xs text-muted-foreground mb-1">{t("statusPage.reportIdLabel")}</p>
                       <p className="font-mono text-sm font-bold break-all">{report.id}</p>
                     </div>
-                    <StatusBadge status={report.status} />
+                    <StatusBadge status={report.status} t={t} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/60">
                     <div>
-                      <p className="text-xs text-muted-foreground">Scam Type</p>
+                      <p className="text-xs text-muted-foreground">{t("statusPage.scamTypeLabel")}</p>
                       <p className="text-sm font-semibold capitalize">{report.scam_type.replace(/_/g, " ")}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Risk Level</p>
+                      <p className="text-xs text-muted-foreground">{t("statusPage.riskLevelLabel")}</p>
                       <p className="text-sm font-semibold capitalize">{report.risk_level}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Location</p>
+                      <p className="text-xs text-muted-foreground">{t("statusPage.locationLabel")}</p>
                       <p className="text-sm font-semibold">{report.location}</p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Submitted</p>
+                      <p className="text-xs text-muted-foreground">{t("statusPage.submittedLabel")}</p>
                       <p className="text-sm font-semibold">{new Date(report.created_at).toLocaleDateString()}</p>
                     </div>
                   </div>
 
                   <div className="pt-2 border-t border-border/60">
-                    <p className="text-xs text-muted-foreground mb-1">Description</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t("statusPage.descriptionLabel")}</p>
                     <p className="text-sm text-foreground/80 line-clamp-3">{report.description}</p>
                   </div>
 
                   {report.status === "pending" && (
                     <div className="rounded-lg bg-orange-500/10 border border-orange-500/20 p-3 text-xs text-orange-700 dark:text-orange-300">
-                      ⏳ Your report is being reviewed by our moderation team. This usually takes 24-48 hours.
+                      {t("statusPage.statusNote.pending")}
                     </div>
                   )}
                   {report.status === "approved" && (
                     <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-700 dark:text-emerald-300">
-                      ✅ Your report has been verified and is now public, helping protect the community!
+                      {t("statusPage.statusNote.approved")}
                     </div>
                   )}
                   {report.status === "rejected" && (
                     <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-                      ❌ Your report was not published. It may not have met our submission guidelines.
+                      {t("statusPage.statusNote.rejected")}
                     </div>
                   )}
                 </Card>
@@ -179,8 +182,8 @@ export default function StatusPage() {
           )}
 
           <p className="text-center text-xs text-muted-foreground mt-6">
-            Don't have a Report ID?{" "}
-            <Link to="/report" className="text-accent hover:underline">Submit a report</Link>
+            {t("statusPage.noIdPre")}{" "}
+            <Link to="/report" className="text-accent hover:underline">{t("statusPage.submitLink")}</Link>
           </p>
         </div>
       </main>
