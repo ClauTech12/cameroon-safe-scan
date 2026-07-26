@@ -718,4 +718,12 @@ export default {
     noIdPre: "Vous n'avez pas d'identifiant de signalement ?",
     submitLink: "Soumettre un signalement",
   },
+  dashboardPage: {
+    subtitle: "Aperçus en temps réel à travers le Cameroun",
+    heatmapTitle: "Carte thermique des arnaques au Cameroun",
+    heatmapSubtitle: "Signalements par région — survolez pour plus de détails",
+    categoriesTitle: "Catégories d'arnaques",
+    byTypeTitle: "Signalements par type",
+    noDataYet: "Aucune donnée pour le moment",
+  },
 };

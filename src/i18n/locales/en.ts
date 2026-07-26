@@ -716,4 +716,12 @@ export default {
     noIdPre: "Don't have a Report ID?",
     submitLink: "Submit a report",
   },
+  dashboardPage: {
+    subtitle: "Live insights from across Cameroon",
+    heatmapTitle: "Cameroon scam heatmap",
+    heatmapSubtitle: "Reports by region — hover for details",
+    categoriesTitle: "Scam categories",
+    byTypeTitle: "Reports by type",
+    noDataYet: "No data yet",
+  },
 };

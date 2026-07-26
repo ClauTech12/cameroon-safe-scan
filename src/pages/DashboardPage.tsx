@@ -60,7 +60,7 @@ export default function DashboardPage() {
       <main className="flex-1 container py-12 space-y-10">
         <header className="space-y-2">
           <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">{t("nav.dashboard")}</h1>
-          <p className="text-muted-foreground">Live insights from across Cameroon</p>
+          <p className="text-muted-foreground">{t("dashboardPage.subtitle")}</p>
         </header>
 
         <div className="grid gap-4 md:grid-cols-3">
@@ -79,17 +79,17 @@ export default function DashboardPage() {
 
         <Card className="glass-card p-6">
           <h3 className="font-display font-bold text-lg mb-1 flex items-center gap-2">
-            <MapPin className="h-5 w-5 text-primary" /> Cameroon scam heatmap
+            <MapPin className="h-5 w-5 text-primary" /> {t("dashboardPage.heatmapTitle")}
           </h3>
-          <p className="text-sm text-muted-foreground mb-4">Reports by region — hover for details</p>
+          <p className="text-sm text-muted-foreground mb-4">{t("dashboardPage.heatmapSubtitle")}</p>
           <CameroonHeatmap reports={locations} />
         </Card>
 
         <div className="grid gap-6 lg:grid-cols-2">
           <Card className="glass-card p-6">
-            <h3 className="font-display font-bold text-lg mb-4">Scam categories</h3>
+            <h3 className="font-display font-bold text-lg mb-4">{t("dashboardPage.categoriesTitle")}</h3>
             {chartData.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-12 text-center">No data yet</p>
+              <p className="text-sm text-muted-foreground py-12 text-center">{t("dashboardPage.noDataYet")}</p>
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">
@@ -118,9 +118,9 @@ export default function DashboardPage() {
           </Card>
 
           <Card className="glass-card p-6">
-            <h3 className="font-display font-bold text-lg mb-4">Reports by type</h3>
+            <h3 className="font-display font-bold text-lg mb-4">{t("dashboardPage.byTypeTitle")}</h3>
             {chartData.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-12 text-center">No data yet</p>
+              <p className="text-sm text-muted-foreground py-12 text-center">{t("dashboardPage.noDataYet")}</p>
             ) : (
               <div className="h-72">
                 <ResponsiveContainer width="100%" height="100%">

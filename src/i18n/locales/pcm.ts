@@ -718,4 +718,12 @@ examples: {
     noIdPre: "You no get Report ID?",
     submitLink: "Submit report",
   },
+  dashboardPage: {
+    subtitle: "Live insights from across Cameroon",
+    heatmapTitle: "Cameroon scam heatmap",
+    heatmapSubtitle: "Reports by region — hover make you see details",
+    categoriesTitle: "Scam categories",
+    byTypeTitle: "Reports by type",
+    noDataYet: "No data yet",
+  },
 };
