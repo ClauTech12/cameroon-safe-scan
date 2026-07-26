@@ -36,7 +36,7 @@ export default function AboutPage() {
   const stats = [
     { value: "2026", label: t("aboutPage.stats.founded") },
     { value: "6+", label: t("aboutPage.stats.categories") },
-    { value: "EN + FR", label: t("aboutPage.stats.bilingual") },
+    { value: "EN + FR + PCM", label: t("aboutPage.stats.bilingual") },
     { value: "Cameroon", label: t("aboutPage.stats.growing") },
   ];
 

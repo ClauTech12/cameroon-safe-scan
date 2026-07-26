@@ -358,15 +358,13 @@ const Index = () => {
               <div className="absolute inset-0 bg-cyber-grid opacity-25" aria-hidden="true" />
               <div className="relative">
                 <div className="text-xs font-bold uppercase tracking-[0.2em] text-white/70 mb-3">
-                  About CamAlert
+                  {t("homeAbout.eyebrow")}
                 </div>
                 <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight mb-4">
-                  Built for trust. Powered by community.
+                  {t("homeAbout.title")}
                 </h2>
                 <p className="text-white/80 leading-relaxed">
-                  CamAlert was created to make the digital experience safer for every Cameroonian and African. We combine
-                  community-driven fraud reporting, AI-assisted threat detection, and public digital safety
-                  education into one trusted platform.
+                  {t("homeAbout.body")}
                 </p>
                 <div className="mt-6 flex items-center gap-3">
                   <img
@@ -376,9 +374,9 @@ const Index = () => {
                   />
                   <div>
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold border border-white/15">
-                      <Sparkles className="h-3.5 w-3.5" /> Founded by Agbor Clauvet
+                      <Sparkles className="h-3.5 w-3.5" /> {t("homeAbout.foundedBy")}
                     </div>
-                    <p className="text-xs text-white/60 mt-1">Founder & CEO · ClauTech Digital Solutions</p>
+                    <p className="text-xs text-white/60 mt-1">{t("homeAbout.founderRole")}</p>
                   </div>
                 </div>
               </div>
@@ -388,18 +386,18 @@ const Index = () => {
                 {[
                   {
                     icon: Globe2,
-                    title: "Cyber awareness for Cameroon",
-                    desc: "Localized intelligence on Mobile Money, phishing, job, and investment scams.",
+                    title: t("homeAbout.items.awareness.title"),
+                    desc: t("homeAbout.items.awareness.desc"),
                   },
                   {
                     icon: Users,
-                    title: "Community-driven reporting",
-                    desc: "Every report strengthens collective protection — anonymously if you prefer.",
+                    title: t("homeAbout.items.community.title"),
+                    desc: t("homeAbout.items.community.desc"),
                   },
                   {
                     icon: BookOpen,
-                    title: "Public digital safety education",
-                    desc: "Free resources, tips, and alerts that anyone can use, in English and French.",
+                    title: t("homeAbout.items.education.title"),
+                    desc: t("homeAbout.items.education.desc"),
                   },
                 ].map(({ icon: Icon, title, desc }) => (
                   <li key={title} className="flex gap-4">
