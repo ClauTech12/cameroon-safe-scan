@@ -179,6 +179,8 @@ export default {
         suspiciousLink: "Contient un lien externe — vérifiez avant de cliquer.",
       },
     },
+    exportCsv: "Exporter en CSV",
+    exporting: "Exportation en cours...",
   },
   abuse: {
     button: "Signaler un abus",

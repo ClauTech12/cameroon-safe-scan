@@ -179,6 +179,8 @@ export default {
         suspiciousLink: "Get outside link — verify before you click.",
       },
     },
+    exportCsv: "Export CSV",
+    exporting: "E dey export...",
   },
   abuse: {
     button: "Report abuse",

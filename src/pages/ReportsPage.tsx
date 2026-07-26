@@ -64,7 +64,7 @@ export default function ReportsPage() {
             className="flex items-center gap-2"
           >
             <Download className="h-4 w-4" />
-            {exporting ? "Exporting..." : "Export CSV"}
+            {exporting ? t("reports.exporting") : t("reports.exportCsv")}
           </Button>
         </header>
 
