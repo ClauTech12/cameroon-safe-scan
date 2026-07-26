@@ -726,4 +726,9 @@ export default {
     byTypeTitle: "Signalements par type",
     noDataYet: "Aucune donnée pour le moment",
   },
+  scamCategoryPage: {
+    reportSimilar: "Signaler une arnaque similaire",
+    previous: "Précédent",
+    next: "Suivant",
+  },
 };

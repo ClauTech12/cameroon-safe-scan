@@ -324,7 +324,7 @@ export default function ScamCategoryPage() {
           <Button asChild>
             <Link to={`/report?type=${slug}`}>
               <Plus className="h-4 w-4" />{" "}
-              {lang === "fr" ? "Signaler une arnaque similaire" : "Report similar scam"}
+              {t("scamCategoryPage.reportSimilar")}
             </Link>
           </Button>
         </header>
@@ -363,7 +363,7 @@ export default function ScamCategoryPage() {
                   disabled={page <= 1}
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  {lang === "fr" ? "Précédent" : "Previous"}
+                  {t("scamCategoryPage.previous")}
                 </Button>
                 <div className="flex items-center gap-1 text-sm text-muted-foreground">
                   {Array.from({ length: totalPages }).map((_, i) => {
@@ -406,7 +406,7 @@ export default function ScamCategoryPage() {
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
                 >
-                  {lang === "fr" ? "Suivant" : "Next"}
+                  {t("scamCategoryPage.next")}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </nav>

@@ -724,4 +724,9 @@ export default {
     byTypeTitle: "Reports by type",
     noDataYet: "No data yet",
   },
+  scamCategoryPage: {
+    reportSimilar: "Report similar scam",
+    previous: "Previous",
+    next: "Next",
+  },
 };

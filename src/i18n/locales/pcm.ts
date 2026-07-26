@@ -726,4 +726,9 @@ examples: {
     byTypeTitle: "Reports by type",
     noDataYet: "No data yet",
   },
+  scamCategoryPage: {
+    reportSimilar: "Report similar scam",
+    previous: "Before",
+    next: "Next",
+  },
 };
