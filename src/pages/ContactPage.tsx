@@ -23,7 +23,7 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !subject || !message) {
-      toast.error("Please fill in all fields.");
+      toast.error(t("contactPage.toast.fillAllFields"));
       return;
     }
     setSubmitting(true);
@@ -35,13 +35,13 @@ export default function ContactPage() {
       });
       if (res.ok) {
         setSent(true);
-        toast.success("Message sent! We'll get back to you soon.");
+        toast.success(t("contactPage.toast.success"));
         setName(""); setEmail(""); setSubject(""); setMessage("");
       } else {
-        toast.error("Something went wrong. Please try again.");
+        toast.error(t("contactPage.toast.error"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("contactPage.toast.error"));
     }
     setSubmitting(false);
   };
@@ -53,10 +53,10 @@ export default function ContactPage() {
         <div className="max-w-5xl mx-auto">
           <div className="mb-10 space-y-2">
             <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
-              Contact Us
+              {t("contactPage.title")}
             </h1>
             <p className="text-muted-foreground text-lg">
-              Have a question, want to report abuse, or interested in partnering with CamAlert?
+              {t("contactPage.subtitle")}
             </p>
           </div>
 
@@ -68,7 +68,7 @@ export default function ContactPage() {
                   <div className="h-9 w-9 rounded-lg bg-accent/10 text-accent grid place-items-center">
                     <Mail className="h-4 w-4" />
                   </div>
-                  <div className="font-semibold text-sm">Email</div>
+                  <div className="font-semibold text-sm">{t("contactPage.emailLabel")}</div>
                 </div>
                 <a href="mailto:clauvetmt19988@gmail.com" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
                   clauvetmt19988@gmail.com
@@ -80,7 +80,7 @@ export default function ContactPage() {
                   <div className="h-9 w-9 rounded-lg bg-green-500/10 text-green-600 grid place-items-center">
                     <Phone className="h-4 w-4" />
                   </div>
-                  <div className="font-semibold text-sm">WhatsApp</div>
+                  <div className="font-semibold text-sm">{t("contactPage.whatsappLabel")}</div>
                 </div>
                 <a href="https://wa.me/237650556715" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
                   +237 650 556 715
@@ -92,10 +92,10 @@ export default function ContactPage() {
                   <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary grid place-items-center">
                     <ShieldCheck className="h-4 w-4" />
                   </div>
-                  <div className="font-semibold text-sm">Security</div>
+                  <div className="font-semibold text-sm">{t("contactPage.securityLabel")}</div>
                 </div>
                 <a href="mailto:clauvetmt19988@gmail.com?subject=Responsible%20Disclosure%20-%20CamAlert" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
-                  Responsible disclosure
+                  {t("contactPage.securityLink")}
                 </a>
               </Card>
 
@@ -104,10 +104,10 @@ export default function ContactPage() {
                   <div className="h-9 w-9 rounded-lg bg-scam-mobile/10 text-scam-mobile grid place-items-center">
                     <MessageSquare className="h-4 w-4" />
                   </div>
-                  <div className="font-semibold text-sm">Response time</div>
+                  <div className="font-semibold text-sm">{t("contactPage.responseTimeLabel")}</div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  We typically respond within 24-48 hours.
+                  {t("contactPage.responseTimeBody")}
                 </p>
               </Card>
             </div>
@@ -120,43 +120,43 @@ export default function ContactPage() {
                     <div className="h-16 w-16 rounded-full bg-green-500/10 text-green-600 grid place-items-center mx-auto">
                       <ShieldCheck className="h-8 w-8" />
                     </div>
-                    <h2 className="font-display font-bold text-2xl">Message Sent!</h2>
-                    <p className="text-muted-foreground">Thank you for reaching out. We'll get back to you within 24-48 hours.</p>
-                    <Button onClick={() => setSent(false)} variant="outline">Send another message</Button>
+                    <h2 className="font-display font-bold text-2xl">{t("contactPage.sentTitle")}</h2>
+                    <p className="text-muted-foreground">{t("contactPage.sentBody")}</p>
+                    <Button onClick={() => setSent(false)} variant="outline">{t("contactPage.sendAnother")}</Button>
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="name">Full Name</Label>
+                        <Label htmlFor="name">{t("contactPage.fullName")}</Label>
                         <Input id="name" placeholder="Agbor Clauvet" value={name} onChange={(e) => setName(e.target.value)} required />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t("contactPage.email")}</Label>
                         <Input id="email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="subject">Subject</Label>
+                      <Label htmlFor="subject">{t("contactPage.subject")}</Label>
                       <Select value={subject} onValueChange={setSubject}>
                         <SelectTrigger id="subject">
-                          <SelectValue placeholder="Select a subject" />
+                          <SelectValue placeholder={t("contactPage.subjectPlaceholder")} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="General inquiry">General inquiry</SelectItem>
-                          <SelectItem value="Report abuse">Report abuse</SelectItem>
-                          <SelectItem value="Partnership">Partnership</SelectItem>
-                          <SelectItem value="Media inquiry">Media inquiry</SelectItem>
-                          <SelectItem value="Technical issue">Technical issue</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
+                          <SelectItem value="General inquiry">{t("contactPage.subjectOptions.general")}</SelectItem>
+                          <SelectItem value="Report abuse">{t("contactPage.subjectOptions.abuse")}</SelectItem>
+                          <SelectItem value="Partnership">{t("contactPage.subjectOptions.partnership")}</SelectItem>
+                          <SelectItem value="Media inquiry">{t("contactPage.subjectOptions.media")}</SelectItem>
+                          <SelectItem value="Technical issue">{t("contactPage.subjectOptions.technical")}</SelectItem>
+                          <SelectItem value="Other">{t("contactPage.subjectOptions.other")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message">{t("contactPage.message")}</Label>
                       <Textarea
                         id="message"
-                        placeholder="Tell us how we can help..."
+                        placeholder={t("contactPage.messagePlaceholder")}
                         rows={6}
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
@@ -164,7 +164,7 @@ export default function ContactPage() {
                       />
                     </div>
                     <Button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground font-semibold">
-                      {submitting ? "Sending..." : "Send Message"}
+                      {submitting ? t("contactPage.sending") : t("contactPage.send")}
                     </Button>
                   </form>
                 )}
