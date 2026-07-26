@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,25 +18,14 @@ type AccuracyStats = {
 const ADMIN_LABELS = ["confirmed_scam", "under_investigation", "cleared"] as const;
 const PREDICTED_STATUSES = ["high_risk_scam", "suspicious", "unverified", "unknown"] as const;
 
-const LABEL_TEXT: Record<string, string> = {
-  confirmed_scam: "Confirmed Scam",
-  under_investigation: "Under Investigation",
-  cleared: "Cleared",
-};
-
-const STATUS_TEXT: Record<string, string> = {
-  high_risk_scam: "High Risk",
-  suspicious: "Suspicious",
-  unverified: "Unverified",
-  unknown: "No Reports",
-};
-
 export default function ModelAccuracyPage() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<AccuracyStats | null>(null);
 
   useEffect(() => {
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function load() {
@@ -57,16 +47,13 @@ export default function ModelAccuracyPage() {
   if (!stats || stats.total_labels === 0) {
     return (
       <div className="space-y-6">
-        <Header />
+        <Header t={t} />
         <Card className="surface-elevated">
           <CardContent className="py-12 text-center space-y-2">
             <DatabaseIcon className="h-8 w-8 mx-auto text-muted-foreground" />
-            <p className="font-semibold">No labeled data yet</p>
+            <p className="font-semibold">{t("admin.accuracy.emptyTitle")}</p>
             <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Every time an admin sets a number's flag status to "Confirmed Scam" or "Cleared" on
-              the Number Intelligence page, that decision is captured alongside what the rule
-              engine predicted at that moment. Once a few of those exist, accuracy stats will show
-              up here.
+              {t("admin.accuracy.emptyBody")}
             </p>
           </CardContent>
         </Card>
@@ -76,51 +63,49 @@ export default function ModelAccuracyPage() {
 
   return (
     <div className="space-y-6">
-      <Header />
+      <Header t={t} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           icon={<DatabaseIcon className="h-4 w-4" />}
-          label="Labeled Cases"
+          label={t("admin.accuracy.labeledCases")}
           value={stats.total_labels}
         />
         <StatCard
           icon={<Target className="h-4 w-4" />}
-          label="Accuracy"
+          label={t("admin.accuracy.accuracyStat")}
           value={stats.accuracy_pct !== null ? `${stats.accuracy_pct}%` : "—"}
           highlight
         />
         <StatCard
           icon={<TrendingUp className="h-4 w-4 text-risk-medium" />}
-          label="False Positives"
+          label={t("admin.accuracy.falsePositives")}
           value={stats.false_positives}
-          hint="Predicted risky, admin cleared"
+          hint={t("admin.accuracy.falsePositivesHint")}
         />
         <StatCard
           icon={<TrendingDown className="h-4 w-4 text-risk-high" />}
-          label="False Negatives"
+          label={t("admin.accuracy.falseNegatives")}
           value={stats.false_negatives}
-          hint="Predicted safe, admin confirmed scam"
+          hint={t("admin.accuracy.falseNegativesHint")}
         />
       </div>
 
       <Card className="surface-elevated">
         <CardHeader>
-          <CardTitle className="text-sm">Prediction vs. Admin Verdict</CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Rows = what the rule engine predicted. Columns = what an admin later confirmed.
-          </p>
+          <CardTitle className="text-sm">{t("admin.accuracy.matrixTitle")}</CardTitle>
+          <p className="text-xs text-muted-foreground">{t("admin.accuracy.matrixSubtitle")}</p>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr>
                 <th className="text-left p-2 text-xs uppercase tracking-wider text-muted-foreground">
-                  Predicted
+                  {t("admin.accuracy.predicted")}
                 </th>
                 {ADMIN_LABELS.map((label) => (
                   <th key={label} className="text-center p-2 text-xs uppercase tracking-wider text-muted-foreground">
-                    {LABEL_TEXT[label]}
+                    {t(`admin.intel.flagStatus.${label}`)}
                   </th>
                 ))}
               </tr>
@@ -128,7 +113,7 @@ export default function ModelAccuracyPage() {
             <tbody>
               {PREDICTED_STATUSES.map((status) => (
                 <tr key={status} className="border-t">
-                  <td className="p-2 font-medium">{STATUS_TEXT[status]}</td>
+                  <td className="p-2 font-medium">{t(`admin.accuracy.predictedStatus.${status}`)}</td>
                   {ADMIN_LABELS.map((label) => {
                     const key = `${label}__${status}`;
                     const count = stats.matrix[key] ?? 0;
@@ -157,22 +142,16 @@ export default function ModelAccuracyPage() {
         </CardContent>
       </Card>
 
-      <p className="text-xs text-muted-foreground">
-        This dataset builds automatically from moderation decisions on the Number Intelligence
-        page — no extra work required. Once it's large enough, it's what a future ML model would
-        train and validate against.
-      </p>
+      <p className="text-xs text-muted-foreground">{t("admin.accuracy.footerNote")}</p>
     </div>
   );
 }
 
-function Header() {
+function Header({ t }: { t: (key: string) => string }) {
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight">Rule Engine Accuracy</h1>
-      <p className="text-sm text-muted-foreground mt-1">
-        How well the automatic risk scoring matches what admins confirm.
-      </p>
+      <h1 className="text-2xl font-bold tracking-tight">{t("admin.accuracy.title")}</h1>
+      <p className="text-sm text-muted-foreground mt-1">{t("admin.accuracy.subtitle")}</p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Copy, Check, Heart, Shield, Phone, MessageCircle, Users } from "lucide-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
+import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
 function CopyButton({ text }: { text: string }) {
@@ -23,6 +24,7 @@ function CopyButton({ text }: { text: string }) {
 export default function SupportPage() {
   return (
     <div className="min-h-screen bg-background">
+      <SiteHeader />
       {/* Hero */}
       <div className="border-b border-border bg-gradient-to-b from-primary/5 to-background">
         <div className="max-w-2xl mx-auto px-4 py-16 text-center">
