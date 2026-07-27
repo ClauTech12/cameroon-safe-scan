@@ -9,7 +9,6 @@ import { WhatsAppFAB } from "./components/WhatsAppFAB.tsx";
 import { FloatingAssistant } from "./components/FloatingAssistant.tsx";
 import { RequireAdmin } from "./components/RequireAdmin.tsx";
 import { AuthProvider } from "./hooks/useAuth.tsx";
-import { AppNavigation } from "./components/ui/navigation-menu";
 
 // Lazy load all pages
 const Index = lazy(() => import("./pages/Index.tsx"));
@@ -62,7 +61,6 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <div className="flex flex-col min-h-screen">
-              <AppNavigation />
               <main className="flex-1">
                 <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
                   <Routes>
