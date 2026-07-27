@@ -803,4 +803,9 @@ export default {
       verify: { title: "Verify the source", desc: "Call back on an official number. Don't trust caller ID or copied logos alone." },
     },
   },
+  whatsappFab: {
+    ariaLabel: "Chat on WhatsApp",
+    title: "Chat with us on WhatsApp",
+    message: "Hello CamAlert 👋 — I'd like to report or check a suspicious number. App: {{appUrl}}",
+  },
 };

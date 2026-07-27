@@ -805,4 +805,9 @@ examples: {
       verify: { title: "Verify di source", desc: "Call back on official number. No trust caller ID or copied logo alone." },
     },
   },
+  whatsappFab: {
+    ariaLabel: "Chat for WhatsApp",
+    title: "Chat with us for WhatsApp",
+    message: "Hello CamAlert 👋 — I wan report or check suspicious number. App: {{appUrl}}",
+  },
 };

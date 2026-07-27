@@ -82,8 +82,8 @@ export default function ContactPage() {
                   </div>
                   <div className="font-semibold text-sm">{t("contactPage.whatsappLabel")}</div>
                 </div>
-                <a href="https://wa.me/237650556715" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
-                  +237 650 556 715
+                <a href="https://wa.me/917626887457" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-accent transition-smooth">
+                  +91 76268 87457
                 </a>
               </Card>
 

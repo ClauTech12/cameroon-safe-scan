@@ -805,4 +805,9 @@ export default {
       verify: { title: "Vérifiez la source", desc: "Rappelez sur un numéro officiel. Ne faites pas confiance à l'identifiant de l'appelant ou aux logos copiés." },
     },
   },
+  whatsappFab: {
+    ariaLabel: "Discuter sur WhatsApp",
+    title: "Discutez avec nous sur WhatsApp",
+    message: "Bonjour CamAlert 👋 — je voudrais signaler ou vérifier un numéro suspect. App : {{appUrl}}",
+  },
 };
