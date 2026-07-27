@@ -29,6 +29,7 @@ export default {
     analyticsLink: "Scam dashboard",
     checkLink: "Check a number",
     momoLink: "MoMo Guard",
+    supportLink: "Support us",
     aboutLink: "About CamAlert",
     missionLink: "Our mission",
     contactLink: "Contact us",

@@ -29,6 +29,7 @@ export default {
     analyticsLink: "Tableau de bord",
     checkLink: "Vérifier un numéro",
     momoLink: "MoMo Guard",
+    supportLink: "Nous soutenir",
     aboutLink: "À propos de CamAlert",
     missionLink: "Notre mission",
     contactLink: "Nous contacter",

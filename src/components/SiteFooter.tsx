@@ -53,6 +53,7 @@ export function SiteFooter() {
             <li><Link to="/dashboard" className="hover:text-accent transition-smooth">{t("footer.analyticsLink")}</Link></li>
             <li><Link to="/check" className="hover:text-accent transition-smooth">{t("footer.checkLink")}</Link></li>
             <li><Link to="/momo-guard" className="hover:text-accent transition-smooth">{t("footer.momoLink")}</Link></li>
+            <li><Link to="/support" className="hover:text-accent transition-smooth">{t("footer.supportLink")}</Link></li>
           </ul>
         </div>
 
