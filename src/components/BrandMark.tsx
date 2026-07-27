@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import logo from "@/assets/clautech-logo.webp";
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const { t } = useTranslation();
   const dim = size === "sm" ? "h-9 w-9" : size === "lg" ? "h-12 w-12" : "h-10 w-10";
   const text = size === "sm" ? "text-base" : size === "lg" ? "text-2xl" : "text-lg";
   return (
@@ -17,7 +19,7 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
         </span>
         {size !== "sm" && (
           <span className="text-[10px] text-muted-foreground font-semibold tracking-[0.18em] uppercase mt-1">
-            Cyber Trust · Cameroon
+            {t("footer.cyberTrustTag")}
           </span>
         )}
       </div>

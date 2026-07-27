@@ -99,7 +99,7 @@ export function SiteFooter() {
 
       <div className="border-t border-border/60 relative">
         <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div>© {year} CamAlert · Cyber Trust · Cameroon. {t("footer.rights")}</div>
+          <div>© {year} CamAlert · {t("footer.cyberTrustTag")}. {t("footer.rights")}</div>
           <div className="flex items-center gap-3">
             <img src={founder} alt="Agbor Clauvet" className="h-6 w-6 rounded-full object-cover object-top" width="24" height="24" />
             <span>{t("footer.foundedBy")}</span>
