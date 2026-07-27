@@ -55,21 +55,9 @@ const Index = () => {
   ];
 
   const tips = [
-    {
-      icon: Fingerprint,
-      title: "Never share OTPs or PINs",
-      desc: "No legitimate bank, MoMo agent, or telecom will ever ask for your verification code.",
-    },
-    {
-      icon: Zap,
-      title: "Pause on urgency",
-      desc: "Scammers manufacture emergencies. If a message rushes you to pay, it is a red flag.",
-    },
-    {
-      icon: Eye,
-      title: "Verify the source",
-      desc: "Call back on an official number. Don't trust caller ID or copied logos alone.",
-    },
+    { icon: Fingerprint, key: "otp" },
+    { icon: Zap, key: "urgency" },
+    { icon: Eye, key: "verify" },
   ];
 
   return (
@@ -171,7 +159,7 @@ const Index = () => {
                         {v.toLocaleString()}
                       </div>
                       <div className="text-[11px] md:text-xs text-muted-foreground mt-1.5 font-semibold uppercase tracking-wider">
-                        {k === "mobile_money" ? "Mobile Money Scams" : t(`hero.stats.${k}`)}
+                        {t(`hero.stats.${k === "mobile_money" ? "momo" : k}`)}
                       </div>
                     </div>
                   ))}
@@ -186,19 +174,18 @@ const Index = () => {
           <div className="surface-elevated p-8 md:p-10 border border-scam-mobile/30 bg-gradient-to-br from-scam-mobile/10 to-background hover:shadow-xl transition-all">
             <div className="flex items-center gap-2 mb-4">
               <Smartphone className="h-5 w-5 text-scam-mobile" />
-              <span className="font-bold text-scam-mobile">MoMo Guard</span>
+              <span className="font-bold text-scam-mobile">{t("homeMomo.badge")}</span>
             </div>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Protect your Mobile Money
+              {t("homeMomo.title")}
             </h2>
             <p className="text-muted-foreground max-w-2xl mb-6">
-              MTN Mobile Money & Orange Money scams — common patterns,
-              live community alerts and protection tips.
+              {t("homeMomo.subtitle")}
             </p>
             <Button asChild size="lg" className="bg-scam-mobile hover:bg-scam-mobile/90 text-white font-semibold">
               <Link to="/momo-guard">
                 <Smartphone className="h-4 w-4 mr-2" />
-                Open MoMo Guard
+                {t("homeMomo.cta")}
               </Link>
             </Button>
           </div>
@@ -209,28 +196,26 @@ const Index = () => {
           <div className="grid md:grid-cols-5 gap-10 items-center">
             <div className="md:col-span-2">
               <div className="text-xs font-bold text-accent uppercase tracking-[0.2em] mb-3">
-                Our mission
+                {t("homeMission.eyebrow")}
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-                A safer digital Cameroon and Africa, one alert at a time.
+                {t("homeMission.title")}
               </h2>
             </div>
             <div className="md:col-span-3">
               <p className="text-lg text-foreground/80 leading-relaxed">
-                CamAlert is a digital fraud awareness and scam intelligence platform helping individuals and
-                businesses identify scams, report suspicious activity, and improve online safety across
-                Cameroon and Africa.
+                {t("homeMission.body")}
               </p>
               <div className="mt-7 grid sm:grid-cols-3 gap-3">
                 {[
-                  { icon: Eye, label: "Detect", desc: "AI-assisted threat signals" },
-                  { icon: AlertTriangle, label: "Report", desc: "Community-driven alerts" },
-                  { icon: ShieldCheck, label: "Protect", desc: "Public safety intelligence" },
-                ].map(({ icon: Icon, label, desc }) => (
-                  <div key={label} className="surface-card p-4">
+                  { icon: Eye, key: "detect" },
+                  { icon: AlertTriangle, key: "report" },
+                  { icon: ShieldCheck, key: "protect" },
+                ].map(({ icon: Icon, key }) => (
+                  <div key={key} className="surface-card p-4">
                     <Icon className="h-5 w-5 text-accent mb-2" />
-                    <div className="font-semibold text-sm text-foreground">{label}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
+                    <div className="font-semibold text-sm text-foreground">{t(`homeMission.items.${key}.title`)}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{t(`homeMission.items.${key}.desc`)}</div>
                   </div>
                 ))}
               </div>
@@ -266,35 +251,34 @@ const Index = () => {
           <div className="surface-elevated overflow-hidden border-accent/20 grid md:grid-cols-5 gap-0">
             <div className="md:col-span-3 p-8 md:p-12">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-xs font-bold text-accent uppercase tracking-wider mb-4">
-                <Brain className="h-3.5 w-3.5" /> AI Scam Analyzer
+                <Brain className="h-3.5 w-3.5" /> {t("homeAnalyzer.badge")}
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight leading-tight">
-                Paste it. Scan it. Stay safe.
+                {t("homeAnalyzer.title")}
               </h2>
               <p className="mt-4 text-foreground/75 leading-relaxed">
-                Submit a suspicious link, WhatsApp message, SMS, email, or phone number. Get an instant
-                heuristic risk score, then launch a deeper AI investigation for human-readable reasoning.
+                {t("homeAnalyzer.subtitle")}
               </p>
               <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-2">
                 {[
-                  { label: "Link", icon: "🌐" },
-                  { label: "WhatsApp", icon: "💬" },
-                  { label: "SMS", icon: "📩" },
-                  { label: "Email", icon: "✉️" },
-                  { label: "Phone", icon: "📞" },
+                  { key: "link", icon: "🌐" },
+                  { key: "whatsapp", icon: "💬" },
+                  { key: "sms", icon: "📩" },
+                  { key: "email", icon: "✉️" },
+                  { key: "phone", icon: "📞" },
                 ].map((c) => (
-                  <div key={c.label} className="rounded-lg border border-border/60 bg-card px-2 py-2.5 text-center text-xs font-semibold">
+                  <div key={c.key} className="rounded-lg border border-border/60 bg-card px-2 py-2.5 text-center text-xs font-semibold">
                     <div className="text-base mb-0.5">{c.icon}</div>
-                    {c.label}
+                    {t(`homeAnalyzer.tabs.${c.key}`)}
                   </div>
                 ))}
               </div>
               <div className="mt-7 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold rounded-full px-7">
-                  <Link to="/analyzer"><Brain className="h-4 w-4" /> Open the Analyzer</Link>
+                  <Link to="/analyzer"><Brain className="h-4 w-4" /> {t("homeAnalyzer.openAnalyzer")}</Link>
                 </Button>
                 <Button asChild size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground rounded-full">
-                  <Link to="/check"><Search className="h-4 w-4" /> Quick number lookup</Link>
+                  <Link to="/check"><Search className="h-4 w-4" /> {t("homeAnalyzer.quickLookup")}</Link>
                 </Button>
               </div>
             </div>
@@ -302,9 +286,9 @@ const Index = () => {
               <div className="absolute inset-0 bg-cyber-grid opacity-25" aria-hidden="true" />
               <div className="relative space-y-3">
                 {[
-                  { l: "Risk score", v: "87 / 100", t: "High Risk" },
-                  { l: "Indicators", v: "OTP · Urgency · Brand impersonation" },
-                  { l: "Recommendation", v: "Do not reply. Report on CamAlert." },
+                  { l: t("homeAnalyzer.preview.riskScoreLabel"), v: t("homeAnalyzer.preview.riskScoreValue"), t: t("homeAnalyzer.preview.riskScoreTag") },
+                  { l: t("homeAnalyzer.preview.indicatorsLabel"), v: t("homeAnalyzer.preview.indicatorsValue") },
+                  { l: t("homeAnalyzer.preview.recommendationLabel"), v: t("homeAnalyzer.preview.recommendationValue") },
                 ].map((x, i) => (
                   <div key={i} className="rounded-lg bg-white/5 border border-white/15 p-3">
                     <div className="text-[10px] uppercase tracking-wider text-white/60">{x.l}</div>
@@ -423,7 +407,7 @@ const Index = () => {
                 {t("liveFeed.eyebrow")}
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-                Recent scam alerts
+                {t("liveFeed.title")}
               </h2>
               <p className="text-muted-foreground mt-2">{t("reports.subtitle")}</p>
             </div>
@@ -440,20 +424,20 @@ const Index = () => {
         <section className="container py-12 md:py-16">
           <div className="max-w-2xl mx-auto text-center mb-10">
             <div className="text-xs font-bold text-accent uppercase tracking-[0.2em] mb-3">
-              Fraud prevention
+              {t("homeTips.eyebrow")}
             </div>
             <h2 className="font-display text-3xl md:text-4xl font-bold tracking-tight">
-              Featured safety tips
+              {t("homeTips.title")}
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
-            {tips.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="surface-card p-6 lift-on-hover">
+            {tips.map(({ icon: Icon, key }) => (
+              <div key={key} className="surface-card p-6 lift-on-hover">
                 <div className="h-11 w-11 rounded-xl bg-accent/10 text-accent grid place-items-center mb-4">
                   <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="font-display font-bold text-base mb-1.5 text-foreground">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+                <h3 className="font-display font-bold text-base mb-1.5 text-foreground">{t(`homeTips.items.${key}.title`)}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{t(`homeTips.items.${key}.desc`)}</p>
               </div>
             ))}
           </div>
@@ -466,7 +450,7 @@ const Index = () => {
             <div className="absolute inset-0 bg-gradient-mesh opacity-40 pointer-events-none" aria-hidden="true" />
             <div className="relative">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-semibold mb-5">
-                <ShieldCheck className="h-3.5 w-3.5" /> Join the cyber-trust movement
+                <ShieldCheck className="h-3.5 w-3.5" /> {t("cta.badge")}
               </div>
               <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight mb-4">
                 {t("cta.title")}

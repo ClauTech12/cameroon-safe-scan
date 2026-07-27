@@ -45,7 +45,7 @@ export default {
       community: "Signalements communautaires",
       ai: "Analyse de risque par IA",
     },
-    stats: { reports: "Signalements vérifiés", protected: "Citoyens informés", types: "Catégories de menaces" },
+    stats: { reports: "Signalements vérifiés", protected: "Citoyens informés", types: "Catégories de menaces", momo: "Arnaques Mobile Money" },
   },
   features: {
     eyebrow: "Pourquoi CamAlert",
@@ -65,10 +65,12 @@ export default {
   },
   liveFeed: {
     eyebrow: "Flux en direct",
+    title: "Alertes d'arnaques récentes",
   },
   cta: {
     title: "Vous avez repéré quelque chose de suspect ?",
     subtitle: "Signalez-le en 30 secondes. L'IA l'analyse instantanément et partage des conseils.",
+    badge: "Rejoignez le mouvement de confiance numérique",
   },
   form: {
     title: "Soumettre un signalement",
@@ -741,6 +743,54 @@ export default {
       awareness: { title: "Sensibilisation cyber pour le Cameroun", desc: "Renseignement localisé sur les arnaques Mobile Money, phishing, emploi et investissement." },
       community: { title: "Signalement communautaire", desc: "Chaque signalement renforce la protection collective — anonymement si vous préférez." },
       education: { title: "Éducation publique à la sécurité numérique", desc: "Ressources gratuites, conseils et alertes que tout le monde peut utiliser, en anglais, en français et en pidgin." },
+    },
+  },
+  homeAnalyzer: {
+    badge: "Analyseur d'arnaques IA",
+    title: "Collez-le. Scannez-le. Restez en sécurité.",
+    subtitle: "Soumettez un lien suspect, un message WhatsApp, un SMS, un e-mail ou un numéro de téléphone. Obtenez instantanément un score de risque heuristique, puis lancez une investigation IA plus poussée avec un raisonnement clair.",
+    tabs: {
+      link: "Lien",
+      whatsapp: "WhatsApp",
+      sms: "SMS",
+      email: "E-mail",
+      phone: "Téléphone",
+    },
+    openAnalyzer: "Ouvrir l'analyseur",
+    quickLookup: "Vérification rapide d'un numéro",
+    preview: {
+      riskScoreLabel: "Score de risque",
+      riskScoreValue: "87 / 100",
+      riskScoreTag: "Risque élevé",
+      indicatorsLabel: "Indicateurs",
+      indicatorsValue: "OTP · Urgence · Usurpation de marque",
+      recommendationLabel: "Recommandation",
+      recommendationValue: "Ne répondez pas. Signalez-le sur CamAlert.",
+    },
+  },
+  homeMomo: {
+    badge: "MoMo Guard",
+    title: "Protégez votre Mobile Money",
+    subtitle: "Arnaques MTN Mobile Money et Orange Money — schémas courants, alertes communautaires en temps réel et conseils de protection.",
+    cta: "Ouvrir MoMo Guard",
+  },
+  homeMission: {
+    eyebrow: "Notre mission",
+    title: "Un Cameroun et une Afrique numériques plus sûrs, une alerte à la fois.",
+    body: "CamAlert est une plateforme de sensibilisation à la fraude numérique et de renseignement sur les arnaques qui aide les particuliers et les entreprises à identifier les arnaques, signaler les activités suspectes et améliorer la sécurité en ligne à travers le Cameroun et l'Afrique.",
+    items: {
+      detect: { title: "Détecter", desc: "Signaux de menace assistés par IA" },
+      report: { title: "Signaler", desc: "Alertes communautaires" },
+      protect: { title: "Protéger", desc: "Renseignement de sécurité publique" },
+    },
+  },
+  homeTips: {
+    eyebrow: "Prévention de la fraude",
+    title: "Conseils de sécurité à retenir",
+    items: {
+      otp: { title: "Ne partagez jamais vos OTP ou codes PIN", desc: "Aucune banque, agent MoMo ou opérateur légitime ne vous demandera jamais votre code de vérification." },
+      urgency: { title: "Méfiez-vous de l'urgence", desc: "Les arnaqueurs fabriquent des urgences. Si un message vous presse de payer, c'est un signal d'alarme." },
+      verify: { title: "Vérifiez la source", desc: "Rappelez sur un numéro officiel. Ne faites pas confiance à l'identifiant de l'appelant ou aux logos copiés." },
     },
   },
 };

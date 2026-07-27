@@ -45,7 +45,7 @@ export default {
       community: "Community-driven reporting",
       ai: "AI risk analysis",
     },
-    stats: { reports: "Verified reports", protected: "Citizens informed", types: "Threat categories" },
+    stats: { reports: "Verified reports", protected: "Citizens informed", types: "Threat categories", momo: "Mobile Money Scams" },
   },
   features: {
     eyebrow: "Why CamAlert",
@@ -65,10 +65,12 @@ export default {
   },
   liveFeed: {
     eyebrow: "Live feed",
+    title: "Recent scam alerts",
   },
   cta: {
     title: "Spotted something suspicious?",
     subtitle: "Report it in 30 seconds. AI analyzes it instantly and shares safety advice.",
+    badge: "Join the cyber-trust movement",
   },
   form: {
     title: "Submit a scam report",
@@ -739,6 +741,54 @@ export default {
       awareness: { title: "Cyber awareness for Cameroon", desc: "Localized intelligence on Mobile Money, phishing, job, and investment scams." },
       community: { title: "Community-driven reporting", desc: "Every report strengthens collective protection — anonymously if you prefer." },
       education: { title: "Public digital safety education", desc: "Free resources, tips, and alerts that anyone can use, in English, French, and Pidgin." },
+    },
+  },
+  homeAnalyzer: {
+    badge: "AI Scam Analyzer",
+    title: "Paste it. Scan it. Stay safe.",
+    subtitle: "Submit a suspicious link, WhatsApp message, SMS, email, or phone number. Get an instant heuristic risk score, then launch a deeper AI investigation for human-readable reasoning.",
+    tabs: {
+      link: "Link",
+      whatsapp: "WhatsApp",
+      sms: "SMS",
+      email: "Email",
+      phone: "Phone",
+    },
+    openAnalyzer: "Open the Analyzer",
+    quickLookup: "Quick number lookup",
+    preview: {
+      riskScoreLabel: "Risk score",
+      riskScoreValue: "87 / 100",
+      riskScoreTag: "High Risk",
+      indicatorsLabel: "Indicators",
+      indicatorsValue: "OTP · Urgency · Brand impersonation",
+      recommendationLabel: "Recommendation",
+      recommendationValue: "Do not reply. Report on CamAlert.",
+    },
+  },
+  homeMomo: {
+    badge: "MoMo Guard",
+    title: "Protect your Mobile Money",
+    subtitle: "MTN Mobile Money & Orange Money scams — common patterns, live community alerts and protection tips.",
+    cta: "Open MoMo Guard",
+  },
+  homeMission: {
+    eyebrow: "Our mission",
+    title: "A safer digital Cameroon and Africa, one alert at a time.",
+    body: "CamAlert is a digital fraud awareness and scam intelligence platform helping individuals and businesses identify scams, report suspicious activity, and improve online safety across Cameroon and Africa.",
+    items: {
+      detect: { title: "Detect", desc: "AI-assisted threat signals" },
+      report: { title: "Report", desc: "Community-driven alerts" },
+      protect: { title: "Protect", desc: "Public safety intelligence" },
+    },
+  },
+  homeTips: {
+    eyebrow: "Fraud prevention",
+    title: "Featured safety tips",
+    items: {
+      otp: { title: "Never share OTPs or PINs", desc: "No legitimate bank, MoMo agent, or telecom will ever ask for your verification code." },
+      urgency: { title: "Pause on urgency", desc: "Scammers manufacture emergencies. If a message rushes you to pay, it is a red flag." },
+      verify: { title: "Verify the source", desc: "Call back on an official number. Don't trust caller ID or copied logos alone." },
     },
   },
 };
