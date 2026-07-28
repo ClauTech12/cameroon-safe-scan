@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import type { GeoJSON as GeoJSONLayer, Layer, LeafletMouseEvent, Path, PathOptions } from "leaflet";
 import type { Feature, FeatureCollection, Geometry } from "geojson";
@@ -67,6 +68,7 @@ type Props = {
 };
 
 export function CameroonHeatmap({ reports }: Props) {
+  const { t } = useTranslation();
   const [geo, setGeo] = useState<FeatureCollection | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ name: string; count: number } | null>(null);
@@ -119,7 +121,7 @@ export function CameroonHeatmap({ reports }: Props) {
         setHovered(null);
       },
     });
-    layer.bindTooltip(`${name}: ${c} report${c === 1 ? "" : "s"}`, { sticky: true });
+    layer.bindTooltip(`${t(`regions.${name}`, name)}: ${c} ${t("heatmap.report", { count: c })}`, { sticky: true });
   };
 
   return (
@@ -130,7 +132,7 @@ export function CameroonHeatmap({ reports }: Props) {
       >
         {error && (
           <div className="h-full grid place-items-center text-sm text-destructive p-4 text-center">
-            Failed to load Cameroon map. {error}
+            {t("heatmap.loadError")} {error}
           </div>
         )}
         {!error && (
@@ -158,13 +160,13 @@ export function CameroonHeatmap({ reports }: Props) {
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-        <span className="text-muted-foreground">Activity:</span>
+        <span className="text-muted-foreground">{t("heatmap.activityLabel")}</span>
         {[
-          { label: "None", color: "hsl(142 70% 45% / 0.25)" },
-          { label: "Low", color: "hsl(142 70% 45% / 0.55)" },
-          { label: "Medium", color: "hsl(48 95% 55% / 0.65)" },
-          { label: "High", color: "hsl(25 95% 55% / 0.7)" },
-          { label: "Very high", color: "hsl(0 84% 55% / 0.75)" },
+          { label: t("heatmap.legend.none"), color: "hsl(142 70% 45% / 0.25)" },
+          { label: t("heatmap.legend.low"), color: "hsl(142 70% 45% / 0.55)" },
+          { label: t("heatmap.legend.medium"), color: "hsl(48 95% 55% / 0.65)" },
+          { label: t("heatmap.legend.high"), color: "hsl(25 95% 55% / 0.7)" },
+          { label: t("heatmap.legend.veryHigh"), color: "hsl(0 84% 55% / 0.75)" },
         ].map((s) => (
           <span key={s.label} className="inline-flex items-center gap-1.5">
             <span className="h-3 w-4 rounded-sm border border-border" style={{ background: s.color }} />
@@ -173,7 +175,7 @@ export function CameroonHeatmap({ reports }: Props) {
         ))}
         {hovered && (
           <span className="ml-auto font-medium">
-            {hovered.name}: <span className="tabular-nums">{hovered.count}</span>
+            {t(`regions.${hovered.name}`, hovered.name)}: <span className="tabular-nums">{hovered.count}</span>
           </span>
         )}
       </div>

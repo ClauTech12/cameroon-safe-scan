@@ -808,4 +808,31 @@ export default {
     title: "Chat with us on WhatsApp",
     message: "Hello CamAlert 👋 — I'd like to report or check a suspicious number. App: {{appUrl}}",
   },
+  notFound: {
+    title: "Oops! Page not found",
+    returnHome: "Return to Home",
+  },
+  requireAdmin: {
+    title: "Admin access required",
+    body: "Your account does not have admin privileges.",
+  },
+  heatmap: {
+    loadError: "Failed to load Cameroon map.",
+    activityLabel: "Activity:",
+    legend: { none: "None", low: "Low", medium: "Medium", high: "High", veryHigh: "Very high" },
+    report_one: "report",
+    report_other: "reports",
+  },
+  regions: {
+    Centre: "Centre",
+    Littoral: "Littoral",
+    West: "West",
+    "North-West": "North-West",
+    "South-West": "South-West",
+    "Far North": "Far North",
+    North: "North",
+    Adamaoua: "Adamaoua",
+    East: "East",
+    South: "South",
+  },
 };

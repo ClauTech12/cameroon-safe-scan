@@ -810,4 +810,31 @@ export default {
     title: "Discutez avec nous sur WhatsApp",
     message: "Bonjour CamAlert 👋 — je voudrais signaler ou vérifier un numéro suspect. App : {{appUrl}}",
   },
+  notFound: {
+    title: "Oups ! Page introuvable",
+    returnHome: "Retour à l'accueil",
+  },
+  requireAdmin: {
+    title: "Accès administrateur requis",
+    body: "Votre compte n'a pas les privilèges administrateur.",
+  },
+  heatmap: {
+    loadError: "Échec du chargement de la carte du Cameroun.",
+    activityLabel: "Activité :",
+    legend: { none: "Aucune", low: "Faible", medium: "Moyenne", high: "Élevée", veryHigh: "Très élevée" },
+    report_one: "signalement",
+    report_other: "signalements",
+  },
+  regions: {
+    Centre: "Centre",
+    Littoral: "Littoral",
+    West: "Ouest",
+    "North-West": "Nord-Ouest",
+    "South-West": "Sud-Ouest",
+    "Far North": "Extrême-Nord",
+    North: "Nord",
+    Adamaoua: "Adamaoua",
+    East: "Est",
+    South: "Sud",
+  },
 };

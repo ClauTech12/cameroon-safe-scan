@@ -810,4 +810,31 @@ examples: {
     title: "Chat with us for WhatsApp",
     message: "Hello CamAlert 👋 — I wan report or check suspicious number. App: {{appUrl}}",
   },
+  notFound: {
+    title: "Oops! No see di page",
+    returnHome: "Go back Home",
+  },
+  requireAdmin: {
+    title: "Admin access dey required",
+    body: "Your account no get admin privileges.",
+  },
+  heatmap: {
+    loadError: "E no load di Cameroon map.",
+    activityLabel: "Activity:",
+    legend: { none: "None", low: "Low", medium: "Medium", high: "High", veryHigh: "Very high" },
+    report_one: "report",
+    report_other: "reports",
+  },
+  regions: {
+    Centre: "Centre",
+    Littoral: "Littoral",
+    West: "West",
+    "North-West": "North-West",
+    "South-West": "South-West",
+    "Far North": "Far North",
+    North: "North",
+    Adamaoua: "Adamaoua",
+    East: "East",
+    South: "South",
+  },
 };
