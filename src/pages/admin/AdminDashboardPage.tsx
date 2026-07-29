@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +30,7 @@ type Report = {
 };
 
 export default function AdminDashboardPage() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Report | null>(null);
@@ -83,7 +85,7 @@ export default function AdminDashboardPage() {
     reports.filter((r) => r.risk_level === "high").slice(0, 3).forEach((r) =>
       alerts.push({
         id: r.id,
-        title: `High risk in ${r.location || "Unknown"}`,
+        title: `${t("adminDashboard.highRiskIn")} ${r.location || t("adminDashboard.unknown")}`,
         desc: SCAM_META[r.scam_type] ? r.scam_type.replace("_", " ") : "scam",
         tone: "high",
       }),
@@ -97,10 +99,10 @@ export default function AdminDashboardPage() {
       .filter(([, c]) => c >= 3)
       .slice(0, 2)
       .forEach(([loc, c]) =>
-        alerts.push({ id: `r-${loc}`, title: `Spike in ${loc}`, desc: `${c} recent reports`, tone: "med" }),
+        alerts.push({ id: `r-${loc}`, title: `${t("adminDashboard.spikeIn")} ${loc}`, desc: `${c} ${t("adminDashboard.recentReportsSuffix")}`, tone: "med" }),
       );
     if (alerts.length === 0) {
-      alerts.push({ id: "ok", title: "All quiet", desc: "No critical alerts in the last 30 days", tone: "info" });
+      alerts.push({ id: "ok", title: t("adminDashboard.allQuietTitle"), desc: t("adminDashboard.allQuietDesc"), tone: "info" });
     }
     return alerts.slice(0, 6);
   }, [reports]);
@@ -108,22 +110,22 @@ export default function AdminDashboardPage() {
   const recent = reports.slice(0, 6);
 
   const cards: { label: string; value: string | number; icon: typeof FileWarning; tint: string; small?: boolean }[] = [
-    { label: "Total Reports", value: stats.total, icon: FileWarning, tint: "primary" },
-    { label: "High Risk", value: stats.high, icon: ShieldAlert, tint: "danger" },
-    { label: "Active Alerts", value: stats.activeAlerts, icon: Bell, tint: "warning" },
-    { label: "Top Scam", value: stats.dominant.replace("_", " "), icon: Flame, tint: "accent", small: true },
-    { label: "Reports Today", value: stats.reportsToday, icon: CalendarClock, tint: "success" },
+    { label: t("adminDashboard.cards.total"), value: stats.total, icon: FileWarning, tint: "primary" },
+    { label: t("adminDashboard.cards.highRisk"), value: stats.high, icon: ShieldAlert, tint: "danger" },
+    { label: t("adminDashboard.cards.activeAlerts"), value: stats.activeAlerts, icon: Bell, tint: "warning" },
+    { label: t("adminDashboard.cards.topScam"), value: stats.dominant.replace("_", " "), icon: Flame, tint: "accent", small: true },
+    { label: t("adminDashboard.cards.reportsToday"), value: stats.reportsToday, icon: CalendarClock, tint: "success" },
   ];
 
   return (
     <div className="space-y-6">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Real-time scam intelligence across Cameroon</p>
+          <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{t("adminDashboard.title")}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t("adminDashboard.subtitle")}</p>
         </div>
         <Button asChild size="sm" variant="outline" className="rounded-xl">
-          <Link to="/admin/reports">View all reports <ArrowUpRight className="h-3.5 w-3.5 ml-1" /></Link>
+          <Link to="/admin/reports">{t("adminDashboard.viewAllReports")} <ArrowUpRight className="h-3.5 w-3.5 ml-1" /></Link>
         </Button>
       </div>
 
@@ -154,12 +156,12 @@ export default function AdminDashboardPage() {
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle className="text-base flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" /> Cameroon scam heatmap
+                <MapPin className="h-4 w-4 text-primary" /> {t("adminDashboard.heatmapTitle")}
               </CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">Hover regions for details</p>
+              <p className="text-xs text-muted-foreground mt-1">{t("adminDashboard.heatmapSubtitle")}</p>
             </div>
             <Button asChild variant="ghost" size="sm" className="text-xs">
-              <Link to="/admin/heatmap">Full view <ChevronRight className="h-3 w-3 ml-1" /></Link>
+              <Link to="/admin/heatmap">{t("adminDashboard.fullView")} <ChevronRight className="h-3 w-3 ml-1" /></Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -170,7 +172,7 @@ export default function AdminDashboardPage() {
         <Card className="surface-elevated border-0 shadow-sm lg:col-span-3">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Bell className="h-4 w-4 text-risk-high" /> Live alerts
+              <Bell className="h-4 w-4 text-risk-high" /> {t("adminDashboard.liveAlerts")}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -195,11 +197,11 @@ export default function AdminDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-10">
         <Card className="surface-elevated border-0 shadow-sm lg:col-span-6">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Scam trends · last 14 days</CardTitle>
+            <CardTitle className="text-base">{t("adminDashboard.trendsTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="h-72">
             {trend.length === 0 ? (
-              <div className="h-full grid place-items-center text-sm text-muted-foreground">No data</div>
+              <div className="h-full grid place-items-center text-sm text-muted-foreground">{t("adminDashboard.noData")}</div>
             ) : (
             <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
               <AreaChart data={trend} margin={{ left: -10, right: 8, top: 10, bottom: 0 }}>
@@ -227,7 +229,7 @@ export default function AdminDashboardPage() {
                       weekday: "short", month: "short", day: "numeric",
                     });
                   }}
-                  formatter={(value: number) => [`${value} report${value === 1 ? "" : "s"}`, "Count"]}
+                  formatter={(value: number) => [`${value} ${t("adminDashboard.report", { count: value })}`, t("adminDashboard.chartCount")]}
                 />
                 <Area type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#grad-reports)" />
               </AreaChart>
@@ -238,16 +240,16 @@ export default function AdminDashboardPage() {
 
         <Card className="surface-elevated border-0 shadow-sm lg:col-span-4">
           <CardHeader className="pb-3 flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-base">Recent reports</CardTitle>
+            <CardTitle className="text-base">{t("adminDashboard.recentReports")}</CardTitle>
             <Button asChild variant="ghost" size="sm" className="text-xs">
-              <Link to="/admin/reports">All <ChevronRight className="h-3 w-3 ml-1" /></Link>
+              <Link to="/admin/reports">{t("adminDashboard.all")} <ChevronRight className="h-3 w-3 ml-1" /></Link>
             </Button>
           </CardHeader>
           <CardContent className="space-y-2">
             {loading ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("adminDashboard.loading")}</p>
             ) : recent.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No reports yet.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("adminDashboard.noReportsYet")}</p>
             ) : (
               recent.map((r) => {
                 const meta = SCAM_META[r.scam_type];
@@ -267,7 +269,7 @@ export default function AdminDashboardPage() {
                         {r.scam_type.replace("_", " ")} · {r.location}
                       </div>
                       <div className="text-[11px] text-muted-foreground truncate">
-                        {r.phone_number ? maskPhone(r.phone_number) : "Unknown number"} ·{" "}
+                        {r.phone_number ? maskPhone(r.phone_number) : t("adminDashboard.unknownNumber")} ·{" "}
                         {new Date(r.created_at).toLocaleDateString()}
                       </div>
                     </div>
@@ -293,7 +295,7 @@ export default function AdminDashboardPage() {
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="capitalize">
-              {selected ? selected.scam_type.replace("_", " ") : "Report"} · {selected?.location}
+              {selected ? selected.scam_type.replace("_", " ") : t("adminDashboard.dialog.report")} · {selected?.location}
             </DialogTitle>
             <DialogDescription>
               {selected && new Date(selected.created_at).toLocaleString()}
@@ -310,10 +312,10 @@ export default function AdminDashboardPage() {
                     : "border-risk-low/40 text-risk-low bg-risk-low/5"
                   }
                 >
-                  Risk: {selected.risk_level}
+                  {t("adminDashboard.dialog.risk")}: {selected.risk_level}
                 </Badge>
                 <Badge variant="outline">
-                  {selected.phone_number ? maskPhone(selected.phone_number) : "Unknown number"}
+                  {selected.phone_number ? maskPhone(selected.phone_number) : t("adminDashboard.unknownNumber")}
                 </Badge>
               </div>
               <p className="whitespace-pre-wrap leading-relaxed text-foreground/90">
@@ -321,7 +323,7 @@ export default function AdminDashboardPage() {
               </p>
               <div className="pt-2 flex justify-end">
                 <Button asChild size="sm" variant="outline">
-                  <Link to="/admin/reports">Open in moderation <ChevronRight className="h-3 w-3 ml-1" /></Link>
+                  <Link to="/admin/reports">{t("adminDashboard.dialog.openInModeration")} <ChevronRight className="h-3 w-3 ml-1" /></Link>
                 </Button>
               </div>
             </div>
