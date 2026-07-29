@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,6 +61,7 @@ type RegionStat = {
 };
 
 export default function HeatmapPage() {
+  const { t } = useTranslation();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [scamFilter, setScamFilter] = useState("All types");
@@ -115,9 +117,9 @@ export default function HeatmapPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Heatmap</h1>
+        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{t("adminHeatmap.title")}</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Scam activity across Cameroon regions
+          {t("adminHeatmap.subtitle")}
         </p>
       </div>
 
@@ -129,8 +131,8 @@ export default function HeatmapPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {SCAM_TYPES.map((t) => (
-              <SelectItem key={t} value={t}>{t === "All types" ? "All scam types" : t.replace(/_/g, " ")}</SelectItem>
+            {SCAM_TYPES.map((st) => (
+              <SelectItem key={st} value={st}>{st === "All types" ? t("adminHeatmap.allScamTypes") : t(`adminHeatmap.scamTypes.${st}`, st.replace(/_/g, " "))}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -139,10 +141,10 @@ export default function HeatmapPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All time</SelectItem>
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="30d">Last 30 days</SelectItem>
-            <SelectItem value="90d">Last 90 days</SelectItem>
+            <SelectItem value="all">{t("adminHeatmap.time.all")}</SelectItem>
+            <SelectItem value="7d">{t("adminHeatmap.time.7d")}</SelectItem>
+            <SelectItem value="30d">{t("adminHeatmap.time.30d")}</SelectItem>
+            <SelectItem value="90d">{t("adminHeatmap.time.90d")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -150,9 +152,9 @@ export default function HeatmapPage() {
       {/* Stats */}
       <div className="grid gap-3 grid-cols-3">
         {[
-          { label: "Total reports", value: totalReports, icon: AlertTriangle, color: "text-primary", bg: "bg-primary/10" },
-          { label: "Hotspot", value: hotspot?.count > 0 ? hotspot.name : "None", icon: MapPin, color: "text-red-500", bg: "bg-red-500/10" },
-          { label: "Regions affected", value: regionStats.filter((r) => r.count > 0).length, icon: TrendingUp, color: "text-amber-500", bg: "bg-amber-500/10" },
+          { label: t("adminHeatmap.cards.total"), value: totalReports, icon: AlertTriangle, color: "text-primary", bg: "bg-primary/10" },
+          { label: t("adminHeatmap.cards.hotspot"), value: hotspot?.count > 0 ? t(`adminHeatmap.regions.${hotspot.name}`, hotspot.name) : t("adminHeatmap.cards.none"), icon: MapPin, color: "text-red-500", bg: "bg-red-500/10" },
+          { label: t("adminHeatmap.cards.regionsAffected"), value: regionStats.filter((r) => r.count > 0).length, icon: TrendingUp, color: "text-amber-500", bg: "bg-amber-500/10" },
         ].map((s) => (
           <Card key={s.label} className="surface-elevated border-0 shadow-sm">
             <CardContent className="p-4">
@@ -170,14 +172,14 @@ export default function HeatmapPage() {
       <Card className="surface-elevated border-0 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" /> Reports by region
+            <TrendingUp className="h-4 w-4 text-primary" /> {t("adminHeatmap.reportsByRegion")}
           </CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("adminHeatmap.loading")}</p>
           ) : totalReports === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">No reports match the selected filters.</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("adminHeatmap.noMatch")}</p>
           ) : (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={regionStats} margin={{ top: 4, right: 8, left: -20, bottom: 40 }}>
@@ -187,10 +189,12 @@ export default function HeatmapPage() {
                   angle={-35}
                   textAnchor="end"
                   interval={0}
+                  tickFormatter={(name: string) => t(`adminHeatmap.regions.${name}`, name)}
                 />
                 <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                 <Tooltip
-                  formatter={(value: number) => [`${value} report${value !== 1 ? "s" : ""}`, "Reports"]}
+                  labelFormatter={(name: string) => t(`adminHeatmap.regions.${name}`, name)}
+                  formatter={(value: number) => [`${value} ${t("adminHeatmap.report", { count: value })}`, t("adminHeatmap.chartTooltipLabel")]}
                   contentStyle={{ borderRadius: 8, fontSize: 13 }}
                 />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]}>
@@ -208,23 +212,23 @@ export default function HeatmapPage() {
       <Card className="surface-elevated border-0 shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-primary" /> Region breakdown
+            <MapPin className="h-4 w-4 text-primary" /> {t("adminHeatmap.regionBreakdown")}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {loading ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t("adminHeatmap.loading")}</p>
           ) : (
             regionStats.map((region) => (
               <div key={region.name} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all">
                 <div className="h-3 w-3 rounded-full shrink-0" style={{ background: region.color }} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">{region.name}</span>
+                    <span className="text-sm font-medium">{t(`adminHeatmap.regions.${region.name}`, region.name)}</span>
                     <div className="flex items-center gap-2">
                       {region.highRisk > 0 && (
                         <Badge variant="outline" className="text-xs border-red-500/40 text-red-500 bg-red-500/5">
-                          {region.highRisk} high risk
+                          {region.highRisk} {t("adminHeatmap.highRisk")}
                         </Badge>
                       )}
                       <span className="text-sm font-bold tabular-nums">{region.count}</span>
@@ -245,7 +249,7 @@ export default function HeatmapPage() {
           )}
           {unknownCount > 0 && (
             <p className="text-xs text-muted-foreground text-center pt-2">
-              {unknownCount} report{unknownCount !== 1 ? "s" : ""} with unrecognized location not shown
+              {unknownCount} {t("adminHeatmap.report", { count: unknownCount })} {t("adminHeatmap.unrecognizedLocation")}
             </p>
           )}
         </CardContent>
