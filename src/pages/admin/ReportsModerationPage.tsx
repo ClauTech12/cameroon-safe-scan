@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -33,6 +34,7 @@ interface Row {
 }
 
 export default function ReportsModerationPage() {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<Status>("pending");
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -61,20 +63,20 @@ export default function ReportsModerationPage() {
     if (error) return toast.error(error.message);
     toast.success(
       status === "approved"
-        ? "Report verified & published"
-        : "Report rejected"
+        ? t("adminReportsMod.toast.approved")
+        : t("adminReportsMod.toast.rejected")
     );
     setRows((r) => r?.filter((x) => x.id !== id) ?? null);
     if (view?.id === id) setView(null);
   }
 
   async function remove(id: string) {
-    if (!confirm("Delete this report permanently?")) return;
+    if (!confirm(t("adminReportsMod.toast.confirmDelete"))) return;
     setBusyId(id);
     const { error } = await supabase.from("scam_reports").delete().eq("id", id);
     setBusyId(null);
     if (error) return toast.error(error.message);
-    toast.success("Report deleted");
+    toast.success(t("adminReportsMod.toast.deleted"));
     setRows((r) => r?.filter((x) => x.id !== id) ?? null);
     if (view?.id === id) setView(null);
   }
@@ -83,14 +85,14 @@ export default function ReportsModerationPage() {
     <div className="space-y-5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">Reports</h1>
-          <p className="text-sm text-muted-foreground">Review, verify and remove user-submitted reports.</p>
+          <h1 className="text-2xl md:text-3xl font-display font-extrabold tracking-tight">{t("adminReportsMod.title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("adminReportsMod.subtitle")}</p>
         </div>
         <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
           <TabsList>
-            <TabsTrigger value="pending">Pending</TabsTrigger>
-            <TabsTrigger value="approved">Verified</TabsTrigger>
-            <TabsTrigger value="rejected">Rejected</TabsTrigger>
+            <TabsTrigger value="pending">{t("adminReportsMod.tabs.pending")}</TabsTrigger>
+            <TabsTrigger value="approved">{t("adminReportsMod.tabs.approved")}</TabsTrigger>
+            <TabsTrigger value="rejected">{t("adminReportsMod.tabs.rejected")}</TabsTrigger>
           </TabsList>
         </Tabs>
       </header>
@@ -103,18 +105,18 @@ export default function ReportsModerationPage() {
         ) : rows.length === 0 ? (
           <div className="p-16 text-center text-muted-foreground">
             <Inbox className="h-10 w-10 mx-auto mb-2 opacity-50" />
-            No {tab} reports.
+            {t(`adminReportsMod.noReports.${tab}`)}
           </div>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Region</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Risk</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t("adminReportsMod.table.date")}</TableHead>
+                <TableHead>{t("adminReportsMod.table.region")}</TableHead>
+                <TableHead>{t("adminReportsMod.table.type")}</TableHead>
+                <TableHead>{t("adminReportsMod.table.risk")}</TableHead>
+                <TableHead>{t("adminReportsMod.table.description")}</TableHead>
+                <TableHead className="text-right">{t("adminReportsMod.table.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -130,13 +132,13 @@ export default function ReportsModerationPage() {
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
                       {/* View */}
-                      <Button size="icon" variant="ghost" onClick={() => setView(r)} title="View">
+                      <Button size="icon" variant="ghost" onClick={() => setView(r)} title={t("adminReportsMod.actions.view")}>
                         <Eye className="h-4 w-4" />
                       </Button>
                       {/* Approve — only on pending and rejected tabs */}
                       {tab !== "approved" && (
                         <Button size="icon" variant="ghost" disabled={busyId === r.id}
-                          onClick={() => setStatus(r.id, "approved")} title="Approve"
+                          onClick={() => setStatus(r.id, "approved")} title={t("adminReportsMod.actions.approve")}
                           className="text-emerald-600 hover:bg-emerald-500/10">
                           <Check className="h-4 w-4" />
                         </Button>
@@ -144,14 +146,14 @@ export default function ReportsModerationPage() {
                       {/* Reject — only on pending and approved tabs */}
                       {tab !== "rejected" && (
                         <Button size="icon" variant="ghost" disabled={busyId === r.id}
-                          onClick={() => setStatus(r.id, "rejected")} title="Reject"
+                          onClick={() => setStatus(r.id, "rejected")} title={t("adminReportsMod.actions.reject")}
                           className="text-amber-600 hover:bg-amber-500/10">
                           <X className="h-4 w-4" />
                         </Button>
                       )}
                       {/* Delete */}
                       <Button size="icon" variant="ghost" disabled={busyId === r.id}
-                        onClick={() => remove(r.id)} title="Delete"
+                        onClick={() => remove(r.id)} title={t("adminReportsMod.actions.delete")}
                         className="text-destructive hover:bg-destructive/10">
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -168,7 +170,7 @@ export default function ReportsModerationPage() {
       <Dialog open={!!view} onOpenChange={(o) => !o && setView(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Report details</DialogTitle>
+            <DialogTitle>{t("adminReportsMod.dialog.title")}</DialogTitle>
             <DialogDescription>
               {view && `${view.location} · ${formatDistanceToNow(new Date(view.created_at), { addSuffix: true })}`}
             </DialogDescription>
@@ -185,18 +187,18 @@ export default function ReportsModerationPage() {
                     ? "border-amber-500/40 text-amber-600 bg-amber-500/5"
                     : "border-border text-muted-foreground"
                 }>
-                  {view.status.charAt(0).toUpperCase() + view.status.slice(1)}
+                  {t(`adminReportsMod.status.${view.status}`)}
                 </Badge>
               </div>
               <p className="whitespace-pre-wrap leading-relaxed">{view.description}</p>
               {view.contact_info && (
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-semibold">Contact:</span> {view.contact_info}
+                  <span className="font-semibold">{t("adminReportsMod.dialog.contact")}</span> {view.contact_info}
                 </p>
               )}
               {view.reporter_name && (
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-semibold">Reporter:</span> {view.reporter_name}
+                  <span className="font-semibold">{t("adminReportsMod.dialog.reporter")}</span> {view.reporter_name}
                 </p>
               )}
               {/* Quick actions in dialog */}
@@ -206,7 +208,7 @@ export default function ReportsModerationPage() {
                     onClick={() => setStatus(view.id, "approved")}
                     className="text-emerald-600 border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10"
                     variant="outline">
-                    <Check className="h-4 w-4 mr-1" /> Approve
+                    <Check className="h-4 w-4 mr-1" /> {t("adminReportsMod.actions.approve")}
                   </Button>
                 )}
                 {view.status !== "rejected" && (
@@ -214,13 +216,13 @@ export default function ReportsModerationPage() {
                     onClick={() => setStatus(view.id, "rejected")}
                     className="text-amber-600 border-amber-500/40 bg-amber-500/5 hover:bg-amber-500/10"
                     variant="outline">
-                    <X className="h-4 w-4 mr-1" /> Reject
+                    <X className="h-4 w-4 mr-1" /> {t("adminReportsMod.actions.reject")}
                   </Button>
                 )}
                 <Button size="sm" variant="outline" disabled={busyId === view.id}
                   onClick={() => remove(view.id)}
                   className="text-destructive border-destructive/40 bg-destructive/5 hover:bg-destructive/10">
-                  <Trash2 className="h-4 w-4 mr-1" /> Delete
+                  <Trash2 className="h-4 w-4 mr-1" /> {t("adminReportsMod.actions.delete")}
                 </Button>
               </div>
             </div>

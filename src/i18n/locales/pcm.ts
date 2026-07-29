@@ -874,4 +874,24 @@ examples: {
     report_one: "report",
     report_other: "reports",
   },
+  adminReportsMod: {
+    title: "Reports",
+    subtitle: "Review, verify and remove reports wey users submit.",
+    tabs: { pending: "Pending", approved: "Verified", rejected: "Rejected" },
+    noReports: { pending: "No pending report.", approved: "No verified report.", rejected: "No rejected report." },
+    table: { date: "Date", region: "Region", type: "Type", risk: "Risk", description: "Description", actions: "Actions" },
+    actions: { view: "View", approve: "Approve", reject: "Reject", delete: "Delete" },
+    toast: {
+      approved: "Report don verify & publish",
+      rejected: "Report don reject",
+      deleted: "Report don delete",
+      confirmDelete: "Delete dis report permanently?",
+    },
+    dialog: {
+      title: "Report details",
+      contact: "Contact:",
+      reporter: "Reporter:",
+    },
+    status: { pending: "Pending", approved: "Approved", rejected: "Rejected" },
+  },
 };

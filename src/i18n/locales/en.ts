@@ -872,4 +872,24 @@ export default {
     report_one: "report",
     report_other: "reports",
   },
+  adminReportsMod: {
+    title: "Reports",
+    subtitle: "Review, verify and remove user-submitted reports.",
+    tabs: { pending: "Pending", approved: "Verified", rejected: "Rejected" },
+    noReports: { pending: "No pending reports.", approved: "No verified reports.", rejected: "No rejected reports." },
+    table: { date: "Date", region: "Region", type: "Type", risk: "Risk", description: "Description", actions: "Actions" },
+    actions: { view: "View", approve: "Approve", reject: "Reject", delete: "Delete" },
+    toast: {
+      approved: "Report verified & published",
+      rejected: "Report rejected",
+      deleted: "Report deleted",
+      confirmDelete: "Delete this report permanently?",
+    },
+    dialog: {
+      title: "Report details",
+      contact: "Contact:",
+      reporter: "Reporter:",
+    },
+    status: { pending: "Pending", approved: "Approved", rejected: "Rejected" },
+  },
 };

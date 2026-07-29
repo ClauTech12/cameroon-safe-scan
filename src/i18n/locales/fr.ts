@@ -874,4 +874,24 @@ export default {
     report_one: "signalement",
     report_other: "signalements",
   },
+  adminReportsMod: {
+    title: "Signalements",
+    subtitle: "Examiner, vérifier et supprimer les signalements soumis par les utilisateurs.",
+    tabs: { pending: "En attente", approved: "Vérifiés", rejected: "Rejetés" },
+    noReports: { pending: "Aucun signalement en attente.", approved: "Aucun signalement vérifié.", rejected: "Aucun signalement rejeté." },
+    table: { date: "Date", region: "Région", type: "Type", risk: "Risque", description: "Description", actions: "Actions" },
+    actions: { view: "Voir", approve: "Approuver", reject: "Rejeter", delete: "Supprimer" },
+    toast: {
+      approved: "Signalement vérifié et publié",
+      rejected: "Signalement rejeté",
+      deleted: "Signalement supprimé",
+      confirmDelete: "Supprimer ce signalement définitivement ?",
+    },
+    dialog: {
+      title: "Détails du signalement",
+      contact: "Contact :",
+      reporter: "Auteur :",
+    },
+    status: { pending: "En attente", approved: "Approuvé", rejected: "Rejeté" },
+  },
 };
