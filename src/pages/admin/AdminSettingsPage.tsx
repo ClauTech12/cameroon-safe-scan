@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -86,20 +88,21 @@ function initials(email: string) {
 }
 
 function RoleBadge({ role }: { role: AdminRole }) {
+  const { t } = useTranslation();
   return (
     <Badge variant="outline" className={ROLE_COLORS[role]}>
-      {ROLE_LABELS[role]}
+      {t(`adminSettings.roleLabels.${role}`, ROLE_LABELS[role])}
     </Badge>
   );
 }
 
-function timeAgo(date: string) {
+function timeAgo(date: string, t: TFunction) {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return t("adminSettings.timeAgo.justNow");
+  if (mins < 60) return t("adminSettings.timeAgo.minutesAgo", { count: mins });
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return t("adminSettings.timeAgo.hoursAgo", { count: hrs });
   return new Date(date).toLocaleDateString();
 }
 
@@ -127,6 +130,7 @@ async function logActivity(
 
 export default function AdminSettingsPage() {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>("admins");
   const [admins, setAdmins] = useState<AdminEntry[]>([]);
   const [loadingAdmins, setLoadingAdmins] = useState(true);
@@ -156,7 +160,7 @@ export default function AdminSettingsPage() {
       .order("created_at", { ascending: true });
 
     if (error) {
-      toast({ title: "Failed to load admins", description: error.message, variant: "destructive" });
+      toast({ title: t("adminSettings.toast.failedLoadAdmins"), description: error.message, variant: "destructive" });
       setLoadingAdmins(false);
       return;
     }
@@ -185,14 +189,14 @@ export default function AdminSettingsPage() {
       .limit(50);
 
     if (error) {
-      toast({ title: "Failed to load activity", description: error.message, variant: "destructive" });
+      toast({ title: t("adminSettings.toast.failedLoadActivity"), description: error.message, variant: "destructive" });
       setLoadingLogs(false);
       return;
     }
 
     const enriched: ActivityLog[] = await Promise.all(
       ((data ?? []) as any[]).map(async (log: any) => {
-        let email = "System";
+        let email = t("adminSettings.systemLabel");
         if (log.user_id) {
           try {
             const { data: e } = await supabase.rpc("get_user_email" as any, { uid: log.user_id });
@@ -221,7 +225,7 @@ export default function AdminSettingsPage() {
   // ── Invite via Edge Function ───────────────────────────────────────────────
   async function handleInvite() {
     if (!inviteEmail.trim() || !inviteEmail.includes("@")) {
-      toast({ title: "Enter a valid email address", variant: "destructive" });
+      toast({ title: t("adminSettings.toast.enterValidEmail"), variant: "destructive" });
       return;
     }
     setInviting(true);
@@ -232,7 +236,7 @@ export default function AdminSettingsPage() {
 
     if (inviteError || data?.error) {
       toast({
-        title: "Invite failed",
+        title: t("adminSettings.toast.inviteFailed"),
         description: inviteError?.message ?? data?.error,
         variant: "destructive",
       });
@@ -240,11 +244,12 @@ export default function AdminSettingsPage() {
       return;
     }
 
+    const roleLabel = t(`adminSettings.roleLabels.${inviteRole}`, ROLE_LABELS[inviteRole]);
     if (currentUserId) {
-      await logActivity(currentUserId, "invite_admin", `Invited ${inviteEmail} as ${ROLE_LABELS[inviteRole]}`);
+      await logActivity(currentUserId, "invite_admin", t("adminSettings.activityDesc.invited", { email: inviteEmail, role: roleLabel }));
     }
 
-    toast({ title: "Invitation sent!", description: `${inviteEmail} invited as ${ROLE_LABELS[inviteRole]}.` });
+    toast({ title: t("adminSettings.toast.invitationSent"), description: t("adminSettings.toast.invitedAs", { email: inviteEmail, role: roleLabel }) });
     setInviteEmail("");
     fetchAdmins();
     fetchLogs();
@@ -254,12 +259,13 @@ export default function AdminSettingsPage() {
   async function handleRoleChange(admin: AdminEntry, newRole: AdminRole) {
     const { error } = await supabase.from("user_roles").update({ role: newRole as any }).eq("id", admin.id);
     if (error) {
-      toast({ title: "Role update failed", description: error.message, variant: "destructive" });
+      toast({ title: t("adminSettings.toast.roleUpdateFailed"), description: error.message, variant: "destructive" });
     } else {
       if (currentUserId) {
-        await logActivity(currentUserId, "update_admin_role", `Changed ${admin.email} role to ${ROLE_LABELS[newRole]}`);
+        const roleLabel = t(`adminSettings.roleLabels.${newRole}`, ROLE_LABELS[newRole]);
+        await logActivity(currentUserId, "update_admin_role", t("adminSettings.activityDesc.roleChanged", { email: admin.email, role: roleLabel }));
       }
-      toast({ title: "Role updated" });
+      toast({ title: t("adminSettings.toast.roleUpdated") });
       fetchAdmins();
       fetchLogs();
     }
@@ -270,12 +276,12 @@ export default function AdminSettingsPage() {
     setRemoving(true);
     const { error } = await supabase.from("user_roles").delete().eq("id", removeTarget.id);
     if (error) {
-      toast({ title: "Remove failed", description: error.message, variant: "destructive" });
+      toast({ title: t("adminSettings.toast.removeFailed"), description: error.message, variant: "destructive" });
     } else {
       if (currentUserId) {
-        await logActivity(currentUserId, "remove_admin", `Removed ${removeTarget.email} from admin team`);
+        await logActivity(currentUserId, "remove_admin", t("adminSettings.activityDesc.removed", { email: removeTarget.email }));
       }
-      toast({ title: "Admin removed" });
+      toast({ title: t("adminSettings.toast.adminRemoved") });
       setRemoveTarget(null);
       fetchAdmins();
       fetchLogs();
@@ -284,31 +290,31 @@ export default function AdminSettingsPage() {
   }
 
   const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: "admins", label: "Admin management", icon: Users },
-    { id: "activity", label: "Activity log", icon: Activity },
-    { id: "security", label: "Security", icon: Shield },
+    { id: "admins", label: t("adminSettings.tabs.admins"), icon: Users },
+    { id: "activity", label: t("adminSettings.tabs.activity"), icon: Activity },
+    { id: "security", label: t("adminSettings.tabs.security"), icon: Shield },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage your CamAlert workspace</p>
+        <h1 className="font-display text-2xl md:text-3xl font-bold tracking-tight">{t("adminSettings.title")}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{t("adminSettings.subtitle")}</p>
       </div>
 
       <div className="flex gap-1 border-b border-border pb-0">
-        {tabs.map((t) => (
+        {tabs.map((tabItem) => (
           <button
-            key={t.id}
-            onClick={() => setActiveTab(t.id)}
+            key={tabItem.id}
+            onClick={() => setActiveTab(tabItem.id)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-all -mb-px ${
-              activeTab === t.id
+              activeTab === tabItem.id
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
           >
-            <t.icon className="h-4 w-4" />
-            {t.label}
+            <tabItem.icon className="h-4 w-4" />
+            {tabItem.label}
           </button>
         ))}
       </div>
@@ -317,9 +323,9 @@ export default function AdminSettingsPage() {
         <>
           <div className="grid gap-3 grid-cols-3">
             {[
-              { label: "Total admins", value: total, icon: Users, color: "text-primary", bg: "bg-primary/10" },
-              { label: "Super admins", value: superAdmins, icon: ShieldCheck, color: "text-green-600", bg: "bg-green-500/10" },
-              { label: "Roles assigned", value: total, icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10" },
+              { label: t("adminSettings.cards.totalAdmins"), value: total, icon: Users, color: "text-primary", bg: "bg-primary/10" },
+              { label: t("adminSettings.cards.superAdmins"), value: superAdmins, icon: ShieldCheck, color: "text-green-600", bg: "bg-green-500/10" },
+              { label: t("adminSettings.cards.rolesAssigned"), value: total, icon: Clock, color: "text-amber-600", bg: "bg-amber-500/10" },
             ].map((s) => (
               <Card key={s.label} className="surface-elevated border-0 shadow-sm">
                 <CardContent className="p-4">
@@ -336,15 +342,15 @@ export default function AdminSettingsPage() {
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <UserPlus className="h-4 w-4 text-primary" /> Invite a new admin
+                <UserPlus className="h-4 w-4 text-primary" /> {t("adminSettings.invite.title")}
               </CardTitle>
-              <p className="text-xs text-muted-foreground">They'll receive an email with a link to set up their account.</p>
+              <p className="text-xs text-muted-foreground">{t("adminSettings.invite.subtitle")}</p>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2 items-center">
                 <Input
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t("adminSettings.invite.emailPlaceholder")}
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleInvite()}
@@ -353,18 +359,18 @@ export default function AdminSettingsPage() {
                 <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AdminRole)}>
                   <SelectTrigger className="w-36 rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="moderator">Moderator</SelectItem>
+                    <SelectItem value="admin">{t("adminSettings.roleLabels.admin")}</SelectItem>
+                    <SelectItem value="moderator">{t("adminSettings.roleLabels.moderator")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button onClick={handleInvite} disabled={inviting} className="rounded-xl">
-                  {inviting ? "Sending…" : "Send invite"}
+                  {inviting ? t("adminSettings.invite.sending") : t("adminSettings.invite.send")}
                 </Button>
               </div>
               <div className="mt-4 grid gap-1.5 grid-cols-1 sm:grid-cols-3 text-xs text-muted-foreground">
-                <div><span className="font-medium text-foreground">Super Admin</span> — full control</div>
-                <div><span className="font-medium text-foreground">Admin</span> — manages reports, numbers, alerts</div>
-                <div><span className="font-medium text-foreground">Moderator</span> — reviews reports only</div>
+                <div><span className="font-medium text-foreground">{t("adminSettings.roleLabels.super_admin")}</span> — {t("adminSettings.invite.roleDesc.superAdmin")}</div>
+                <div><span className="font-medium text-foreground">{t("adminSettings.roleLabels.admin")}</span> — {t("adminSettings.invite.roleDesc.admin")}</div>
+                <div><span className="font-medium text-foreground">{t("adminSettings.roleLabels.moderator")}</span> — {t("adminSettings.invite.roleDesc.moderator")}</div>
               </div>
             </CardContent>
           </Card>
@@ -372,14 +378,14 @@ export default function AdminSettingsPage() {
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Users className="h-4 w-4 text-primary" /> Admin team
+                <Users className="h-4 w-4 text-primary" /> {t("adminSettings.team.title")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-1">
               {loadingAdmins ? (
-                <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+                <p className="text-sm text-muted-foreground text-center py-8">{t("adminSettings.team.loading")}</p>
               ) : admins.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No admins yet.</p>
+                <p className="text-sm text-muted-foreground text-center py-8">{t("adminSettings.team.noAdmins")}</p>
               ) : (
                 admins.map((admin) => {
                   const isMe = admin.user_id === currentUserId;
@@ -391,9 +397,9 @@ export default function AdminSettingsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-medium truncate">
-                          {admin.email} {isMe && <span className="text-xs text-muted-foreground">(you)</span>}
+                          {admin.email} {isMe && <span className="text-xs text-muted-foreground">{t("adminSettings.team.you")}</span>}
                         </div>
-                        <div className="text-xs text-muted-foreground">Added {new Date(admin.created_at).toLocaleDateString()}</div>
+                        <div className="text-xs text-muted-foreground">{t("adminSettings.team.added")} {new Date(admin.created_at).toLocaleDateString()}</div>
                       </div>
                       {isSuperAdmin || isMe ? (
                         <RoleBadge role={admin.role} />
@@ -401,8 +407,8 @@ export default function AdminSettingsPage() {
                         <Select value={admin.role} onValueChange={(v) => handleRoleChange(admin, v as AdminRole)}>
                           <SelectTrigger className="w-36 h-7 text-xs rounded-lg"><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="moderator">Moderator</SelectItem>
+                            <SelectItem value="admin">{t("adminSettings.roleLabels.admin")}</SelectItem>
+                            <SelectItem value="moderator">{t("adminSettings.roleLabels.moderator")}</SelectItem>
                           </SelectContent>
                         </Select>
                       )}
@@ -425,27 +431,27 @@ export default function AdminSettingsPage() {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="h-4 w-4 text-primary" /> Activity log
+                <Activity className="h-4 w-4 text-primary" /> {t("adminSettings.activityTab.title")}
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <Select value={logFilter} onValueChange={(v) => setLogFilter(v as typeof logFilter)}>
                   <SelectTrigger className="w-36 h-8 text-xs rounded-lg"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All activity</SelectItem>
-                    <SelectItem value="admin">Admin actions</SelectItem>
-                    <SelectItem value="report">Report submissions</SelectItem>
+                    <SelectItem value="all">{t("adminSettings.activityTab.filter.all")}</SelectItem>
+                    <SelectItem value="admin">{t("adminSettings.activityTab.filter.admin")}</SelectItem>
+                    <SelectItem value="report">{t("adminSettings.activityTab.filter.report")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">Last 50 actions across admin and report activity.</p>
+            <p className="text-xs text-muted-foreground">{t("adminSettings.activityTab.subtitle")}</p>
           </CardHeader>
           <CardContent className="space-y-1">
             {loadingLogs ? (
-              <p className="text-sm text-muted-foreground text-center py-8">Loading…</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("adminSettings.activityTab.loading")}</p>
             ) : filteredLogs.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No activity yet.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{t("adminSettings.activityTab.noActivity")}</p>
             ) : (
               filteredLogs.map((log) => (
                 <div key={log.id} className="flex items-start gap-3 p-2.5 rounded-xl hover:bg-secondary/60 transition-all">
@@ -454,7 +460,7 @@ export default function AdminSettingsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium truncate">{log.description ?? log.action}</div>
-                    <div className="text-xs text-muted-foreground">{log.email} · {timeAgo(log.created_at)}</div>
+                    <div className="text-xs text-muted-foreground">{log.email} · {timeAgo(log.created_at, t)}</div>
                   </div>
                   <div className="text-xs text-muted-foreground shrink-0">{new Date(log.created_at).toLocaleDateString()}</div>
                 </div>
@@ -469,21 +475,21 @@ export default function AdminSettingsPage() {
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" /> Your account
+                <Shield className="h-4 w-4 text-primary" /> {t("adminSettings.security.yourAccount")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
                 <div>
-                  <div className="text-sm font-medium">Signed in as</div>
-                  <div className="text-xs text-muted-foreground">{currentEmail ?? "Loading…"}</div>
+                  <div className="text-sm font-medium">{t("adminSettings.security.signedInAs")}</div>
+                  <div className="text-xs text-muted-foreground">{currentEmail ?? t("adminSettings.security.loading")}</div>
                 </div>
                 <Badge variant="outline" className="border-green-500/40 text-green-700 bg-green-500/5">Google</Badge>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl bg-secondary/40">
                 <div>
-                  <div className="text-sm font-medium">Login method</div>
-                  <div className="text-xs text-muted-foreground">Managed by Google — no CamAlert password needed</div>
+                  <div className="text-sm font-medium">{t("adminSettings.security.loginMethod")}</div>
+                  <div className="text-xs text-muted-foreground">{t("adminSettings.security.loginMethodDesc")}</div>
                 </div>
                 <ShieldCheck className="h-5 w-5 text-green-600" />
               </div>
@@ -493,38 +499,38 @@ export default function AdminSettingsPage() {
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" /> Password & two-factor auth
+                <ShieldCheck className="h-4 w-4 text-primary" /> {t("adminSettings.security.passwordAnd2fa")}
               </CardTitle>
               <p className="text-xs text-muted-foreground">
-                Since you sign in with Google, your password and 2FA are managed by your Google account.
+                {t("adminSettings.security.passwordAnd2faDesc")}
               </p>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div>
-                  <div className="text-sm font-medium">Change your password</div>
-                  <div className="text-xs text-muted-foreground">Update your Google account password</div>
+                  <div className="text-sm font-medium">{t("adminSettings.security.changePassword")}</div>
+                  <div className="text-xs text-muted-foreground">{t("adminSettings.security.changePasswordDesc")}</div>
                 </div>
                 <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/security", "_blank")}>
-                  Open Google <ExternalLink className="h-3.5 w-3.5" />
+                  {t("adminSettings.security.openGoogle")} <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div>
-                  <div className="text-sm font-medium">Two-factor authentication</div>
-                  <div className="text-xs text-muted-foreground">Add an extra layer of security to your Google account</div>
+                  <div className="text-sm font-medium">{t("adminSettings.security.twoFactorAuth")}</div>
+                  <div className="text-xs text-muted-foreground">{t("adminSettings.security.twoFactorDesc")}</div>
                 </div>
                 <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/signinoptions/two-step-verification", "_blank")}>
-                  Enable 2FA <ExternalLink className="h-3.5 w-3.5" />
+                  {t("adminSettings.security.enable2fa")} <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
               </div>
               <div className="flex items-center justify-between p-3 rounded-xl border border-border">
                 <div>
-                  <div className="text-sm font-medium">Review active sessions</div>
-                  <div className="text-xs text-muted-foreground">See all devices signed into your Google account</div>
+                  <div className="text-sm font-medium">{t("adminSettings.security.reviewSessions")}</div>
+                  <div className="text-xs text-muted-foreground">{t("adminSettings.security.reviewSessionsDesc")}</div>
                 </div>
                 <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => window.open("https://myaccount.google.com/device-activity", "_blank")}>
-                  View devices <ExternalLink className="h-3.5 w-3.5" />
+                  {t("adminSettings.security.viewDevices")} <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </CardContent>
@@ -533,20 +539,14 @@ export default function AdminSettingsPage() {
           <Card className="surface-elevated border-0 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
-                <Shield className="h-4 w-4 text-primary" /> Security tips for CamAlert admins
+                <Shield className="h-4 w-4 text-primary" /> {t("adminSettings.security.tipsTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-muted-foreground">
-              {[
-                "Enable 2FA on your Google account — it's the single most effective protection",
-                "Never share your admin login link or session with anyone",
-                "Review the Activity Log regularly for unexpected actions",
-                "Remove admins who no longer need access immediately",
-                "Use a strong, unique password for your Google account",
-              ].map((tip, i) => (
-                <div key={i} className="flex items-start gap-2 p-2.5 rounded-lg hover:bg-secondary/40">
+              {["t1", "t2", "t3", "t4", "t5"].map((key) => (
+                <div key={key} className="flex items-start gap-2 p-2.5 rounded-lg hover:bg-secondary/40">
                   <ShieldCheck className="h-4 w-4 text-green-600 shrink-0 mt-0.5" />
-                  <span>{tip}</span>
+                  <span>{t(`adminSettings.security.tips.${key}`)}</span>
                 </div>
               ))}
             </CardContent>
@@ -557,15 +557,15 @@ export default function AdminSettingsPage() {
       <Dialog open={!!removeTarget} onOpenChange={(o) => !o && setRemoveTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle>Remove admin</DialogTitle>
+            <DialogTitle>{t("adminSettings.removeDialog.title")}</DialogTitle>
             <DialogDescription>
-              Remove <span className="font-medium text-foreground">{removeTarget?.email}</span>? They will lose all access immediately.
+              {t("adminSettings.removeDialog.desc", { email: removeTarget?.email })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setRemoveTarget(null)} className="rounded-xl">Cancel</Button>
+            <Button variant="outline" onClick={() => setRemoveTarget(null)} className="rounded-xl">{t("adminSettings.removeDialog.cancel")}</Button>
             <Button variant="destructive" onClick={handleRemove} disabled={removing} className="rounded-xl">
-              {removing ? "Removing…" : "Remove"}
+              {removing ? t("adminSettings.removeDialog.removing") : t("adminSettings.removeDialog.remove")}
             </Button>
           </DialogFooter>
         </DialogContent>
