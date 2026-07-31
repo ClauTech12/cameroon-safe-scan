@@ -308,6 +308,7 @@ export default {
       s11Title: "11. Third party services",
       s11i1: "Supabase — database and authentication hosting",
       s11i2: "Vercel — website hosting and deployment",
+      s11i5: "Vercel Analytics — anonymous, no-cookie visit and page-view counts",
       s11i3: "Formspree — contact form processing",
       s11i4: "Google Gemini — AI scam classification",
       s12Title: "12. Changes to dis policy",

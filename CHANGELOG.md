@@ -5,6 +5,56 @@ being kept rigorously from **2026-07-24** onward; entries before that
 are a condensed summary of the project's earlier history rather than a
 commit-by-commit account.
 
+## [1.2.0] — 2026-07-30 — Full trilingual coverage + analytics
+
+A complete sweep of every page and shared component for translation
+gaps, several real bugs caught along the way, and the addition of
+privacy-friendly analytics.
+
+### Added
+- **Vercel Analytics** — anonymous, cookieless page-view and visit
+  tracking. Chosen over Google Analytics specifically because it
+  doesn't require tracking cookies or a consent banner, matching the
+  Privacy Policy's existing "no tracking cookies" commitment without
+  needing to weaken it. Documented as a data processor in the Privacy
+  Policy (all three languages).
+- Full `t()`-based translation coverage across every remaining public
+  page (Privacy, Terms, About, Contact, Support, MoMoGuard, Status,
+  Reports, Dashboard, Scam Category, AI Analyzer, 404), every shared
+  component (header, footer, brand mark, WhatsApp button), and every
+  admin page (Dashboard, Reports Moderation, Heatmap, Settings).
+  Translation key count grew from ~350 to 892, with parity checked
+  after every change.
+
+### Fixed
+- **Two stale legal documents.** The Privacy Policy and Terms of
+  Service had partial translation keys sitting in the locale files
+  from an earlier, much shorter draft (still referencing an old
+  "CamAlert Sentinel" brand name) that didn't match the actual live
+  13-section and 12-section policies at all.
+- **Wrong AI vendor named in the Privacy Policy** — it listed
+  "Anthropic Claude API" as a data processor; every AI-calling
+  function in the codebase actually uses Google Gemini.
+- **Duplicate global header.** `App.tsx` rendered a component
+  (`AppNavigation`) wrapping every route, while every individual page
+  *also* rendered its own `SiteHeader` — nearly every page was
+  showing two stacked headers. Removed the redundant one and deleted
+  the now-fully-unused `navigation-menu.tsx` file (209 lines of dead
+  code, and a real bundle-size reduction).
+- **The floating WhatsApp button messaged a wrong phone number** on
+  every page of the live site — a leftover placeholder, unrelated to
+  the business.
+- **"Bilingual" claims in copy that should have said "trilingual"**
+  across the homepage and About page, including a hardcoded homepage
+  "About" teaser section that was never wired to translations at all.
+- **`/support` briefly had zero navigation path to it** after the
+  duplicate-header fix — added back to both the header nav and footer.
+- Several components that appeared to have "decent" translation
+  coverage on a shallow scan turned out to have real gaps once
+  checked exhaustively (`ModelAccuracyPage`, `SiteFooter`'s Company
+  column, `BrandMark`'s tagline, `CameroonHeatmap`'s legend/tooltip
+  and region names, `NotFound`, `RequireAdmin`).
+
 ## [1.1.0] — 2026-07-25 — Security audit + repo cleanup
 
 A full security review pass, plus a codebase sweep for broken links,

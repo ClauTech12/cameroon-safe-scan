@@ -70,6 +70,7 @@ export default function PrivacyPage() {
         <ul>
           <li>{t("legal.privacy.s11i1")}</li>
           <li>{t("legal.privacy.s11i2")}</li>
+          <li>{t("legal.privacy.s11i5")}</li>
           <li>{t("legal.privacy.s11i3")}</li>
           <li>{t("legal.privacy.s11i4")}</li>
         </ul>

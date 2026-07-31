@@ -308,6 +308,7 @@ export default {
       s11Title: "11. Services tiers",
       s11i1: "Supabase — hébergement de la base de données et de l'authentification",
       s11i2: "Vercel — hébergement et déploiement du site",
+      s11i5: "Vercel Analytics — statistiques de visites et de pages vues anonymes, sans cookies",
       s11i3: "Formspree — traitement du formulaire de contact",
       s11i4: "Google Gemini — classification des arnaques par IA",
       s12Title: "12. Modifications de cette politique",
