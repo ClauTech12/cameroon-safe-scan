@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://cameroon-safe-scan.vercel.app/sitemap.xml
+Sitemap: https://camalert.org/sitemap.xml

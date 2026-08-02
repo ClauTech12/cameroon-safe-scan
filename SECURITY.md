@@ -27,7 +27,7 @@ address the issue before disclosing it publicly.
 ## Scope
 
 This policy covers:
-- The CamAlert web application (cameroon-safe-scan.vercel.app)
+- The CamAlert web application (camalert.org)
 - The Supabase backend (database RLS policies, Edge Functions)
 - This source code repository
 

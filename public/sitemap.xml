@@ -1,102 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/</loc>
+    <loc>https://camalert.org/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/report</loc>
+    <loc>https://camalert.org/report</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/reports</loc>
+    <loc>https://camalert.org/reports</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/dashboard</loc>
+    <loc>https://camalert.org/dashboard</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/check</loc>
+    <loc>https://camalert.org/check</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/momo-guard</loc>
+    <loc>https://camalert.org/momo-guard</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/analyzer</loc>
+    <loc>https://camalert.org/analyzer</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/status</loc>
+    <loc>https://camalert.org/status</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/mobile-money</loc>
+    <loc>https://camalert.org/scams/mobile-money</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/job</loc>
+    <loc>https://camalert.org/scams/job</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/phishing</loc>
+    <loc>https://camalert.org/scams/phishing</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/investment</loc>
+    <loc>https://camalert.org/scams/investment</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/bank</loc>
+    <loc>https://camalert.org/scams/bank</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/scams/other</loc>
+    <loc>https://camalert.org/scams/other</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/about</loc>
+    <loc>https://camalert.org/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/contact</loc>
+    <loc>https://camalert.org/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/support</loc>
+    <loc>https://camalert.org/support</loc>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/privacy</loc>
+    <loc>https://camalert.org/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/terms</loc>
+    <loc>https://camalert.org/terms</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://cameroon-safe-scan.vercel.app/disclaimer</loc>
+    <loc>https://camalert.org/disclaimer</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

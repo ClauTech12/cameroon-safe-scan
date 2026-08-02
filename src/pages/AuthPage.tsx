@@ -65,7 +65,7 @@ export default function AuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signUp({
       email: ev.data, password: pv.data,
-      options: { emailRedirectTo: `https://cameroon-safe-scan.vercel.app/auth` },
+      options: { emailRedirectTo: `${window.location.origin}/auth` },
     });
     setBusy(false);
     if (error) return toast.error(error.message);
@@ -76,7 +76,7 @@ export default function AuthPage() {
   setBusy(true);
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `https://cameroon-safe-scan.vercel.app/auth` },
+    options: { redirectTo: `${window.location.origin}/auth` },
   });
   if (error) { toast.error(error.message ?? "Google sign-in failed"); setBusy(false); }
 }
@@ -87,7 +87,7 @@ export default function AuthPage() {
     if (!ev.success) return toast.error(t("auth.invalidEmail"));
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(ev.data, {
-  redirectTo: `https://cameroon-safe-scan.vercel.app/auth`,
+  redirectTo: `${window.location.origin}/auth`,
 });
     setBusy(false);
     if (error) return toast.error(error.message);

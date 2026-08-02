@@ -10,7 +10,7 @@ help people recognize and avoid fraud before it costs them money.
 
 Built for Cameroon first, with a roadmap to expand across Africa.
 
-🔗 Live: [cameroon-safe-scan.vercel.app](https://cameroon-safe-scan.vercel.app)
+🔗 Live: [camalert.org](https://camalert.org)
 
 ---
 

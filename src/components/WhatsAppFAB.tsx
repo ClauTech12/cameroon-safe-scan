@@ -10,7 +10,7 @@ interface Props {
 export function WhatsAppFAB({ phone = "917626887457", message }: Props) {
   const { t } = useTranslation();
   const appUrl =
-    typeof window !== "undefined" ? window.location.origin : "https://cameroon-safe-scan.vercel.app";
+    typeof window !== "undefined" ? window.location.origin : "https://camalert.org";
   const text = message ?? t("whatsappFab.message", { appUrl });
   const href = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 
