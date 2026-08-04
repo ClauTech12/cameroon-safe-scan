@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import logo from "@/assets/clautech-logo.webp";
+import logo from "@/assets/camalert-logo.webp";
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const { t } = useTranslation();
