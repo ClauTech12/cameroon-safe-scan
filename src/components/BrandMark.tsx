@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import logo from "@/assets/camalert-logo.webp";
+import clautechLogo from "@/assets/clautech-logo.png";
 
 export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   const { t } = useTranslation();
@@ -28,5 +29,5 @@ export function BrandMark({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
 }
 
 export function ClauTechLogo({ className = "" }: { className?: string }) {
-  return <img src={logo} alt="ClauTech Digital Solutions" className={className} loading="lazy" width="200" height="60" />;
+  return <img src={clautechLogo} alt="ClauTech Digital Solutions" className={className} loading="lazy" width="200" height="60" />;
 }
