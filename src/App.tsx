@@ -28,6 +28,8 @@ const StatusPage = lazy(() => import("./pages/StatusPage.tsx"));
 const ContactPage = lazy(() => import("./pages/ContactPage.tsx"));
 const AboutPage = lazy(() => import("./pages/AboutPage.tsx"));
 const SupportPage = lazy(() => import("./pages/SupportPage.tsx"));
+const IntelligenceIndexPage = lazy(() => import("./pages/IntelligenceIndexPage.tsx"));
+const IntelligenceArticlePage = lazy(() => import("./pages/IntelligenceArticlePage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Admin pages
@@ -40,6 +42,8 @@ const AdminSettingsPage = lazy(() => import("./pages/admin/AdminSettingsPage.tsx
 const HeatmapPage = lazy(() => import("./pages/admin/HeatmapPage.tsx"));
 const ReportsModerationPage = lazy(() => import("./pages/admin/ReportsModerationPage.tsx"));
 const ModelAccuracyPage = lazy(() => import("./pages/admin/ModelAccuracyPage.tsx"));
+const IntelligenceAdminPage = lazy(() => import("./pages/admin/IntelligenceAdminPage.tsx"));
+const IntelligenceEditorPage = lazy(() => import("./pages/admin/IntelligenceEditorPage.tsx"));
 
 const queryClient = new QueryClient();
 
@@ -82,6 +86,8 @@ const App = () => {
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/status" element={<StatusPage />} />
                     <Route path="/support" element={<SupportPage />} />
+                    <Route path="/intelligence" element={<IntelligenceIndexPage />} />
+                    <Route path="/intelligence/:slug" element={<IntelligenceArticlePage />} />
                     <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
                       <Route index element={<AdminDashboardPage />} />
                       <Route path="reports" element={<ReportsModerationPage />} />
@@ -90,6 +96,8 @@ const App = () => {
                       <Route path="heatmap" element={<HeatmapPage />} />
                       <Route path="alerts" element={<FlaggedListPage />} />
                       <Route path="accuracy" element={<ModelAccuracyPage />} />
+                      <Route path="intelligence" element={<IntelligenceAdminPage />} />
+                      <Route path="intelligence/:id" element={<IntelligenceEditorPage />} />
                       <Route path="settings" element={<AdminSettingsPage />} />
                     </Route>
                     <Route path="*" element={<NotFound />} />

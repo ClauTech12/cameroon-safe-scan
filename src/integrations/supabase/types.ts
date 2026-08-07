@@ -14,6 +14,139 @@ export type Database = {
   }
   public: {
     Tables: {
+      intelligence_categories: {
+        Row: {
+          id: string
+          slug: string
+          name: string
+          description: string | null
+          sort_order: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          name: string
+          description?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          name?: string
+          description?: string | null
+          sort_order?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
+      intelligence_articles: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          excerpt: string | null
+          body: string
+          category_id: string
+          status: string
+          cover_image_url: string | null
+          og_image_url: string | null
+          seo_title: string | null
+          seo_description: string | null
+          view_count: number
+          author_id: string | null
+          scheduled_for: string | null
+          published_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          excerpt?: string | null
+          body: string
+          category_id: string
+          status?: string
+          cover_image_url?: string | null
+          og_image_url?: string | null
+          seo_title?: string | null
+          seo_description?: string | null
+          view_count?: number
+          author_id?: string | null
+          scheduled_for?: string | null
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          excerpt?: string | null
+          body?: string
+          category_id?: string
+          status?: string
+          cover_image_url?: string | null
+          og_image_url?: string | null
+          seo_title?: string | null
+          seo_description?: string | null
+          view_count?: number
+          author_id?: string | null
+          scheduled_for?: string | null
+          published_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intelligence_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "intelligence_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      intelligence_article_revisions: {
+        Row: {
+          id: string
+          article_id: string
+          title: string
+          excerpt: string | null
+          body: string
+          edited_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          article_id: string
+          title: string
+          excerpt?: string | null
+          body: string
+          edited_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          article_id?: string
+          title?: string
+          excerpt?: string | null
+          body?: string
+          edited_by?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "intelligence_article_revisions_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "intelligence_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       abuse_reports: {
         Row: {
           created_at: string

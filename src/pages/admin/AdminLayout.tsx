@@ -19,7 +19,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, FileText, Search, Brain, Map, Bell,
-  Settings, LogOut, Search as SearchIcon, ShieldCheck, Target,
+  Settings, LogOut, Search as SearchIcon, ShieldCheck, Target, BookOpen,
 } from "lucide-react";
 
 const NAV = [
@@ -30,6 +30,7 @@ const NAV = [
   { to: "/admin/heatmap", key: "heatmap", icon: Map },
   { to: "/admin/alerts", key: "alerts", icon: Bell },
   { to: "/admin/accuracy", key: "accuracy", icon: Target },
+  { to: "/admin/intelligence", key: "intelligence", icon: BookOpen },
   { to: "/admin/settings", key: "settings", icon: Settings },
 ];
 

@@ -14,6 +14,7 @@ export default {
     reports: "Signalements",
     dashboard: "Tableau de bord",
     momoGuard: "MoMo Guard",
+    intelligence: "Intelligence",
     admin: "Admin",
     about: "À propos",
     contact: "Contact",
@@ -383,7 +384,7 @@ export default {
     nav: {
       fraud: "Intelligence Fraude", numbers: "Intelligence Numéros", flagged: "Numéros signalés",
       dashboard: "Tableau de bord", reports: "Signalements", patterns: "Schémas de fraude",
-      heatmap: "Carte thermique", alerts: "Alertes", accuracy: "Précision du modèle", settings: "Paramètres",
+      heatmap: "Carte thermique", alerts: "Alertes", accuracy: "Précision du modèle", intelligence: "Intelligence", settings: "Paramètres",
     },
     intel: {
       title: "Intelligence et analyse de risque par numéro",

@@ -7,7 +7,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight, ShieldCheck, Search, Brain, Heart } from "lucide-react";
+import { FileWarning, LayoutDashboard, Smartphone, Home, Menu, X, ArrowRight, ShieldCheck, Search, Brain, Heart, BookOpen } from "lucide-react";
 
 export function SiteHeader() {
   const { t } = useTranslation();
@@ -20,6 +20,7 @@ export function SiteHeader() {
     { to: "/reports", label: t("nav.reports"), icon: FileWarning },
     { to: "/dashboard", label: t("nav.dashboard"), icon: LayoutDashboard },
     { to: "/momo-guard", label: t("nav.momoGuard"), icon: Smartphone, badge: "NEW" },
+    { to: "/intelligence", label: t("nav.intelligence", "Intelligence"), icon: BookOpen },
     { to: "/support", label: t("nav.support"), icon: Heart },
     ...(isAdmin ? [{ to: "/admin", label: t("nav.admin"), icon: ShieldCheck }] : []),
   ];

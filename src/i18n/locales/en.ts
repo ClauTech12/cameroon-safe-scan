@@ -14,6 +14,7 @@ export default {
     reports: "Reports",
     dashboard: "Dashboard",
     momoGuard: "MoMo Guard",
+    intelligence: "Intelligence",
     admin: "Admin",
     about: "About",
     contact: "Contact",
@@ -383,7 +384,7 @@ export default {
     nav: {
       fraud: "Fraud Intelligence", numbers: "Number Intelligence", flagged: "Flagged Numbers",
       dashboard: "Dashboard", reports: "Reports", patterns: "Fraud Patterns",
-      heatmap: "Heatmap", alerts: "Alerts", accuracy: "Model Accuracy", settings: "Settings",
+      heatmap: "Heatmap", alerts: "Alerts", accuracy: "Model Accuracy", intelligence: "Intelligence", settings: "Settings",
     },
     intel: {
       title: "Number Intelligence & Risk Analysis",
