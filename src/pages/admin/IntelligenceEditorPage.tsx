@@ -160,6 +160,7 @@ export default function IntelligenceEditorPage() {
       excerpt || "Short summary goes here.",
       "",
       "Read the full guide + report or check a scam at camalert.org",
+      "Follow CamAlert — @camalert on Facebook, @camalert.org on Instagram 🛡️",
       "#CamAlert #ScamAlert #Cameroon",
     ];
     return lines.join("\n");
